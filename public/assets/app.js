@@ -124,6 +124,37 @@
     crown: [{ title:"Log a real commission", time:"⏱ 5 min", why:"Crown is earned, not given.", source:"<b>SOURCE:</b> Your Warrior Plus or Systeme.io dashboard.", steps:["Open Warrior Plus → Reports","Screenshot earnings","Paste total below"], type:"posting", ready:"[Paste total earned. Each $100 = 1 win.]", safetyNote:"✓ Your real data." }]
   };
 
+  const COMMENT_PROMPT = `You are my Facebook comment-writing coach.
+
+I want to leave a comment that adds real value — not the empty "Great post!" kind. People should read my comment and want to know who I am.
+
+I will paste a Facebook post at the bottom. Please do these 7 steps in order:
+
+1. SUMMARY — Sum up the post in 2 plain sentences so I know what it's really saying.
+
+2. POSTER PSYCHOLOGY — What does the poster want to feel after they post this? (Examples: validation, debate, "I am smart," empathy, "I am brave.") Keep it short — 1-2 sentences.
+
+3. SHOULD I COMMENT? — Tell me yes or no and why, in 2 sentences. Say NO if the post is a fake-feel-good post, a sales pitch, or already has 200+ comments where mine would get buried. Say YES if the post is real and I can add something the other comments are missing.
+
+4. QUICK RESEARCH — Give me 1 or 2 real facts, numbers, or named experts on this topic I can reference. Keep it true. If you do not know, say "I do not know — better not to claim."
+
+5. DRAFT — Write a 2-4 line draft comment in plain 5th-grade English. No jargon. No emojis unless the post had them. No starting with "Great post" or "Love this." Sound like a real person who actually thought about this.
+
+6. SELF-CRITIQUE — What is wrong with my draft? Does it sound preachy? Salesy? Off-topic? Too long? Pick the 1-2 biggest issues.
+
+7. FINAL COMMENT — Fix the issues from step 6. Give me the EXACT comment I should post. Just the comment text, nothing else.
+
+Hard rules for the final comment:
+- 2-4 short lines maximum
+- Adds a thought, a fact, or asks a useful question
+- Sounds human, not marketing
+- Never starts with "Great post" or "Love this"
+- Never plugs my own work or links
+- Never argues or insults
+
+Here is the Facebook post:
+[PASTE THE POST HERE]`;
+
   // ============================================================
   // STATE
   // ============================================================
@@ -404,6 +435,15 @@
     }
     $('#sparkLine').value = ''; $('#sparkSaved').classList.remove('show');
     $('#tInput').value = ''; $('#tPolished').classList.remove('show');
+    // Show Comment Helper only on tasks that involve commenting
+    const stepsText = (t.steps || []).join(' ').toLowerCase();
+    const showHelper = stepsText.includes('comment');
+    const helper = $('#commentHelper');
+    if (helper) {
+      helper.style.display = showHelper ? 'block' : 'none';
+      if (showHelper) $('#commentPrompt').textContent = COMMENT_PROMPT;
+      $('#promptCopied').classList.remove('show');
+    }
     _switchScreen('task');
   };
 
@@ -457,6 +497,13 @@
     try { document.execCommand('copy'); } catch(_) {}
     document.body.removeChild(ta);
   }
+
+
+  window.copyCommentPrompt = function() {
+    copyString(COMMENT_PROMPT);
+    $('#promptCopied').classList.add('show');
+    setTimeout(() => $('#promptCopied').classList.remove('show'), 3000);
+  };
 
   // ============================================================
   // SPARKS

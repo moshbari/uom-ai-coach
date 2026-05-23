@@ -134,6 +134,22 @@
         <div id="tPolished" class="polished"></div>
       </div>
 
+      <div class="comment-helper" id="commentHelper" style="display:none;">
+        <div class="h">Comment Helper &middot; AI-assisted</div>
+        <div class="why">Use this prompt with Claude or ChatGPT to write thoughtful comments that get noticed, not the boring "Great post!" kind.</div>
+        <div class="steps-mini">
+          <ol>
+            <li>Copy the FB post you want to comment on.</li>
+            <li>Tap "Copy prompt" below &rarr; paste it into Claude or ChatGPT.</li>
+            <li>Paste the FB post at the bottom where it says [PASTE THE POST HERE].</li>
+            <li>AI gives you a thoughtful comment, ready to post.</li>
+          </ol>
+        </div>
+        <pre class="prompt-box" id="commentPrompt"></pre>
+        <button type="button" class="big-copy" onclick="copyCommentPrompt()">Copy prompt</button>
+        <div class="saved" id="promptCopied">&#x2713; Copied. Now paste into Claude or ChatGPT.</div>
+      </div>
+
       <div class="spark-box">
         <div class="h">Daily Spark &middot; 7 min</div>
         <div class="why">A tiny niche-discovery moment. After 14 of these, the topic that shows up most = your niche pointing at you.</div>
