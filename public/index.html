@@ -26,14 +26,15 @@
   <div class="divider"></div>
 
   <div class="auth-tabs">
-    <button type="button" class="on" id="tabLogin" onclick="switchAuthTab('login')">Sign In</button>
-    <button type="button" id="tabSignup" onclick="switchAuthTab('signup')">Create Account</button>
+    <button type="button" class="on" id="tabMagic"    onclick="switchAuthTab('magic')">Magic link</button>
+    <button type="button"           id="tabLogin"    onclick="switchAuthTab('login')">Password</button>
+    <button type="button"           id="tabSignup"   onclick="switchAuthTab('signup')">Create</button>
   </div>
 
-  <input id="nameInput" type="text" placeholder="Your first name" autocomplete="given-name" style="display:none;" />
-  <input id="emailInput" type="email" placeholder="Email address" autocomplete="email" />
-  <input id="passwordInput" type="password" placeholder="Password (min 6 characters)" autocomplete="current-password" />
-  <button type="button" class="btn-primary" id="authBtn" onclick="doAuth()">Sign In</button>
+  <input id="nameInput"     type="text"     placeholder="Your first name"          autocomplete="given-name" style="display:none;" />
+  <input id="emailInput"    type="email"    placeholder="Email address"            autocomplete="email" />
+  <input id="passwordInput" type="password" placeholder="Password (6+ characters)" autocomplete="current-password" style="display:none;" />
+  <button type="button" class="btn-primary" id="authBtn" onclick="doAuth()">Send magic link</button>
   <div id="err" class="err"></div>
   <div class="small">Members only &middot; contact your UOM admin for access</div>
 </div>
@@ -46,6 +47,7 @@
       <div class="chip chip-streak">&#x1F525; <span id="streak">0</span></div>
       <div class="chip chip-day" id="dayChip">Day 1/14</div>
       <div class="chip" id="tierChip">Bronze</div>
+      <button type="button" class="chip-gear" onclick="nav('settings')" title="Settings" id="gearBtn">&#x2699;</button>
     </div>
   </div>
 
@@ -193,10 +195,40 @@
     <div class="lib-item"><div class="nm">Warrior Plus setup</div><div class="ds">How to set up your affiliate account. Needed before Crown tier.</div></div>
   </div>
 
-  <div class="footer">
-    UOM AI Coach &middot; v2.0<br/>
-    <a onclick="signOut()">Sign out</a>
+  <div id="s-settings" class="screen">
+    <div class="intro">
+      <div class="title">Account settings</div>
+      <div class="sub">Change your name. Set or update your password. Sign out from this device.</div>
+    </div>
+
+    <div class="qbox">
+      <div class="qlabel">Your email</div>
+      <div style="font-size:14px;color:var(--ivory-soft);margin-top:4px;" id="sEmail">&mdash;</div>
+    </div>
+
+    <div class="qbox">
+      <div class="qlabel">Display name</div>
+      <input id="sDisplayName" type="text" placeholder="Your first name" style="width:100%;padding:12px 14px;background:var(--bg-base);border:1px solid var(--border);border-radius:10px;color:var(--ivory);font-size:14px;outline:none;margin-top:6px;" />
+      <button type="button" class="save-btn" style="margin-top:10px;" onclick="saveDisplayName()">Save name</button>
+      <div class="saved" id="nameSaved">&#x2713; Saved.</div>
+    </div>
+
+    <div class="qbox">
+      <div class="qlabel">Set or change password</div>
+      <div class="qhelp">Use this if you want to log in with a password instead of (or in addition to) a magic link.</div>
+      <input id="sNewPassword" type="password" placeholder="New password (6+ characters)" style="width:100%;padding:12px 14px;background:var(--bg-base);border:1px solid var(--border);border-radius:10px;color:var(--ivory);font-size:14px;outline:none;margin-top:6px;" />
+      <button type="button" class="save-btn" style="margin-top:10px;" onclick="saveNewPassword()">Update password</button>
+      <div class="saved" id="passSaved">&#x2713; Password updated.</div>
+    </div>
+
+    <div class="qbox">
+      <div class="qlabel">Sign out</div>
+      <div class="qhelp">You will need to sign in again next time.</div>
+      <button type="button" style="width:100%;margin-top:10px;background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:10px;padding:12px;font-size:13px;font-weight:600;cursor:pointer;letter-spacing:0.3px;" onclick="signOut()">Sign out</button>
+    </div>
   </div>
+
+  <div class="footer">UOM AI Coach &middot; v2.1</div>
 
   <div class="nav">
     <button type="button" data-nav="checkin" class="on" onclick="nav('checkin')"><div class="ic">&#x1F4C5;</div>Today</button>

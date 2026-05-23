@@ -366,3 +366,19 @@ textarea::placeholder { color: var(--muted-soft); }
 }
 .footer { text-align: center; padding: 16px; color: var(--muted-soft); font-size: 10px; letter-spacing: 0.5px; }
 .footer a { color: var(--gold); cursor: pointer; }
+
+/* === Gear button in header === */
+.chip-gear {
+  background: var(--bg-surface); border: 1px solid var(--border);
+  border-radius: 14px; color: var(--gold);
+  width: 28px; height: 28px; font-size: 14px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: all 0.2s;
+}
+.chip-gear:hover { border-color: var(--gold-deep); }
+
+/* === Auth tabs: 3-button width === */
+.auth-tabs { max-width: 340px; }
+
+/* === Settings screen input rows === */
+#s-settings .qbox input { font-family: inherit; }

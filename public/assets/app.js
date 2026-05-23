@@ -1,4 +1,4 @@
-// UOM AI Coach — frontend logic with Supabase backend
+// UOM AI Coach — frontend logic with Supabase backend (v2.1: magic link + settings)
 (function(){
   'use strict';
 
@@ -8,7 +8,9 @@
       '<div style="text-align:center;color:#C56B5C;padding:20px;">Configuration missing. Contact admin.</div>';
     return;
   }
-  const sb = window.supabase.createClient(C.supabaseUrl, C.supabaseAnonKey);
+  const sb = window.supabase.createClient(C.supabaseUrl, C.supabaseAnonKey, {
+    auth: { persistSession: true, detectSessionInUrl: true, autoRefreshToken: true }
+  });
   const $ = (s) => document.querySelector(s);
   const $$ = (s) => document.querySelectorAll(s);
 
@@ -126,31 +128,28 @@
   // STATE
   // ============================================================
   let state = {
-    user: null,
-    profile: null,
+    user: null, profile: null,
     checkin: { time:'', energy:'', mood:'' },
-    todayDone: false,
-    sparks: []
+    todayDone: false, sparks: []
   };
-
-  function todayStr() {
-    const d = new Date(); return d.toISOString().slice(0,10);
-  }
-  function yesterdayStr() {
-    const d = new Date(); d.setDate(d.getDate()-1); return d.toISOString().slice(0,10);
-  }
+  const todayStr = () => new Date().toISOString().slice(0,10);
+  const yesterdayStr = () => { const d = new Date(); d.setDate(d.getDate()-1); return d.toISOString().slice(0,10); };
 
   // ============================================================
-  // AUTH
+  // AUTH — magic link + password + signup
   // ============================================================
-  let authMode = 'login';
+  let authMode = 'magic'; // 'magic' | 'login' | 'signup'
+
   window.switchAuthTab = function(mode) {
     authMode = mode;
+    $('#tabMagic').classList.toggle('on', mode==='magic');
     $('#tabLogin').classList.toggle('on', mode==='login');
     $('#tabSignup').classList.toggle('on', mode==='signup');
-    $('#nameInput').style.display = mode==='signup' ? 'block' : 'none';
-    $('#authBtn').textContent = mode==='signup' ? 'Create Account' : 'Sign In';
-    $('#err').textContent = '';
+    $('#nameInput').style.display     = mode==='signup' ? 'block' : 'none';
+    $('#passwordInput').style.display = (mode==='login' || mode==='signup') ? 'block' : 'none';
+    const labels = { magic:'Send magic link', login:'Sign In', signup:'Create Account' };
+    $('#authBtn').textContent = labels[mode];
+    const err = $('#err'); err.textContent = ''; err.style.color = 'var(--error)';
   };
 
   window.doAuth = async function() {
@@ -158,35 +157,46 @@
     const password = $('#passwordInput').value;
     const name = $('#nameInput').value.trim();
     const err = $('#err');
-    err.textContent = '';
-    if (!email || !password) { err.textContent = 'Email and password required.'; return; }
-    if (password.length < 6) { err.textContent = 'Password must be 6+ characters.'; return; }
+    err.textContent = ''; err.style.color = 'var(--error)';
+    if (!email) { err.textContent = 'Email required.'; return; }
 
     $('#authBtn').disabled = true;
+    const orig = $('#authBtn').textContent;
     $('#authBtn').textContent = '...';
     try {
-      if (authMode === 'signup') {
+      if (authMode === 'magic') {
+        const { error } = await sb.auth.signInWithOtp({
+          email,
+          options: { emailRedirectTo: window.location.origin }
+        });
+        if (error) throw error;
+        err.style.color = 'var(--sage)';
+        err.textContent = 'Magic link sent. Check your email — click the link to sign in.';
+      } else if (authMode === 'signup') {
         if (!name) { err.textContent = 'First name required.'; return; }
+        if (!password || password.length < 6) { err.textContent = 'Password must be 6+ characters.'; return; }
         const { error } = await sb.auth.signUp({
           email, password,
-          options: { data: { display_name: name } }
+          options: {
+            data: { display_name: name },
+            emailRedirectTo: window.location.origin
+          }
         });
         if (error) throw error;
         err.style.color = 'var(--sage)';
         err.textContent = 'Account made. Check your email to confirm, then sign in.';
-        authMode = 'login';
         switchAuthTab('login');
-      } else {
+      } else { // login
+        if (!password) { err.textContent = 'Password required.'; return; }
         const { error } = await sb.auth.signInWithPassword({ email, password });
         if (error) throw error;
         await onSignedIn();
       }
     } catch (e) {
-      err.style.color = 'var(--error)';
       err.textContent = e.message || 'Sign-in failed.';
     } finally {
       $('#authBtn').disabled = false;
-      $('#authBtn').textContent = authMode==='signup' ? 'Create Account' : 'Sign In';
+      $('#authBtn').textContent = orig;
     }
   };
 
@@ -194,6 +204,15 @@
     await sb.auth.signOut();
     location.reload();
   };
+
+  // Handle magic link redirect — Supabase SDK auto-detects token in URL
+  sb.auth.onAuthStateChange(async (event, session) => {
+    if (event === 'SIGNED_IN' && session && !state.user) {
+      // remove the hash params from URL
+      if (window.location.hash) history.replaceState(null, '', window.location.pathname);
+      await onSignedIn();
+    }
+  });
 
   async function onSignedIn() {
     const { data: { user } } = await sb.auth.getUser();
@@ -209,43 +228,31 @@
     const { data, error } = await sb.from('uom_profiles').select('*').eq('id', state.user.id).maybeSingle();
     if (error) console.error(error);
     if (!data) {
-      // Profile row missing (trigger may have failed). Create it.
       const { data: created } = await sb.from('uom_profiles').insert({
         id: state.user.id,
         email: state.user.email,
         display_name: (state.user.user_metadata && state.user.user_metadata.display_name) || state.user.email.split('@')[0]
       }).select().single();
       state.profile = created;
-    } else {
-      state.profile = data;
-    }
+    } else state.profile = data;
   }
 
   async function loadTodayState() {
     const today = todayStr();
     const { data } = await sb.from('uom_completions')
-      .select('id, completed_at')
-      .eq('user_id', state.user.id)
-      .gte('completed_at', today + 'T00:00:00')
-      .limit(1);
+      .select('id, completed_at').eq('user_id', state.user.id)
+      .gte('completed_at', today + 'T00:00:00').limit(1);
     state.todayDone = !!(data && data.length);
-
-    // Load today's check-in if exists
     const { data: ci } = await sb.from('uom_checkins')
-      .select('time_avail, energy, mood')
-      .eq('user_id', state.user.id)
-      .eq('date', today)
-      .maybeSingle();
-    if (ci) state.checkin = { time: ci.time_avail || '', energy: ci.energy || '', mood: ci.mood || '' };
-    else state.checkin = { time:'', energy:'', mood:'' };
+      .select('time_avail, energy, mood').eq('user_id', state.user.id).eq('date', today).maybeSingle();
+    state.checkin = ci ? { time: ci.time_avail || '', energy: ci.energy || '', mood: ci.mood || '' }
+                       : { time:'', energy:'', mood:'' };
   }
 
   async function loadSparks() {
     const { data } = await sb.from('uom_sparks')
-      .select('id, day, line, created_at')
-      .eq('user_id', state.user.id)
-      .order('created_at', { ascending: false })
-      .limit(60);
+      .select('id, day, line, created_at').eq('user_id', state.user.id)
+      .order('created_at', { ascending: false }).limit(60);
     state.sparks = data || [];
   }
 
@@ -256,6 +263,7 @@
     $('#loading').style.display = 'none';
     $('#app').style.display = 'none';
     $('#login').style.display = 'flex';
+    switchAuthTab('magic');
   }
   function enterApp() {
     $('#loading').style.display = 'none';
@@ -266,8 +274,6 @@
     renderSparks();
     if (state.todayDone) showDone();
     else nav('checkin');
-
-    // restore check-in selections if returning same day
     if (state.checkin.time) preselectCheckin();
   }
 
@@ -292,9 +298,7 @@
     if (tier.id === 'bronze') {
       dayChip.textContent = `Day ${state.profile.bronze_day}/14`;
       dayChip.style.display = 'flex';
-    } else {
-      dayChip.style.display = 'none';
-    }
+    } else dayChip.style.display = 'none';
     renderTiers();
   }
 
@@ -311,14 +315,10 @@
     b.classList.add('on');
     const ok = state.checkin.time && state.checkin.energy && state.checkin.mood;
     $('#goBtn').disabled = !ok;
-    if (ok) {
-      // Save checkin
+    if (ok && state.user) {
       await sb.from('uom_checkins').upsert({
-        user_id: state.user.id,
-        date: todayStr(),
-        time_avail: state.checkin.time,
-        energy: state.checkin.energy,
-        mood: state.checkin.mood
+        user_id: state.user.id, date: todayStr(),
+        time_avail: state.checkin.time, energy: state.checkin.energy, mood: state.checkin.mood
       }, { onConflict: 'user_id,date' });
     }
   });
@@ -330,15 +330,12 @@
   function currentTask() {
     const t = currentTier();
     const pool = TASKS[t.id] || [];
-    if (t.id === 'bronze') {
-      const idx = Math.max(0, Math.min(state.profile.bronze_day - 1, pool.length - 1));
-      return pool[idx];
-    }
+    if (t.id === 'bronze') return pool[Math.max(0, Math.min(state.profile.bronze_day - 1, pool.length - 1))];
     return pool[0];
   }
 
   function _switchScreen(name) {
-    ['checkin','task','done','sparks','tiers','lib'].forEach(n => {
+    ['checkin','task','done','sparks','tiers','lib','settings'].forEach(n => {
       const el = document.getElementById('s-' + n);
       if (el) el.classList.toggle('active', n === name);
     });
@@ -350,41 +347,28 @@
     const t = currentTask();
     const tier = currentTier();
     const pill = $('#dayPill');
-    if (tier.id === 'bronze' && t.day) {
-      pill.textContent = `DAY ${t.day} OF 14 — BRONZE`;
-    } else {
-      pill.textContent = tier.name.toUpperCase();
-    }
+    pill.textContent = (tier.id === 'bronze' && t.day) ? `DAY ${t.day} OF 14 — BRONZE` : tier.name.toUpperCase();
     const bb = $('#badgeBanner');
-    if (t.badge) { bb.textContent = t.badge; bb.classList.add('show'); }
-    else bb.classList.remove('show');
-
+    if (t.badge) { bb.textContent = t.badge; bb.classList.add('show'); } else bb.classList.remove('show');
     $('#tTitle').textContent = t.title;
     $('#tTime').textContent = t.time || '';
     $('#tWhy').textContent = t.why;
     $('#tSource').innerHTML = t.source;
-
-    const ol = $('#tSteps');
-    ol.innerHTML = '';
+    const ol = $('#tSteps'); ol.innerHTML = '';
     t.steps.forEach(s => { const li = document.createElement('li'); li.textContent = s; ol.appendChild(li); });
-
     const pathTabs = $('#pathTabs');
     if (t.type === 'posting') {
       pathTabs.classList.add('show');
-      $('#path-a').style.display = 'block';
-      $('#path-b').style.display = 'none';
+      $('#path-a').style.display = 'block'; $('#path-b').style.display = 'none';
       $('#readyPost').textContent = t.ready || '';
       $('#safeBadge').textContent = t.safetyNote || 'Safe to post — no personal claim.';
       switchPath('a');
     } else {
       pathTabs.classList.remove('show');
-      $('#path-a').style.display = 'none';
-      $('#path-b').style.display = 'none';
+      $('#path-a').style.display = 'none'; $('#path-b').style.display = 'none';
     }
-    $('#sparkLine').value = '';
-    $('#sparkSaved').classList.remove('show');
-    $('#tInput').value = '';
-    $('#tPolished').classList.remove('show');
+    $('#sparkLine').value = ''; $('#sparkSaved').classList.remove('show');
+    $('#tInput').value = ''; $('#tPolished').classList.remove('show');
     _switchScreen('task');
   };
 
@@ -414,18 +398,14 @@
     $('#polishBtn').textContent = 'Polishing...';
     try {
       const r = await fetch(C.polishUrl || '/api/polish', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text })
       });
       const data = await r.json();
-      if (!r.ok) { out.textContent = 'AI: ' + (data.error || 'unknown'); }
-      else { out.textContent = data.polished || ''; }
+      out.textContent = r.ok ? (data.polished || '') : ('AI: ' + (data.error || 'unknown'));
       out.classList.add('show');
-    } catch (e) {
-      out.textContent = 'Network error. Try again.';
-      out.classList.add('show');
-    } finally {
+    } catch (_) { out.textContent = 'Network error. Try again.'; out.classList.add('show'); }
+    finally {
       $('#polishBtn').disabled = false;
       $('#polishBtn').textContent = 'Polish for me';
     }
@@ -448,10 +428,9 @@
   // ============================================================
   window.saveSpark = async function() {
     const line = $('#sparkLine').value.trim();
-    if (!line) { alert('Write ONE line first — what you learned today.'); return; }
+    if (!line) { alert('Write ONE line first.'); return; }
     const t = currentTask();
-    const tier = currentTier();
-    const day = tier.id === 'bronze' && t.day ? t.day : null;
+    const day = currentTier().id === 'bronze' && t.day ? t.day : null;
     const { data, error } = await sb.from('uom_sparks').insert({
       user_id: state.user.id, day, line
     }).select().single();
@@ -493,48 +472,32 @@
       await sb.from('uom_completions').insert({
         user_id: state.user.id, tier: tier.id, day: t.day || null
       });
-
       let newProfile = { ...state.profile };
       let leveledUp = false;
       if (tier.id === 'bronze') {
-        if (newProfile.bronze_day >= 14) {
-          newProfile.current_tier = 'silver';
-          leveledUp = true;
-        } else {
-          newProfile.bronze_day = (newProfile.bronze_day || 1) + 1;
-        }
+        if (newProfile.bronze_day >= 14) { newProfile.current_tier = 'silver'; leveledUp = true; }
+        else newProfile.bronze_day = (newProfile.bronze_day || 1) + 1;
       }
       if (newProfile.last_win_date === yesterdayStr() || !newProfile.last_win_date) {
         newProfile.streak = (newProfile.streak || 0) + 1;
-      } else if (newProfile.last_win_date !== today) {
-        newProfile.streak = 1;
-      }
+      } else if (newProfile.last_win_date !== today) newProfile.streak = 1;
       newProfile.last_win_date = today;
-
       await sb.from('uom_profiles').update({
-        current_tier: newProfile.current_tier,
-        bronze_day: newProfile.bronze_day,
-        streak: newProfile.streak,
-        last_win_date: newProfile.last_win_date
+        current_tier: newProfile.current_tier, bronze_day: newProfile.bronze_day,
+        streak: newProfile.streak, last_win_date: newProfile.last_win_date
       }).eq('id', state.user.id);
-
       if (t.badge && t.badge_key) {
         await sb.from('uom_badges').upsert({
-          user_id: state.user.id,
-          badge_key: t.badge_key,
-          badge_label: t.badge
+          user_id: state.user.id, badge_key: t.badge_key, badge_label: t.badge
         }, { onConflict: 'user_id,badge_key' });
       }
-
       state.profile = newProfile;
       state.todayDone = true;
       refreshUI();
       fireConfetti();
-      if (leveledUp) showTierUp();
-      else showDone();
-    } catch (e) {
-      alert('Could not save: ' + e.message);
-    } finally {
+      if (leveledUp) showTierUp(); else showDone();
+    } catch (e) { alert('Could not save: ' + e.message); }
+    finally {
       $('#winBtn').disabled = false;
       $('#winBtn').textContent = 'Another win for a creator';
     }
@@ -544,12 +507,9 @@
     _switchScreen('done');
     $('#dEmoji').textContent = '✦';
     $('#dTitle').textContent = 'Another win for a creator';
-    const tier = currentTier();
-    if (tier.id === 'bronze') {
-      $('#dMsg').textContent = `You're on Day ${state.profile.bronze_day} of 14. Come back tomorrow.`;
-    } else {
-      $('#dMsg').textContent = 'Keep going. Tomorrow brings the next task.';
-    }
+    $('#dMsg').textContent = currentTier().id === 'bronze'
+      ? `You're on Day ${state.profile.bronze_day} of 14. Come back tomorrow.`
+      : 'Keep going. Tomorrow brings the next task.';
   }
   function showTierUp() {
     _switchScreen('done');
@@ -570,13 +530,9 @@
       let prog, goal, goalText;
       if (t.id === 'bronze') {
         prog = (i < currentIdx) ? 14 : (i === currentIdx ? Math.max(0, (state.profile.bronze_day||1) - 1) : 0);
-        goal = 14;
-        goalText = i < currentIdx ? 'Complete ✓' : `Day ${Math.min(state.profile.bronze_day||1, 14)} / 14`;
-      } else if (t.id === 'crown') {
-        prog = 0; goal = 1000; goalText = '$0 / $1,000';
-      } else {
-        prog = 0; goal = 10; goalText = '0 / 10 wins';
-      }
+        goal = 14; goalText = i < currentIdx ? 'Complete ✓' : `Day ${Math.min(state.profile.bronze_day||1, 14)} / 14`;
+      } else if (t.id === 'crown') { prog = 0; goal = 1000; goalText = '$0 / $1,000'; }
+      else { prog = 0; goal = 10; goalText = '0 / 10 wins'; }
       const pct = Math.min(100, (prog/goal)*100);
       const cls = 'tier-row' + (i <= currentIdx ? ' active' : ' locked');
       const lockIcon = i > currentIdx ? ' 🔒' : '';
@@ -594,7 +550,38 @@
     });
   }
 
+  // ============================================================
+  // SETTINGS
+  // ============================================================
+  function loadSettings() {
+    $('#sEmail').textContent = state.user.email || '—';
+    $('#sDisplayName').value = state.profile.display_name || '';
+    $('#sNewPassword').value = '';
+    $('#nameSaved').classList.remove('show');
+    $('#passSaved').classList.remove('show');
+  }
+  window.saveDisplayName = async function() {
+    const name = $('#sDisplayName').value.trim();
+    if (!name) { alert('Name cannot be empty.'); return; }
+    const { error } = await sb.from('uom_profiles').update({ display_name: name }).eq('id', state.user.id);
+    if (error) { alert('Could not save: ' + error.message); return; }
+    state.profile.display_name = name;
+    $('#greetName').textContent = name;
+    $('#nameSaved').classList.add('show');
+    setTimeout(() => $('#nameSaved').classList.remove('show'), 2500);
+  };
+  window.saveNewPassword = async function() {
+    const pwd = $('#sNewPassword').value;
+    if (!pwd || pwd.length < 6) { alert('Password must be 6+ characters.'); return; }
+    const { error } = await sb.auth.updateUser({ password: pwd });
+    if (error) { alert('Could not update: ' + error.message); return; }
+    $('#sNewPassword').value = '';
+    $('#passSaved').classList.add('show');
+    setTimeout(() => $('#passSaved').classList.remove('show'), 2500);
+  };
+
   window.nav = function(name) {
+    if (name === 'settings') { loadSettings(); _switchScreen('settings'); return; }
     if (name === 'task') {
       if (!(state.checkin.time && state.checkin.energy && state.checkin.mood)) {
         alert('Finish your 3-tap check-in first.');
@@ -630,9 +617,6 @@
       const { data: { session } } = await sb.auth.getSession();
       if (session) await onSignedIn();
       else showLogin();
-    } catch (e) {
-      console.error(e);
-      showLogin();
-    }
+    } catch (_) { showLogin(); }
   })();
 })();
