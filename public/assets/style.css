@@ -419,3 +419,32 @@ textarea::placeholder { color: var(--muted-soft); }
 .prompt-box::-webkit-scrollbar { width: 6px; }
 .prompt-box::-webkit-scrollbar-track { background: var(--bg-base); }
 .prompt-box::-webkit-scrollbar-thumb { background: var(--gold-deep); border-radius: 3px; }
+
+/* === Spark AI Reflection === */
+.reflection {
+  margin-top: 14px;
+  background: linear-gradient(135deg, rgba(201,169,97,0.06), rgba(11,15,20,0.4));
+  border: 1px solid var(--gold-deep);
+  border-radius: 12px;
+  padding: 14px 16px;
+  animation: reflect-in 0.5s ease;
+}
+@keyframes reflect-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.reflection-h {
+  font-size: 10px; color: var(--gold); font-weight: 700;
+  text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 8px;
+}
+.reflection-body {
+  font-size: 13.5px; line-height: 1.7; color: var(--ivory-soft);
+  white-space: pre-wrap; font-family: Georgia, "Cambria", serif;
+  font-style: italic;
+}
+.reflection-loading {
+  text-align: center; padding: 16px;
+  margin-top: 12px;
+  background: var(--bg-base); border: 1px solid var(--border-soft);
+  border-radius: 10px;
+}

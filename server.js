@@ -53,6 +53,7 @@ app.get('/config.js', (_, res) => {
     supabaseAnonKey: SUPABASE_ANON_KEY,
     adminEmail: ADMIN_EMAIL,
     polishUrl: '/api/polish',
+    sparkReflectUrl: '/api/spark-reflect',
     magicLinkUrl: '/api/auth/magic-link',
     signupUrl: '/api/auth/signup',
     resetUrl: '/api/auth/reset'
@@ -264,6 +265,68 @@ app.post('/api/auth/reset', async (req, res) => {
     console.error('reset error:', e.message);
     // Still respond OK to avoid email-enumeration disclosure
     res.json({ ok: true });
+  }
+});
+
+
+// ============================================================
+// SPARK REFLECTION — AI mirror for the Daily Spark
+// ============================================================
+const SPARK_PROMPT = `You are an encouraging coach for a member of the Ultimate Online Mastery (UOM) program who is building a daily creator habit.
+
+Each day, the member writes ONE line about what they learned and what they want to know more about. This is called a Daily Spark. After 14 sparks, the topic that shows up most becomes their content niche.
+
+The member just wrote this Spark:
+"[USER_SPARK]"
+
+This is spark #[SPARK_COUNT] in their log.
+
+Write a 4-line response. Each line is short and on its own (one blank line between each). Be SPECIFIC to what they wrote — do not be generic. Do not lecture.
+
+LINE 1: Reflect back what they noticed and tell them what it shows about them (their creator instinct). Be warm, not over-the-top.
+
+LINE 2: Connect it to a bigger pattern — what kind of niche or angle this could become if it keeps showing up.
+
+LINE 3: ONE specific micro-action they could take tomorrow (5-7 minutes max). Concrete and doable. Not "explore more."
+
+LINE 4: A short identity-affirming closer that mentions their spark count and makes them want to come back tomorrow.
+
+Hard rules:
+- 5th grade reading level
+- No emojis
+- Never start with "Great" or "Amazing" or "Wow"
+- Sound like a wise friend, not a corporate motivator
+- Specific to THEIR words — never generic
+- Maximum 70 words total across all 4 lines
+- Output ONLY the 4 lines. No preamble, no labels.`;
+
+app.post('/api/spark-reflect', async (req, res) => {
+  try {
+    const line = (req.body && req.body.line) || '';
+    const count = parseInt((req.body && req.body.count) || 1, 10);
+    if (typeof line !== 'string' || !line.trim()) return res.status(400).json({ error: 'Spark required' });
+    if (line.length > 1000) return res.status(400).json({ error: 'Too long' });
+    if (!OPENAI_API_KEY) return res.status(500).json({ error: 'AI not configured' });
+
+    const prompt = SPARK_PROMPT.replace('[USER_SPARK]', line.trim()).replace('[SPARK_COUNT]', count);
+    const r = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${OPENAI_API_KEY}` },
+      body: JSON.stringify({
+        model: 'gpt-4o-mini',
+        messages: [
+          { role: 'system', content: prompt },
+          { role: 'user', content: line.trim() }
+        ],
+        max_tokens: 200,
+        temperature: 0.8
+      })
+    });
+    const data = await r.json();
+    if (!r.ok) return res.status(502).json({ error: (data.error && data.error.message) || 'AI busy' });
+    res.json({ reflection: (data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content || '').trim() });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
   }
 });
 

@@ -152,7 +152,7 @@
 
       <div class="spark-box">
         <div class="h">Daily Spark &middot; 7 min</div>
-        <div class="why">A tiny niche-discovery moment. After 14 of these, the topic that shows up most = your niche pointing at you.</div>
+        <div class="why">Every spark is a breadcrumb to your niche. After 14 sparks the pattern shows up. After 30 you have 30 post ideas in the bank. After 90 the question "what do I write about?" is gone forever. Most people scroll all day and remember nothing &mdash; you collect.</div>
         <div class="steps-mini">
           <ol>
             <li>Open YouTube. Search ONE small question you wonder about today.</li>
@@ -163,6 +163,14 @@
         <textarea id="sparkLine" placeholder="Today I learned ___ and I want to know more about ___"></textarea>
         <button type="button" class="save-btn" onclick="saveSpark()">Save my spark</button>
         <div class="saved" id="sparkSaved">&#x2713; Spark saved to your log.</div>
+        <div class="reflection" id="sparkReflection" style="display:none;">
+          <div class="reflection-h">Your spark, read back to you</div>
+          <div class="reflection-body" id="reflectionBody"></div>
+        </div>
+        <div class="reflection-loading" id="reflectionLoading" style="display:none;">
+          <div class="spinner"></div>
+          <div style="margin-top:8px;font-size:12px;color:var(--muted);letter-spacing:0.3px;">Reading your spark...</div>
+        </div>
       </div>
 
       <button type="button" class="b-win" onclick="completeTask()" id="winBtn">Another win for a creator</button>

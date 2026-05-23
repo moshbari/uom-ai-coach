@@ -434,6 +434,8 @@ Here is the Facebook post:
       $('#path-a').style.display = 'none'; $('#path-b').style.display = 'none';
     }
     $('#sparkLine').value = ''; $('#sparkSaved').classList.remove('show');
+    const _refl = $('#sparkReflection'); if (_refl) _refl.style.display = 'none';
+    const _refLoad = $('#reflectionLoading'); if (_refLoad) _refLoad.style.display = 'none';
     $('#tInput').value = ''; $('#tPolished').classList.remove('show');
     // Show Comment Helper only on tasks that involve commenting
     const stepsText = (t.steps || []).join(' ').toLowerCase();
@@ -520,6 +522,27 @@ Here is the Facebook post:
     state.sparks.unshift(data);
     $('#sparkSaved').classList.add('show');
     renderSparks();
+
+    // Get AI reflection (instant gratification)
+    const reflEl = $('#sparkReflection');
+    const reflBody = $('#reflectionBody');
+    const reflLoading = $('#reflectionLoading');
+    if (reflEl && reflBody) {
+      reflEl.style.display = 'none';
+      reflLoading.style.display = 'block';
+      try {
+        const r = await fetch(C.sparkReflectUrl || '/api/spark-reflect', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ line, count: state.sparks.length })
+        });
+        const out = await r.json();
+        if (r.ok && out.reflection) {
+          reflBody.textContent = out.reflection;
+          reflEl.style.display = 'block';
+        }
+      } catch (_) {}
+      reflLoading.style.display = 'none';
+    }
   };
 
   function renderSparks() {
