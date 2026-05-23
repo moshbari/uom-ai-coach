@@ -180,7 +180,7 @@ Here is the Facebook post:
     $('#passwordInput').style.display = (mode==='login' || mode==='signup') ? 'block' : 'none';
     const labels = { magic:'Send magic link', login:'Sign In', signup:'Create Account' };
     $('#authBtn').textContent = labels[mode];
-    const fr = $('#forgotRow'); if (fr) fr.style.display = mode === 'login' ? 'block' : 'none';
+    const fr = $('#forgotRow'); if (fr) fr.style.display = 'block';
     const err = $('#err'); err.textContent = ''; err.style.color = 'var(--error)';
   };
 
@@ -257,13 +257,49 @@ Here is the Facebook post:
   };
 
   // Handle magic link redirect — Supabase SDK auto-detects token in URL
+  let inRecoveryFlow = false;
   sb.auth.onAuthStateChange(async (event, session) => {
-    if (event === 'SIGNED_IN' && session && !state.user) {
-      // remove the hash params from URL
+    if (event === 'PASSWORD_RECOVERY') {
+      // User clicked a recovery email link — show set-new-password screen, not normal app
+      inRecoveryFlow = true;
+      if (window.location.hash) history.replaceState(null, '', window.location.pathname);
+      $('#loading').style.display = 'none';
+      $('#login').style.display = 'none';
+      $('#app').style.display = 'block';
+      // Make sure user can't navigate away accidentally — hide nav until password is set
+      const nav = document.querySelector('.nav'); if (nav) nav.style.display = 'none';
+      const header = document.querySelector('.header'); if (header) header.style.display = 'none';
+      _switchScreen('recovery');
+      return;
+    }
+    if (event === 'SIGNED_IN' && session && !state.user && !inRecoveryFlow) {
       if (window.location.hash) history.replaceState(null, '', window.location.pathname);
       await onSignedIn();
     }
   });
+
+  window.completeRecovery = async function() {
+    const pwd = $('#recNewPassword').value;
+    const pwd2 = $('#recNewPasswordConfirm').value;
+    const err = $('#recoveryErr');
+    err.textContent = ''; err.style.color = 'var(--error)';
+    if (!pwd || pwd.length < 6) { err.textContent = 'Password must be at least 6 characters.'; return; }
+    if (pwd !== pwd2) { err.textContent = 'The two passwords do not match.'; return; }
+    const btn = $('#recoverySaveBtn');
+    btn.disabled = true; btn.textContent = 'Saving...';
+    try {
+      const { error } = await sb.auth.updateUser({ password: pwd });
+      if (error) throw error;
+      // Password set — now load the app normally
+      inRecoveryFlow = false;
+      const nav = document.querySelector('.nav'); if (nav) nav.style.display = '';
+      const header = document.querySelector('.header'); if (header) header.style.display = '';
+      await onSignedIn();
+    } catch (e) {
+      err.textContent = e.message || 'Could not save password.';
+      btn.disabled = false; btn.textContent = 'Set new password and sign in';
+    }
+  };
 
   async function onSignedIn() {
     try {
@@ -401,7 +437,7 @@ Here is the Facebook post:
   }
 
   function _switchScreen(name) {
-    ['checkin','task','done','sparks','tiers','lib','settings','explorer'].forEach(n => {
+    ['checkin','task','done','sparks','tiers','lib','settings','explorer','recovery'].forEach(n => {
       const el = document.getElementById('s-' + n);
       if (el) el.classList.toggle('active', n === name);
     });
@@ -782,8 +818,10 @@ Here is the Facebook post:
     $('#sEmail').textContent = state.user.email || '—';
     $('#sDisplayName').value = state.profile.display_name || '';
     $('#sNewPassword').value = '';
+    const sc = $('#sNewPasswordConfirm'); if (sc) sc.value = '';
     $('#nameSaved').classList.remove('show');
     $('#passSaved').classList.remove('show');
+    updatePasswordSectionCopy();
   }
   window.saveDisplayName = async function() {
     const name = $('#sDisplayName').value.trim();
@@ -797,13 +835,44 @@ Here is the Facebook post:
   };
   window.saveNewPassword = async function() {
     const pwd = $('#sNewPassword').value;
-    if (!pwd || pwd.length < 6) { alert('Password must be 6+ characters.'); return; }
+    const pwd2 = $('#sNewPasswordConfirm').value;
+    if (!pwd || pwd.length < 6) { alert('Password must be at least 6 characters.'); return; }
+    if (pwd !== pwd2) { alert('The two passwords do not match. Please retype.'); return; }
+    const btn = $('#passwordSaveBtn');
+    if (btn) { btn.disabled = true; btn.textContent = 'Saving...'; }
     const { error } = await sb.auth.updateUser({ password: pwd });
-    if (error) { alert('Could not update: ' + error.message); return; }
+    if (btn) { btn.disabled = false; btn.textContent = 'Save password'; }
+    if (error) { alert('Could not save password: ' + error.message); return; }
     $('#sNewPassword').value = '';
+    $('#sNewPasswordConfirm').value = '';
     $('#passSaved').classList.add('show');
-    setTimeout(() => $('#passSaved').classList.remove('show'), 2500);
+    // Mark profile that they have a password now so we can update copy next time
+    state.profile.has_password = true;
+    updatePasswordSectionCopy();
+    setTimeout(() => $('#passSaved').classList.remove('show'), 3000);
   };
+
+  // Update Settings copy to reflect whether user has set a password yet
+  function updatePasswordSectionCopy() {
+    const title = $('#passwordSectionTitle');
+    const help = $('#passwordSectionHelp');
+    const btn = $('#passwordSaveBtn');
+    if (!title) return;
+    // Heuristic: if any 'email' provider on user identities has been used to sign in with password,
+    // assume they have a password. Otherwise show create-mode.
+    const u = state.user || {};
+    const hasPw = (state.profile && state.profile.has_password) ||
+                  (u.identities && u.identities.some(i => i.provider === 'email' && i.identity_data && i.identity_data.email));
+    if (hasPw) {
+      title.textContent = 'Change your password';
+      help.textContent  = 'Type your new password twice. You will still be able to sign in with magic link as well.';
+      if (btn) btn.textContent = 'Save new password';
+    } else {
+      title.textContent = 'Create a password';
+      help.textContent  = 'Set a password so you can sign in without waiting for a magic link email. Magic link will still work too.';
+      if (btn) btn.textContent = 'Save password';
+    }
+  }
 
   window.nav = function(name) {
     if (name === 'settings') { loadSettings(); _switchScreen('settings'); return; }

@@ -35,7 +35,7 @@
   <input id="emailInput"    type="email"    placeholder="Email address"            autocomplete="email" />
   <input id="passwordInput" type="password" placeholder="Password (6+ characters)" autocomplete="current-password" style="display:none;" />
   <button type="button" class="btn-primary" id="authBtn" onclick="doAuth()">Send magic link</button>
-  <div id="forgotRow" style="display:none;margin-top:10px;"><a onclick="forgotPassword()" style="font-size:12px;color:var(--muted);cursor:pointer;letter-spacing:0.3px;">Forgot password?</a></div>
+  <div id="forgotRow" style="margin-top:14px;"><a onclick="forgotPassword()" style="font-size:13px;color:var(--gold);cursor:pointer;letter-spacing:0.3px;font-weight:600;border-bottom:1px solid var(--gold-deep);padding-bottom:1px;">Forgot or never set a password? Reset it &rarr;</a></div>
   <div id="err" class="err"></div>
   <div class="small">Members only &middot; contact your UOM admin for access</div>
 </div>
@@ -237,6 +237,20 @@
     <div class="lib-item"><div class="nm">Warrior Plus setup</div><div class="ds">How to set up your affiliate account. Needed before Crown tier.</div></div>
   </div>
 
+  <div id="s-recovery" class="screen">
+    <div class="intro">
+      <div class="title">Set your new password</div>
+      <div class="sub">You arrived here from a password-reset email. Set your new password below and you will be signed in.</div>
+    </div>
+    <div class="qbox">
+      <div class="qlabel">New password</div>
+      <input id="recNewPassword" type="password" placeholder="New password (6+ characters)" autocomplete="new-password" style="width:100%;padding:12px 14px;background:var(--bg-base);border:1px solid var(--border);border-radius:10px;color:var(--ivory);font-size:14px;outline:none;margin-top:6px;" />
+      <input id="recNewPasswordConfirm" type="password" placeholder="Type the password again to confirm" autocomplete="new-password" style="width:100%;padding:12px 14px;background:var(--bg-base);border:1px solid var(--border);border-radius:10px;color:var(--ivory);font-size:14px;outline:none;margin-top:8px;" />
+      <button type="button" class="save-btn" style="margin-top:10px;" id="recoverySaveBtn" onclick="completeRecovery()">Set new password and sign in</button>
+      <div class="err" id="recoveryErr" style="margin-top:10px;min-height:18px;"></div>
+    </div>
+  </div>
+
   <div id="s-settings" class="screen">
     <div class="intro">
       <div class="title">Account settings</div>
@@ -256,11 +270,12 @@
     </div>
 
     <div class="qbox">
-      <div class="qlabel">Set or change password</div>
-      <div class="qhelp">Use this if you want to log in with a password instead of (or in addition to) a magic link.</div>
-      <input id="sNewPassword" type="password" placeholder="New password (6+ characters)" style="width:100%;padding:12px 14px;background:var(--bg-base);border:1px solid var(--border);border-radius:10px;color:var(--ivory);font-size:14px;outline:none;margin-top:6px;" />
-      <button type="button" class="save-btn" style="margin-top:10px;" onclick="saveNewPassword()">Update password</button>
-      <div class="saved" id="passSaved">&#x2713; Password updated.</div>
+      <div class="qlabel" id="passwordSectionTitle">Create a password</div>
+      <div class="qhelp" id="passwordSectionHelp">Set a password so you can log in without waiting for a magic link email. You can also still use magic link any time.</div>
+      <input id="sNewPassword" type="password" placeholder="New password (6+ characters)" autocomplete="new-password" style="width:100%;padding:12px 14px;background:var(--bg-base);border:1px solid var(--border);border-radius:10px;color:var(--ivory);font-size:14px;outline:none;margin-top:6px;" />
+      <input id="sNewPasswordConfirm" type="password" placeholder="Type the password again to confirm" autocomplete="new-password" style="width:100%;padding:12px 14px;background:var(--bg-base);border:1px solid var(--border);border-radius:10px;color:var(--ivory);font-size:14px;outline:none;margin-top:8px;" />
+      <button type="button" class="save-btn" style="margin-top:10px;" id="passwordSaveBtn" onclick="saveNewPassword()">Save password</button>
+      <div class="saved" id="passSaved">&#x2713; Password saved. Next time you can sign in with email + password.</div>
     </div>
 
     <div class="qbox">
