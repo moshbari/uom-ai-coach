@@ -148,14 +148,14 @@ function passwordResetEmail({ link }) {
 }
 
 function originFromReq(req) {
-  // Prefer explicit Origin header; fall back to Referer host; fall back to APP_URL.
+  // Returns URL WITH trailing slash so it matches Supabase allow-list /** pattern.
   const o = req.headers.origin;
-  if (o) return o.replace(/\/$/, '');
+  if (o) return o.replace(/\/+$/, '') + '/';
   const r = req.headers.referer;
   if (r) {
-    try { const u = new URL(r); return `${u.protocol}//${u.host}`; } catch (_) {}
+    try { const u = new URL(r); return `${u.protocol}//${u.host}/`; } catch (_) {}
   }
-  return APP_URL.replace(/\/$/, '');
+  return APP_URL.replace(/\/+$/, '') + '/';
 }
 
 // ============================================================
