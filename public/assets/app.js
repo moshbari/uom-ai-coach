@@ -235,26 +235,41 @@
   });
 
   async function onSignedIn() {
-    const { data: { user } } = await sb.auth.getUser();
-    if (!user) { showLogin(); return; }
-    state.user = user;
-    await loadProfile();
-    await loadTodayState();
-    await loadSparks();
-    enterApp();
+    try {
+      const { data: { user } } = await sb.auth.getUser();
+      if (!user) { showLogin(); return; }
+      state.user = user;
+      await loadProfile();
+      await loadTodayState();
+      await loadSparks();
+      enterApp();
+    } catch (e) {
+      console.error('[UOM] onSignedIn failed:', e);
+      $('#loading').style.display = 'none';
+      $('#login').style.display = 'flex';
+      const err = $('#err');
+      err.style.color = 'var(--error)';
+      err.textContent = 'Sign-in error: ' + (e.message || 'unknown') + ' — open console for details.';
+      try { await sb.auth.signOut(); } catch(_) {}
+    }
   }
 
   async function loadProfile() {
     const { data, error } = await sb.from('uom_profiles').select('*').eq('id', state.user.id).maybeSingle();
-    if (error) console.error(error);
-    if (!data) {
-      const { data: created } = await sb.from('uom_profiles').insert({
-        id: state.user.id,
-        email: state.user.email,
-        display_name: (state.user.user_metadata && state.user.user_metadata.display_name) || state.user.email.split('@')[0]
-      }).select().single();
-      state.profile = created;
-    } else state.profile = data;
+    if (error) console.error('[UOM] profile select error:', error);
+    if (data) { state.profile = data; return; }
+    // Fallback: profile row missing (trigger may not have fired). Create via UPSERT.
+    const seed = {
+      id: state.user.id,
+      email: state.user.email,
+      display_name: (state.user.user_metadata && state.user.user_metadata.display_name) || (state.user.email || 'friend').split('@')[0]
+    };
+    const { data: up, error: upErr } = await sb.from('uom_profiles').upsert(seed, { onConflict: 'id' }).select().single();
+    if (upErr) {
+      console.error('[UOM] profile upsert error:', upErr);
+      throw new Error('Could not create profile: ' + upErr.message);
+    }
+    state.profile = up;
   }
 
   async function loadTodayState() {
