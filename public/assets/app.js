@@ -728,21 +728,61 @@ Here is the Facebook post:
     return { code, desc: decodeURIComponent(desc).replace(/\+/g, ' ') };
   }
 
+  // Show a visible error in place of the loading spinner if anything blows up
+  function fatalError(msg) {
+    const loading = document.getElementById('loading');
+    if (!loading) return;
+    loading.innerHTML = '<div style="text-align:center;color:#C56B5C;padding:20px;max-width:340px;"><div style="font-size:14px;font-weight:600;margin-bottom:8px;">Could not load</div><div style="font-size:12px;color:#8A8478;line-height:1.5;margin-bottom:14px;">' + msg + '</div><button onclick="location.reload()" style="padding:10px 20px;background:#C9A961;color:#0B0F14;border:none;border-radius:8px;font-weight:700;cursor:pointer;">Retry</button></div>';
+  }
+
+  // Race a promise against a timeout
+  function withTimeout(promise, ms, label) {
+    return Promise.race([
+      promise,
+      new Promise((_, reject) => setTimeout(() => reject(new Error('timeout: ' + label)), ms))
+    ]);
+  }
+
   (async function init() {
     try {
       const urlErr = checkUrlError();
-      const { data: { session } } = await sb.auth.getSession();
-      if (session) { await onSignedIn(); return; }
+      let session = null;
+      try {
+        const r = await withTimeout(sb.auth.getSession(), 5000, 'getSession');
+        session = r && r.data && r.data.session;
+      } catch (e) {
+        console.error('[UOM] getSession failed:', e);
+      }
+      if (session) {
+        try { await withTimeout(onSignedIn(), 8000, 'onSignedIn'); return; }
+        catch (e) {
+          console.error('[UOM] onSignedIn failed:', e);
+          // Clear corrupted session and show login with error
+          try { await sb.auth.signOut(); } catch(_) {}
+        }
+      }
       showLogin();
       if (urlErr) {
         const err = $('#err');
-        err.style.color = 'var(--error)';
-        if (urlErr.code === 'otp_expired') {
-          err.textContent = 'That magic link expired or was already used. Tap Send magic link again — the new one will be the freshest in your inbox.';
-        } else {
-          err.textContent = urlErr.desc;
+        if (err) {
+          err.style.color = 'var(--error)';
+          err.textContent = urlErr.code === 'otp_expired'
+            ? 'That magic link expired or was already used. Tap Send magic link again.'
+            : urlErr.desc;
         }
       }
-    } catch (_) { showLogin(); }
+    } catch (e) {
+      console.error('[UOM] init fatal:', e);
+      fatalError(e.message || 'Unknown error during sign-in.');
+    }
   })();
+
+  // Safety net: if loading screen is still visible after 7 seconds, force login screen
+  setTimeout(() => {
+    const loading = document.getElementById('loading');
+    if (loading && loading.style.display !== 'none') {
+      console.warn('[UOM] loading stuck — forcing login screen');
+      showLogin();
+    }
+  }, 7000);
 })();
