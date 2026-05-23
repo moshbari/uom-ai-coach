@@ -149,6 +149,7 @@
     $('#passwordInput').style.display = (mode==='login' || mode==='signup') ? 'block' : 'none';
     const labels = { magic:'Send magic link', login:'Sign In', signup:'Create Account' };
     $('#authBtn').textContent = labels[mode];
+    const fr = $('#forgotRow'); if (fr) fr.style.display = mode === 'login' ? 'block' : 'none';
     const err = $('#err'); err.textContent = ''; err.style.color = 'var(--error)';
   };
 
@@ -165,28 +166,28 @@
     $('#authBtn').textContent = '...';
     try {
       if (authMode === 'magic') {
-        const { error } = await sb.auth.signInWithOtp({
-          email,
-          options: { emailRedirectTo: window.location.origin }
+        // Use our custom endpoint (Resend + UOM branding)
+        const r = await fetch(C.magicLinkUrl || '/api/auth/magic-link', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email })
         });
-        if (error) throw error;
+        const data = await r.json();
+        if (!r.ok) throw new Error(data.error || 'Could not send magic link');
         err.style.color = 'var(--sage)';
         err.textContent = 'Magic link sent. Check your email — click the link to sign in.';
       } else if (authMode === 'signup') {
         if (!name) { err.textContent = 'First name required.'; return; }
         if (!password || password.length < 6) { err.textContent = 'Password must be 6+ characters.'; return; }
-        const { error } = await sb.auth.signUp({
-          email, password,
-          options: {
-            data: { display_name: name },
-            emailRedirectTo: window.location.origin
-          }
+        const r = await fetch(C.signupUrl || '/api/auth/signup', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password, name })
         });
-        if (error) throw error;
+        const data = await r.json();
+        if (!r.ok) throw new Error(data.error || 'Could not create account');
         err.style.color = 'var(--sage)';
-        err.textContent = 'Account made. Check your email to confirm, then sign in.';
+        err.textContent = 'Account created. Check your email — click the link to finish signing in.';
         switchAuthTab('login');
-      } else { // login
+      } else { // login (password)
         if (!password) { err.textContent = 'Password required.'; return; }
         const { error } = await sb.auth.signInWithPassword({ email, password });
         if (error) throw error;
@@ -197,6 +198,25 @@
     } finally {
       $('#authBtn').disabled = false;
       $('#authBtn').textContent = orig;
+    }
+  };
+
+  // Forgot password — sends branded reset email via our endpoint
+  window.forgotPassword = async function() {
+    const email = $('#emailInput').value.trim();
+    const err = $('#err');
+    err.textContent = ''; err.style.color = 'var(--error)';
+    if (!email) { err.textContent = 'Enter your email first, then tap Forgot password.'; return; }
+    try {
+      const r = await fetch(C.resetUrl || '/api/auth/reset', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      });
+      const data = await r.json().catch(() => ({}));
+      err.style.color = 'var(--sage)';
+      err.textContent = 'Reset link sent (if that email has an account). Check your inbox.';
+    } catch (e) {
+      err.textContent = 'Could not send reset email. Try again.';
     }
   };
 
