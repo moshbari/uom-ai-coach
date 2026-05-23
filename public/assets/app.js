@@ -647,11 +647,32 @@
   // ============================================================
   // INIT
   // ============================================================
+  // Check URL hash for auth errors (e.g. otp_expired, access_denied)
+  function checkUrlError() {
+    const h = window.location.hash || '';
+    if (!h.includes('error=')) return null;
+    const params = new URLSearchParams(h.replace(/^#/, ''));
+    const code = params.get('error_code') || params.get('error') || 'auth_error';
+    const desc = params.get('error_description') || code;
+    history.replaceState(null, '', window.location.pathname);
+    return { code, desc: decodeURIComponent(desc).replace(/\+/g, ' ') };
+  }
+
   (async function init() {
     try {
+      const urlErr = checkUrlError();
       const { data: { session } } = await sb.auth.getSession();
-      if (session) await onSignedIn();
-      else showLogin();
+      if (session) { await onSignedIn(); return; }
+      showLogin();
+      if (urlErr) {
+        const err = $('#err');
+        err.style.color = 'var(--error)';
+        if (urlErr.code === 'otp_expired') {
+          err.textContent = 'That magic link expired or was already used. Tap Send magic link again — the new one will be the freshest in your inbox.';
+        } else {
+          err.textContent = urlErr.desc;
+        }
+      }
     } catch (_) { showLogin(); }
   })();
 })();
