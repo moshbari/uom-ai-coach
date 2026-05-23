@@ -54,6 +54,8 @@ app.get('/config.js', (_, res) => {
     adminEmail: ADMIN_EMAIL,
     polishUrl: '/api/polish',
     sparkReflectUrl: '/api/spark-reflect',
+    sparkExploreUrl: '/api/spark-explore',
+    sparkToPostUrl: '/api/spark-to-post',
     magicLinkUrl: '/api/auth/magic-link',
     signupUrl: '/api/auth/signup',
     resetUrl: '/api/auth/reset'
@@ -325,6 +327,124 @@ app.post('/api/spark-reflect', async (req, res) => {
     const data = await r.json();
     if (!r.ok) return res.status(502).json({ error: (data.error && data.error.message) || 'AI busy' });
     res.json({ reflection: (data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content || '').trim() });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+
+// ============================================================
+// SPARK EXPLORER — turn one spark into 40 content ideas
+// ============================================================
+const EXPLORE_PROMPT = `You are a content strategist for a Facebook creator who is building an online business through the Ultimate Online Mastery program.
+
+The creator just saved this curiosity (their Daily Spark):
+"[USER_SPARK]"
+
+Generate 40 content ideas around this exact topic. Each idea must be a complete post topic the creator could write — not a generic prompt.
+
+Organize into 4 categories of 10 ideas each:
+
+1. quickWins (10) — posts they can write TODAY without any research. Universal truths, simple observations, lessons most people already agree with.
+2. researchAngles (10) — questions they can answer in 10-15 minutes of YouTube or Google research. "How does X work" or "What is X" type posts.
+3. comparisons (10) — X vs Y posts. Tool comparisons, approach comparisons, before/after, old way vs new way.
+4. opinions (10) — controversial or bold-take questions. The ones that drive comments and arguments.
+
+Hard rules for each idea:
+- ONE line, 5-12 words maximum
+- 5th-grade reading level — no jargon
+- Specific to the spark topic — never generic
+- No hashtags, no emojis, no quotation marks, no labels
+- Each is a clear post-able TOPIC, not a question to the creator
+
+Output ONLY valid JSON in this exact shape:
+{
+  "quickWins": ["idea 1", "idea 2", ...],
+  "researchAngles": [...],
+  "comparisons": [...],
+  "opinions": [...]
+}`;
+
+app.post('/api/spark-explore', async (req, res) => {
+  try {
+    const spark = ((req.body && req.body.spark) || '').trim();
+    if (!spark || spark.length < 3) return res.status(400).json({ error: 'Spark required' });
+    if (spark.length > 1000) return res.status(400).json({ error: 'Spark too long' });
+    if (!OPENAI_API_KEY) return res.status(500).json({ error: 'AI not configured' });
+
+    const prompt = EXPLORE_PROMPT.replace('[USER_SPARK]', spark);
+    const r = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${OPENAI_API_KEY}` },
+      body: JSON.stringify({
+        model: 'gpt-4o-mini',
+        messages: [
+          { role: 'system', content: prompt },
+          { role: 'user', content: spark }
+        ],
+        max_tokens: 1600,
+        temperature: 0.85,
+        response_format: { type: 'json_object' }
+      })
+    });
+    const data = await r.json();
+    if (!r.ok) return res.status(502).json({ error: (data.error && data.error.message) || 'AI busy. Retry in 5s.' });
+
+    const content = (data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) || '{}';
+    let ideas;
+    try { ideas = JSON.parse(content); } catch (_) { return res.status(500).json({ error: 'AI returned invalid format. Try again.' }); }
+
+    // Validate shape
+    const required = ['quickWins', 'researchAngles', 'comparisons', 'opinions'];
+    for (const k of required) {
+      if (!Array.isArray(ideas[k])) ideas[k] = [];
+    }
+    res.json({ ideas });
+  } catch (e) {
+    console.error('spark-explore error:', e.message);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+
+// ============================================================
+// SPARK IDEA → POST DRAFT (one tap expand)
+// ============================================================
+const IDEA_TO_POST_PROMPT = `You are a Facebook post writer for a beginner creator in the UOM program.
+
+You will be given a SHORT post topic. Expand it into a complete Facebook post using the PEEL framework (Point, Evidence, Explain, Link).
+
+Hard rules:
+- Output ONLY the finished post. No preamble, no quotes, no labels.
+- Maximum 5 short lines. One blank line between each.
+- 5th-grade reading level. No jargon.
+- Universal truths only. Never fabricate personal claims.
+- End with a question that invites a comment.
+- No emojis. No hashtags. No links.`;
+
+app.post('/api/spark-to-post', async (req, res) => {
+  try {
+    const idea = ((req.body && req.body.idea) || '').trim();
+    if (!idea) return res.status(400).json({ error: 'Idea required' });
+    if (idea.length > 500) return res.status(400).json({ error: 'Idea too long' });
+    if (!OPENAI_API_KEY) return res.status(500).json({ error: 'AI not configured' });
+
+    const r = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${OPENAI_API_KEY}` },
+      body: JSON.stringify({
+        model: 'gpt-4o-mini',
+        messages: [
+          { role: 'system', content: IDEA_TO_POST_PROMPT },
+          { role: 'user', content: idea }
+        ],
+        max_tokens: 300,
+        temperature: 0.75
+      })
+    });
+    const data = await r.json();
+    if (!r.ok) return res.status(502).json({ error: (data.error && data.error.message) || 'AI busy' });
+    res.json({ post: ((data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) || '').trim() });
   } catch (e) {
     res.status(500).json({ error: e.message });
   }

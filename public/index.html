@@ -199,6 +199,23 @@
     <div id="sparkList"></div>
   </div>
 
+  <div id="s-explorer" class="screen">
+    <div class="intro">
+      <div class="title">Spark Explorer</div>
+      <div class="sub">40 ready-to-write post ideas from this one spark. Tap "Make post" to turn any idea into a full draft.</div>
+    </div>
+    <button type="button" onclick="nav('sparks')" style="background:transparent;border:1px solid var(--border);color:var(--muted);padding:8px 14px;border-radius:8px;font-size:12px;cursor:pointer;margin-bottom:14px;letter-spacing:0.3px;">&larr; Back to Spark Log</button>
+    <div class="explorer-spark">
+      <div class="lbl">Exploring this spark</div>
+      <div class="txt" id="explorerSparkText"></div>
+    </div>
+    <div class="explorer-loading" id="explorerLoading">
+      <div class="spinner"></div>
+      <div style="margin-top:12px;">Finding 40 content ideas for you...</div>
+    </div>
+    <div id="explorerResults"></div>
+  </div>
+
   <div id="s-tiers" class="screen">
     <div class="intro">
       <div class="title">Your tier ladder</div>

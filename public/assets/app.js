@@ -401,7 +401,7 @@ Here is the Facebook post:
   }
 
   function _switchScreen(name) {
-    ['checkin','task','done','sparks','tiers','lib','settings'].forEach(n => {
+    ['checkin','task','done','sparks','tiers','lib','settings','explorer'].forEach(n => {
       const el = document.getElementById('s-' + n);
       if (el) el.classList.toggle('active', n === name);
     });
@@ -558,9 +558,129 @@ Here is the Facebook post:
       const label = s.day ? `Day ${s.day} · ${d}` : d;
       const item = document.createElement('div');
       item.className = 'spark-log-item';
-      item.innerHTML = '<div class="day">⚡ ' + escapeHtml(label) + '</div><div class="line">' + escapeHtml(s.line) + '</div>';
+      item.innerHTML =
+        '<div class="day">⚡ ' + escapeHtml(label) + '</div>' +
+        '<div class="line">' + escapeHtml(s.line) + '</div>' +
+        '<button type="button" class="explore-btn" data-spark="' + encodeURIComponent(s.line) + '">⚡ Explore 40 ideas</button>';
       list.appendChild(item);
     });
+    // Wire up explore buttons
+    list.querySelectorAll('.explore-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const sparkLine = decodeURIComponent(btn.getAttribute('data-spark') || '');
+        if (sparkLine) exploreSpark(sparkLine);
+      });
+    });
+  }
+
+  // ============================================================
+  // SPARK EXPLORER
+  // ============================================================
+  window.exploreSpark = async function(sparkLine) {
+    $('#explorerSparkText').textContent = sparkLine;
+    $('#explorerResults').innerHTML = '';
+    $('#explorerLoading').style.display = 'block';
+    _switchScreen('explorer');
+
+    try {
+      const r = await fetch(C.sparkExploreUrl || '/api/spark-explore', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ spark: sparkLine })
+      });
+      const data = await r.json();
+      $('#explorerLoading').style.display = 'none';
+
+      if (!r.ok || !data.ideas) {
+        $('#explorerResults').innerHTML = '<div class="empty-state">Could not load ideas. Try again.<br/><br/>' + escapeHtml(data.error || '') + '</div>';
+        return;
+      }
+      renderIdeas(data.ideas, sparkLine);
+    } catch (e) {
+      $('#explorerLoading').style.display = 'none';
+      $('#explorerResults').innerHTML = '<div class="empty-state">Network error. Try again.</div>';
+    }
+  };
+
+  function renderIdeas(ideas, sparkLine) {
+    const box = $('#explorerResults');
+    const cats = [
+      { key: 'quickWins',       title: '✦ Quick Wins',       desc: 'Post these today. No research needed. Universal truths.' },
+      { key: 'researchAngles',  title: '⚡ Research Angles',  desc: '10-15 min of YouTube/Google research. How-to and what-is posts.' },
+      { key: 'comparisons',     title: '⚖ Comparisons',       desc: 'X vs Y posts. Comparison content gets shared.' },
+      { key: 'opinions',        title: '💬 Opinions',         desc: 'Bold takes that drive comments and debate.' }
+    ];
+    box.innerHTML = '';
+    cats.forEach(cat => {
+      const list = ideas[cat.key] || [];
+      if (list.length === 0) return;
+      const card = document.createElement('div');
+      card.className = 'cat-card';
+      let inner = '<div class="cat-head"><div class="cat-title">' + cat.title + '</div></div>' +
+                  '<div class="cat-desc">' + cat.desc + '</div>';
+      list.forEach((idea, i) => {
+        const id = cat.key + '_' + i;
+        inner +=
+          '<div class="idea-row" id="row_' + id + '">' +
+          '  <div class="idea-text">' + escapeHtml(idea) + '</div>' +
+          '  <button type="button" class="idea-btn" data-idea="' + encodeURIComponent(idea) + '" data-id="' + id + '">Make post</button>' +
+          '</div>' +
+          '<div class="idea-draft" id="draft_' + id + '"></div>';
+      });
+      card.innerHTML = inner;
+      box.appendChild(card);
+    });
+    box.querySelectorAll('.idea-btn').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const idea = decodeURIComponent(btn.getAttribute('data-idea') || '');
+        const id = btn.getAttribute('data-id');
+        await ideaToPost(idea, id, btn);
+      });
+    });
+  }
+
+  async function ideaToPost(idea, id, btn) {
+    const draft = document.getElementById('draft_' + id);
+    btn.disabled = true; btn.textContent = '...';
+    try {
+      const r = await fetch(C.sparkToPostUrl || '/api/spark-to-post', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ idea })
+      });
+      const data = await r.json();
+      if (!r.ok || !data.post) {
+        draft.textContent = 'Could not draft post. ' + (data.error || 'Try again.');
+        draft.classList.add('show');
+        btn.disabled = false; btn.textContent = 'Make post';
+        return;
+      }
+      const postText = data.post;
+      draft.innerHTML =
+        escapeHtml(postText).replace(/\n/g, '<br/>') +
+        '<div class="draft-actions">' +
+        '<button type="button" class="copy-this">Copy this post</button>' +
+        '<button type="button" class="redo-this">Try again</button>' +
+        '</div>';
+      draft.classList.add('show');
+      btn.classList.add('done');
+      btn.textContent = '✓ Drafted';
+      btn.disabled = false;
+      draft.querySelector('.copy-this').addEventListener('click', () => {
+        copyString(postText);
+        alert('Copied. Open Facebook → "What\'s on your mind?" → paste → Post.');
+      });
+      draft.querySelector('.redo-this').addEventListener('click', async () => {
+        draft.classList.remove('show');
+        btn.classList.remove('done');
+        btn.textContent = 'Make post';
+        await ideaToPost(idea, id, btn);
+      });
+    } catch (e) {
+      draft.textContent = 'Network error. Try again.';
+      draft.classList.add('show');
+      btn.disabled = false; btn.textContent = 'Make post';
+    }
   }
   function escapeHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
