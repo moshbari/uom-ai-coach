@@ -1,0 +1,30 @@
+# Secrets — never commit these
+.env
+.env.*
+*.env
+!.env.example
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Node (in case we add tooling later)
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Build output (if added later)
+dist/
+build/
+.next/
+
+# Railway / Supabase local
+.railway/
+supabase/.branches/
+supabase/.temp/
