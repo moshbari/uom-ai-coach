@@ -3,492 +3,64 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-<title>UOM Action Brain</title>
-<style>
-  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-  html, body {
-    width: 100%;
-    min-height: 100vh;
-    background: #0A0A0F;
-    color: #F5F5F7;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    overflow-x: hidden;
-  }
-  body {
-    background: radial-gradient(ellipse at top, #1a1530 0%, #0A0A0F 60%);
-    padding-bottom: 100px;
-  }
-  a { color: #FFD700; text-decoration: none; }
-
-  /* === LOGIN === */
-  .login {
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 24px;
-    text-align: center;
-  }
-  .login .logo { font-size: 64px; margin-bottom: 12px; }
-  .login h1 {
-    font-size: 28px;
-    font-weight: 800;
-    background: linear-gradient(135deg, #FFD700, #FFA500);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    margin-bottom: 8px;
-  }
-  .login p { color: #9999AA; font-size: 15px; margin-bottom: 28px; max-width: 340px; line-height: 1.5; }
-  .login input {
-    width: 100%; max-width: 320px; padding: 16px 18px; margin-bottom: 12px;
-    background: #1a1a25; border: 2px solid #2a2a3a; border-radius: 12px;
-    color: #fff; font-size: 16px; outline: none;
-  }
-  .login input:focus { border-color: #FFD700; }
-  .login button {
-    width: 100%; max-width: 320px; padding: 16px; margin-top: 8px;
-    border: none; border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer;
-  }
-  .btn-primary { background: linear-gradient(135deg, #FFD700, #FFA500); color: #0A0A0F; }
-  .btn-demo {
-    background: transparent !important; color: #FFD700 !important;
-    border: 2px solid #FFD700 !important; margin-top: 16px !important;
-  }
-  .err { color: #ff6b6b; font-size: 14px; min-height: 20px; margin-top: 12px; }
-
-  /* === HEADER === */
-  .header {
-    position: sticky; top: 0; z-index: 50;
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 14px 18px;
-    background: rgba(10, 10, 15, 0.92); backdrop-filter: blur(20px);
-    border-bottom: 1px solid #2a2a3a;
-  }
-  .brand {
-    font-weight: 800; font-size: 16px;
-    background: linear-gradient(135deg, #FFD700, #FFA500);
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-  .chips { display: flex; gap: 6px; }
-  .chip {
-    padding: 6px 10px; border-radius: 20px; font-size: 13px; font-weight: 800;
-    background: #1a1a25; border: 1px solid #2a2a3a;
-    display: flex; align-items: center; gap: 4px;
-  }
-  .chip-streak {
-    background: linear-gradient(135deg, #ff6b00, #ff4500);
-    border-color: #ff6b00;
-    color: #fff;
-    font-size: 14px;
-  }
-  .chip-day {
-    background: #14141d;
-    border-color: #FFD700;
-    color: #FFD700;
-  }
-
-  /* === SCREENS === */
-  .screen {
-    display: none;
-    padding: 20px 18px;
-    max-width: 520px;
-    margin: 0 auto;
-    animation: fade 0.25s ease;
-  }
-  .screen.active { display: block; }
-  @keyframes fade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-
-  /* === COMMON: SCREEN INTRO === */
-  .intro {
-    background: #14141d;
-    border-left: 4px solid #FFD700;
-    border-radius: 8px;
-    padding: 14px 16px;
-    margin-bottom: 18px;
-  }
-  .intro .title {
-    font-size: 18px;
-    font-weight: 800;
-    color: #FFD700;
-    margin-bottom: 4px;
-  }
-  .intro .sub { font-size: 14px; color: #d0d0d8; line-height: 1.5; }
-
-  /* === CHECK-IN === */
-  .greet { font-size: 22px; font-weight: 800; margin-bottom: 6px; }
-  .qbox {
-    background: #14141d; border: 1px solid #2a2a3a; border-radius: 14px;
-    padding: 16px; margin-bottom: 12px;
-  }
-  .qlabel {
-    font-size: 13px; color: #FFD700; margin-bottom: 4px;
-    font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
-  }
-  .qhelp { font-size: 12px; color: #9999AA; margin-bottom: 10px; }
-  .opts { display: flex; gap: 8px; flex-wrap: wrap; }
-  .opt {
-    flex: 1; min-width: 0; padding: 12px 8px;
-    background: #1a1a25; border: 2px solid #2a2a3a; border-radius: 10px;
-    color: #fff; font-size: 14px; font-weight: 600; cursor: pointer; text-align: center;
-  }
-  .opt.on {
-    background: linear-gradient(135deg, #FFD700, #FFA500);
-    color: #0A0A0F; border-color: #FFD700;
-  }
-  .go {
-    width: 100%; padding: 18px; margin-top: 10px;
-    background: linear-gradient(135deg, #FFD700, #FFA500);
-    color: #0A0A0F; border: none; border-radius: 14px;
-    font-size: 17px; font-weight: 800; cursor: pointer;
-  }
-  .go:disabled { opacity: 0.4; cursor: not-allowed; }
-
-  /* === TASK CARD === */
-  .card {
-    background: linear-gradient(180deg, #14141d, #0f0f17);
-    border: 1px solid #2a2a3a; border-radius: 18px;
-    padding: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.4);
-  }
-  .day-pill {
-    display: inline-block; padding: 6px 14px; border-radius: 20px;
-    background: linear-gradient(135deg, #FFD700, #FFA500); color: #0A0A0F;
-    font-size: 12px; font-weight: 800; letter-spacing: 1px; margin-bottom: 12px;
-    text-transform: uppercase;
-  }
-  .badge-banner {
-    display: none; margin-bottom: 12px;
-    padding: 10px 14px; border-radius: 10px;
-    background: linear-gradient(135deg, #00C853, #00E676);
-    color: #0A0A0F; font-weight: 800; font-size: 13px;
-    text-align: center;
-  }
-  .badge-banner.show { display: block; }
-  .task-title { font-size: 22px; font-weight: 800; margin-bottom: 8px; line-height: 1.25; }
-  .task-time {
-    display: inline-block;
-    background: #1a1a25; border: 1px solid #2a2a3a;
-    color: #9999AA; font-size: 12px; font-weight: 700;
-    padding: 4px 10px; border-radius: 12px; margin-bottom: 12px;
-  }
-  .task-why {
-    color: #b0b0c0; font-size: 14px; margin-bottom: 16px;
-    line-height: 1.5; font-style: italic;
-  }
-
-  /* steps box */
-  .steps {
-    background: #0a0a0f; border: 1px solid #2a2a3a; border-radius: 12px;
-    padding: 14px 16px; margin-bottom: 16px;
-  }
-  .steps .h {
-    font-size: 12px; color: #FFD700; font-weight: 800;
-    text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;
-  }
-  .steps ol { padding-left: 22px; }
-  .steps li { font-size: 14px; line-height: 1.6; color: #e0e0e8; margin-bottom: 4px; }
-
-  /* source box */
-  .source {
-    background: #0a1a2a; border: 1px solid #2a4a6a; border-radius: 10px;
-    padding: 10px 12px; margin-bottom: 14px;
-    font-size: 12px; color: #9999AA; line-height: 1.5;
-  }
-  .source b { color: #4FC3F7; }
-
-  /* paths */
-  .path-tabs {
-    display: none; gap: 6px; margin-bottom: 12px;
-    background: #1a1a25; padding: 4px; border-radius: 10px;
-  }
-  .path-tabs.show { display: flex; }
-  .path-tabs button {
-    flex: 1; padding: 10px 8px;
-    background: transparent; border: none;
-    color: #9999AA; font-size: 13px; font-weight: 700; cursor: pointer;
-    border-radius: 8px;
-  }
-  .path-tabs button.on {
-    background: linear-gradient(135deg, #FFD700, #FFA500);
-    color: #0A0A0F;
-  }
-  .path { display: none; }
-  .path.on { display: block; }
-
-  /* safe-to-post badge */
-  .safe-badge {
-    display: inline-block;
-    background: #0a2f1a;
-    border: 1px solid #2a7a4a;
-    color: #6fdb9a;
-    font-size: 12px;
-    font-weight: 700;
-    padding: 6px 12px;
-    border-radius: 8px;
-    margin-bottom: 10px;
-    line-height: 1.4;
-  }
-
-  /* ready-to-copy post */
-  .ready-box {
-    background: #0a1f0a; border: 1px solid #2a5a2a; border-radius: 12px;
-    padding: 16px; margin-bottom: 12px;
-    font-size: 15px; line-height: 1.6; color: #e8f5e8;
-    white-space: pre-wrap;
-  }
-  .ready-label {
-    font-size: 11px; color: #4caf50; font-weight: 800;
-    text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;
-  }
-  .big-copy {
-    width: 100%; padding: 16px;
-    background: linear-gradient(135deg, #4caf50, #66bb6a);
-    color: #fff; border: none; border-radius: 12px;
-    font-size: 16px; font-weight: 800; cursor: pointer; margin-bottom: 12px;
-  }
-
-  /* paste area */
-  textarea {
-    width: 100%; min-height: 120px; padding: 14px;
-    background: #0A0A0F; border: 2px solid #2a2a3a; border-radius: 12px;
-    color: #fff; font-family: inherit; font-size: 15px;
-    resize: vertical; outline: none;
-  }
-  textarea:focus { border-color: #FFD700; }
-  .hint {
-    font-size: 12px; color: #9999AA; margin-top: 6px; margin-bottom: 10px;
-  }
-  .row { display: flex; gap: 10px; margin-top: 12px; }
-  .row button {
-    flex: 1; padding: 14px; border-radius: 12px; border: none;
-    font-size: 14px; font-weight: 700; cursor: pointer;
-  }
-  .b-ghost {
-    background: #1a1a25; color: #FFD700;
-    border: 2px solid #2a2a3a !important;
-  }
-  .polished {
-    background: #1a1530; border: 1px solid #4a3a8a; border-radius: 10px;
-    padding: 14px; margin-top: 12px;
-    font-size: 14px; line-height: 1.6; color: #e0d0f8;
-    white-space: pre-wrap; display: none;
-  }
-  .polished.show { display: block; }
-  .b-win {
-    width: 100%; margin-top: 16px; padding: 18px;
-    background: linear-gradient(135deg, #00C853, #00E676);
-    color: #0A0A0F; border: none; border-radius: 14px;
-    font-size: 17px; font-weight: 800; cursor: pointer;
-  }
-  .b-skip {
-    width: 100%; margin-top: 10px; padding: 12px;
-    background: transparent; color: #6a6a7a; border: none;
-    font-size: 13px; cursor: pointer;
-  }
-
-  /* === SPARK BOX === */
-  .spark-box {
-    background: linear-gradient(135deg, #0f1a25, #0a1218);
-    border: 1px solid #4FC3F7;
-    border-radius: 16px;
-    padding: 18px;
-    margin-top: 20px;
-  }
-  .spark-box .h {
-    font-size: 14px;
-    color: #4FC3F7;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    margin-bottom: 6px;
-  }
-  .spark-box .why {
-    font-size: 13px;
-    color: #b0c0d0;
-    line-height: 1.5;
-    margin-bottom: 12px;
-  }
-  .spark-box .steps-mini {
-    background: #0a0a0f; border: 1px solid #1a2a3a;
-    border-radius: 10px; padding: 10px 12px; margin-bottom: 12px;
-  }
-  .spark-box .steps-mini ol { padding-left: 20px; }
-  .spark-box .steps-mini li {
-    font-size: 13px; line-height: 1.6; color: #d0e0f0; margin-bottom: 2px;
-  }
-  .spark-box textarea {
-    width: 100%;
-    background: #0a0a0f;
-    border: 1px solid #2a3a4a;
-    border-radius: 10px;
-    color: #fff;
-    padding: 10px 12px;
-    font-size: 14px;
-    font-family: inherit;
-    outline: none;
-    min-height: 70px;
-    resize: vertical;
-  }
-  .spark-box textarea:focus { border-color: #4FC3F7; }
-  .spark-box .save-btn {
-    width: 100%;
-    margin-top: 10px;
-    background: #4FC3F7;
-    color: #0A0A0F;
-    border: none;
-    border-radius: 10px;
-    padding: 12px;
-    font-size: 14px;
-    font-weight: 800;
-    cursor: pointer;
-  }
-  .spark-box .saved {
-    color: #6fdb9a; font-size: 13px; font-weight: 700;
-    margin-top: 8px; text-align: center; display: none;
-  }
-  .spark-box .saved.show { display: block; }
-
-  /* === DONE === */
-  .done { text-align: center; padding: 30px 20px; }
-  .done .big { font-size: 80px; margin-bottom: 16px; animation: pop 0.6s ease; }
-  @keyframes pop { 0% { transform: scale(0); } 60% { transform: scale(1.2); } 100% { transform: scale(1); } }
-  .done h2 { font-size: 26px; margin-bottom: 10px; }
-  .done p { color: #9999AA; margin-bottom: 24px; line-height: 1.5; }
-
-  /* === TIERS === */
-  .tier-row {
-    background: #14141d; border: 2px solid #2a2a3a; border-radius: 14px;
-    padding: 14px; margin-bottom: 10px;
-    display: flex; align-items: center; gap: 12px;
-  }
-  .tier-row.locked { opacity: 0.55; }
-  .tier-row.active { border-color: #FFD700; box-shadow: 0 0 20px rgba(255,215,0,0.18); }
-  .tier-icon {
-    width: 46px; height: 46px; border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 20px; flex-shrink: 0;
-  }
-  .tier-info { flex: 1; min-width: 0; }
-  .tier-name { font-size: 16px; font-weight: 800; margin-bottom: 2px; }
-  .tier-desc { font-size: 12px; color: #9999AA; margin-bottom: 8px; line-height: 1.4; }
-  .bar { height: 6px; background: #2a2a3a; border-radius: 3px; overflow: hidden; }
-  .bar-fill {
-    height: 100%; background: linear-gradient(90deg, #FFD700, #FFA500);
-    transition: width 0.5s;
-  }
-  .bar-text { font-size: 11px; color: #6a6a7a; margin-top: 4px; }
-
-  /* === SPARK LOG === */
-  .spark-log-item {
-    background: #14141d;
-    border-left: 3px solid #4FC3F7;
-    padding: 12px 14px;
-    margin-bottom: 10px;
-    border-radius: 8px;
-  }
-  .spark-log-item .day {
-    font-size: 11px;
-    color: #4FC3F7;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    margin-bottom: 4px;
-  }
-  .spark-log-item .line {
-    font-size: 14px;
-    color: #e0e0e8;
-    line-height: 1.5;
-  }
-  .empty-state {
-    text-align: center;
-    padding: 40px 20px;
-    color: #6a6a7a;
-    font-size: 14px;
-    line-height: 1.6;
-  }
-
-  /* === LIBRARY === */
-  .lib-item {
-    background: #14141d; border: 1px solid #2a2a3a; border-radius: 12px;
-    padding: 14px 16px; margin-bottom: 10px;
-  }
-  .lib-item .nm { font-weight: 700; font-size: 15px; margin-bottom: 4px; }
-  .lib-item .ds { font-size: 12px; color: #9999AA; line-height: 1.5; }
-
-  /* === BOTTOM NAV === */
-  .nav {
-    position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;
-    display: grid; grid-template-columns: repeat(5, 1fr);
-    background: rgba(10, 10, 15, 0.95); backdrop-filter: blur(20px);
-    border-top: 1px solid #2a2a3a; padding: 10px 0 18px;
-  }
-  .nav button {
-    background: none; border: none; color: #6a6a7a;
-    font-size: 11px; font-weight: 600; cursor: pointer;
-    display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 6px;
-  }
-  .nav button .ic { font-size: 22px; }
-  .nav button.on { color: #FFD700; }
-
-  /* === CONFETTI === */
-  .confetti {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    pointer-events: none; z-index: 200;
-  }
-  .dot {
-    position: absolute; width: 10px; height: 10px; border-radius: 50%;
-    animation: fall 2s ease-out forwards;
-  }
-  @keyframes fall {
-    0% { transform: translateY(0) rotate(0); opacity: 1; }
-    100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
-  }
-  .footer {
-    text-align: center; padding: 16px; color: #4a4a5a; font-size: 11px;
-  }
-  .footer a { color: #FFD700; cursor: pointer; }
-</style>
+<meta name="theme-color" content="#0B0F14" />
+<title>UOM AI Coach</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" />
+<script src="/config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<link rel="stylesheet" href="/assets/style.css" />
 </head>
 <body>
 
-<!-- LOGIN -->
-<div id="login" class="login">
-  <div class="logo">🏆</div>
-  <h1>UOM Action Brain</h1>
-  <p>One small win every day. Climb from Bronze to Crown. I'll tell you exactly what to do.</p>
-  <input id="nameInput" type="text" placeholder="Your first name" autocomplete="off" />
-  <input id="codeInput" type="text" placeholder="Access code" autocomplete="off" />
-  <button type="button" class="btn-primary" onclick="doLogin()">Enter</button>
-  <button type="button" class="btn-demo" onclick="doDemo()">Try Demo (no code)</button>
-  <div id="err" class="err"></div>
+<div id="loading" class="loading-screen">
+  <div style="text-align:center;">
+    <div class="spinner"></div>
+    <div style="margin-top:12px;color:var(--muted);font-size:12px;letter-spacing:1px;">UOM</div>
+  </div>
 </div>
 
-<!-- APP -->
+<div id="login" class="login" style="display:none;">
+  <div class="crest">&#x1F451;</div>
+  <h1>UOM <span class="accent">AI</span> Coach</h1>
+  <p class="tagline">One small win every day.<br/>Climb from Bronze to Crown.</p>
+  <div class="divider"></div>
+
+  <div class="auth-tabs">
+    <button type="button" class="on" id="tabLogin" onclick="switchAuthTab('login')">Sign In</button>
+    <button type="button" id="tabSignup" onclick="switchAuthTab('signup')">Create Account</button>
+  </div>
+
+  <input id="nameInput" type="text" placeholder="Your first name" autocomplete="given-name" style="display:none;" />
+  <input id="emailInput" type="email" placeholder="Email address" autocomplete="email" />
+  <input id="passwordInput" type="password" placeholder="Password (min 6 characters)" autocomplete="current-password" />
+  <button type="button" class="btn-primary" id="authBtn" onclick="doAuth()">Sign In</button>
+  <div id="err" class="err"></div>
+  <div class="small">Members only &middot; contact your UOM admin for access</div>
+</div>
+
 <div id="app" style="display:none;">
 
   <div class="header">
-    <div class="brand">🏆 UOM Brain</div>
+    <div class="brand">UOM<span class="dot"> &middot; </span>Coach</div>
     <div class="chips">
-      <div class="chip chip-streak">🔥 <span id="streak">0</span></div>
+      <div class="chip chip-streak">&#x1F525; <span id="streak">0</span></div>
       <div class="chip chip-day" id="dayChip">Day 1/14</div>
-      <div class="chip" id="tierChip">🟫 Bronze</div>
+      <div class="chip" id="tierChip">Bronze</div>
     </div>
   </div>
 
-  <!-- CHECK-IN -->
   <div id="s-checkin" class="screen active">
     <div class="intro">
-      <div class="title">☀️ Morning check-in</div>
+      <div class="title">Morning check-in</div>
       <div class="sub">3 quick taps. I use your answers to pick the right task for today.</div>
     </div>
-    <div class="greet">Hi <span id="greetName">friend</span> 👋</div>
+    <div class="greet">Welcome, <span class="accent" id="greetName">friend</span></div>
+    <div style="height:18px;"></div>
 
     <div class="qbox">
-      <div class="qlabel">⏱️ Time you have today</div>
+      <div class="qlabel">Time you have today</div>
       <div class="qhelp">Pick what's real, not what you wish.</div>
-      <div class="opts" id="qTime">
+      <div class="opts">
         <button type="button" class="opt" data-q="time" data-v="15">15 min</button>
         <button type="button" class="opt" data-q="time" data-v="30">30 min</button>
         <button type="button" class="opt" data-q="time" data-v="60">1 hour</button>
@@ -496,867 +68,148 @@
     </div>
 
     <div class="qbox">
-      <div class="qlabel">⚡ Your energy</div>
-      <div class="qhelp">Low energy = easier task. High energy = bigger task.</div>
-      <div class="opts" id="qEnergy">
-        <button type="button" class="opt" data-q="energy" data-v="low">😴 Low</button>
-        <button type="button" class="opt" data-q="energy" data-v="mid">😊 Mid</button>
-        <button type="button" class="opt" data-q="energy" data-v="high">🔥 High</button>
+      <div class="qlabel">Your energy</div>
+      <div class="qhelp">Low = easier task. High = bigger task.</div>
+      <div class="opts">
+        <button type="button" class="opt" data-q="energy" data-v="low">Low</button>
+        <button type="button" class="opt" data-q="energy" data-v="mid">Steady</button>
+        <button type="button" class="opt" data-q="energy" data-v="high">High</button>
       </div>
     </div>
 
     <div class="qbox">
-      <div class="qlabel">🫶 How you feel</div>
+      <div class="qlabel">How you feel</div>
       <div class="qhelp">Stuck = I'll send a pep talk first.</div>
-      <div class="opts" id="qMood">
-        <button type="button" class="opt" data-q="mood" data-v="stuck">😶 Stuck</button>
-        <button type="button" class="opt" data-q="mood" data-v="ok">🙂 OK</button>
-        <button type="button" class="opt" data-q="mood" data-v="fire">🚀 On fire</button>
+      <div class="opts">
+        <button type="button" class="opt" data-q="mood" data-v="stuck">Stuck</button>
+        <button type="button" class="opt" data-q="mood" data-v="ok">Good</button>
+        <button type="button" class="opt" data-q="mood" data-v="fire">On fire</button>
       </div>
     </div>
 
-    <button type="button" class="go" id="goBtn" disabled onclick="showTask()">Show me today's task →</button>
+    <button type="button" class="go" id="goBtn" disabled onclick="showTask()">Show me today's task &rarr;</button>
   </div>
 
-  <!-- TASK -->
   <div id="s-task" class="screen">
     <div class="intro">
-      <div class="title">🎯 Today's one task</div>
-      <div class="sub">Do this ONE thing today. That's the whole job. I'll lock the rest.</div>
+      <div class="title">Today's one task</div>
+      <div class="sub">Do this ONE thing today. That's the whole job.</div>
     </div>
 
     <div class="card">
       <div class="day-pill" id="dayPill">DAY 1 OF 14</div>
       <div class="badge-banner" id="badgeBanner"></div>
-      <div class="task-title" id="tTitle">Loading your task...</div>
-      <span class="task-time" id="tTime">⏱️ 90 sec</span>
+      <div class="task-title" id="tTitle">Loading...</div>
+      <span class="task-time" id="tTime"></span>
       <div class="task-why" id="tWhy"></div>
-
       <div class="source" id="tSource"></div>
 
       <div class="steps">
-        <div class="h">📝 How to do it</div>
+        <div class="h">How to do it</div>
         <ol id="tSteps"></ol>
       </div>
 
-      <!-- Paths only appear for posting days -->
       <div class="path-tabs" id="pathTabs">
-        <button type="button" id="pathA" class="on" onclick="switchPath('a')">📋 Use ready-made post</button>
-        <button type="button" id="pathB" onclick="switchPath('b')">✏️ Paste my own</button>
+        <button type="button" id="pathA" class="on" onclick="switchPath('a')">Ready-made post</button>
+        <button type="button" id="pathB" onclick="switchPath('b')">Paste my own</button>
       </div>
 
-      <!-- PATH A: ready-made -->
       <div id="path-a" class="path on">
-        <div class="safe-badge" id="safeBadge">✅ Safe to post — no personal claim made.</div>
-        <div class="ready-label">✨ Copy this post and paste on Facebook:</div>
+        <div class="safe-badge" id="safeBadge">Safe to post &mdash; no personal claim made.</div>
+        <div class="ready-label">Copy this post and paste on Facebook</div>
         <div class="ready-box" id="readyPost"></div>
-        <button type="button" class="big-copy" onclick="copyReady()">📋 Copy this post</button>
+        <button type="button" class="big-copy" onclick="copyReady()">Copy this post</button>
       </div>
 
-      <!-- PATH B: paste your own -->
       <div id="path-b" class="path">
-        <div class="hint">💡 Paste a YouTube transcript, a Facebook post, or any line that inspired you. I'll turn it into your own version.</div>
+        <div class="hint">Paste a YouTube transcript, a Facebook post, or any line that inspired you. AI will turn it into your own version.</div>
         <textarea id="tInput" placeholder="Paste here..."></textarea>
         <div class="row">
-          <button type="button" class="b-ghost" onclick="polish()">✨ Polish for me</button>
-          <button type="button" class="b-ghost" onclick="pasteFromClipboard()">📥 Paste</button>
+          <button type="button" onclick="polish()" id="polishBtn">Polish for me</button>
+          <button type="button" onclick="pasteFromClipboard()">Paste from clipboard</button>
         </div>
         <div id="tPolished" class="polished"></div>
       </div>
 
-      <!-- DAILY SPARK — appears on every day -->
       <div class="spark-box">
-        <div class="h">⚡ Daily Spark — 7 min</div>
+        <div class="h">Daily Spark &middot; 7 min</div>
         <div class="why">A tiny niche-discovery moment. After 14 of these, the topic that shows up most = your niche pointing at you.</div>
         <div class="steps-mini">
           <ol>
             <li>Open YouTube. Search ONE small question you wonder about today.</li>
             <li>Watch the first 5 min of one video. Pause.</li>
-            <li>Write ONE line below — what you learned + what you want to know more about.</li>
+            <li>Write ONE line below &mdash; what you learned + what you want to know more about.</li>
           </ol>
         </div>
         <textarea id="sparkLine" placeholder="Today I learned ___ and I want to know more about ___"></textarea>
-        <button type="button" class="save-btn" onclick="saveSpark()">⚡ Save my spark</button>
-        <div class="saved" id="sparkSaved">✅ Spark saved to your log.</div>
+        <button type="button" class="save-btn" onclick="saveSpark()">Save my spark</button>
+        <div class="saved" id="sparkSaved">&#x2713; Spark saved to your log.</div>
       </div>
 
-      <button type="button" class="b-win" onclick="completeTask()">✅ Another win for a creator</button>
+      <button type="button" class="b-win" onclick="completeTask()" id="winBtn">Another win for a creator</button>
       <button type="button" class="b-skip" onclick="goCheckin()">Not now, back to check-in</button>
     </div>
   </div>
 
-  <!-- DONE -->
   <div id="s-done" class="screen">
     <div class="intro">
-      <div class="title">🎉 Another win logged</div>
+      <div class="title">Another win logged</div>
       <div class="sub">Your streak is safe. Come back tomorrow for the next task.</div>
     </div>
     <div class="done">
-      <div class="big" id="dEmoji">🎉</div>
-      <h2 id="dTitle">Another win for a creator!</h2>
+      <div class="big" id="dEmoji">&#x2728;</div>
+      <h2 id="dTitle">Another win for a creator</h2>
       <p id="dMsg">You're one day closer.</p>
       <button type="button" class="go" onclick="goCheckin()">Done for today</button>
-      <button type="button" class="b-ghost" style="width:100%;margin-top:12px;padding:14px;border-radius:12px;border:2px solid #2a2a3a;background:#1a1a25;color:#FFD700;font-weight:700;cursor:pointer;" onclick="shareWin()">📣 Share my win to Facebook</button>
     </div>
   </div>
 
-  <!-- SPARK LOG -->
   <div id="s-sparks" class="screen">
     <div class="intro">
-      <div class="title">⚡ Your Spark Log</div>
-      <div class="sub">One curiosity line a day. Watch the pattern — that's your niche revealing itself.</div>
+      <div class="title">Your Spark Log</div>
+      <div class="sub">One curiosity line a day. Watch the pattern &mdash; that's your niche revealing itself.</div>
     </div>
     <div id="sparkList"></div>
   </div>
 
-  <!-- TIERS -->
   <div id="s-tiers" class="screen">
     <div class="intro">
-      <div class="title">🏅 Your tier ladder</div>
+      <div class="title">Your tier ladder</div>
       <div class="sub">Bronze = your first 14 days. Day 14 unlocks Silver. Crown = $1,000 earned for real.</div>
     </div>
     <div id="tiersList"></div>
   </div>
 
-  <!-- LIBRARY -->
   <div id="s-lib" class="screen">
     <div class="intro">
-      <div class="title">📚 Help library</div>
-      <div class="sub">Short clips. Tap if you get stuck. Optional — most days you just do today's task.</div>
+      <div class="title">Help library</div>
+      <div class="sub">Short clips. Tap if you get stuck.</div>
     </div>
-    <div class="lib-item">
-      <div class="nm">📝 PEEL post framework</div>
-      <div class="ds">Point → Evidence → Explain → Link. Justin Welsh's post recipe. Used in his $5M one-person business.</div>
-    </div>
-    <div class="lib-item">
-      <div class="nm">💬 Gary Vee's $1.80 Strategy</div>
-      <div class="ds">Leave your "two cents" (real comments) on 9 big posts a day. From Crushing It! — how unknown people get found.</div>
-    </div>
-    <div class="lib-item">
-      <div class="nm">🚢 Ship 30 for 30</div>
-      <div class="ds">Dickie Bush + Nicolas Cole. Public student data: the #1 predictor of finishing was completing Day 1.</div>
-    </div>
-    <div class="lib-item">
-      <div class="nm">🌱 Tiny Habits</div>
-      <div class="ds">BJ Fogg's Stanford lab method. Shrink the new behavior until it's stupid not to do it. That's why Day 1 is 90 seconds.</div>
-    </div>
-    <div class="lib-item">
-      <div class="nm">📱 How to post on Facebook</div>
-      <div class="ds">Opens Facebook, taps "What's on your mind?", paste your post. 60-second walkthrough.</div>
-    </div>
-    <div class="lib-item">
-      <div class="nm">💰 Warrior Plus setup</div>
-      <div class="ds">How to set up your affiliate account and get paid. Needed before Crown tier.</div>
-    </div>
+    <div class="lib-item"><div class="nm">PEEL post framework</div><div class="ds">Point &rarr; Evidence &rarr; Explain &rarr; Link. Justin Welsh's post recipe.</div></div>
+    <div class="lib-item"><div class="nm">Gary Vee's $1.80 Strategy</div><div class="ds">Leave real comments on 9 big posts a day. From Crushing It! (2018).</div></div>
+    <div class="lib-item"><div class="nm">Ship 30 for 30</div><div class="ds">Dickie Bush + Nicolas Cole. The #1 predictor of finishing was completing Day 1.</div></div>
+    <div class="lib-item"><div class="nm">Tiny Habits</div><div class="ds">BJ Fogg's Stanford lab method. Shrink the new behavior until it's stupid not to do it.</div></div>
+    <div class="lib-item"><div class="nm">How to post on Facebook</div><div class="ds">Opens Facebook, taps "What's on your mind?", paste your post.</div></div>
+    <div class="lib-item"><div class="nm">Warrior Plus setup</div><div class="ds">How to set up your affiliate account. Needed before Crown tier.</div></div>
   </div>
 
   <div class="footer">
-    UOM Action Brain · v1.4<br/>
-    <a onclick="resetAll()">Reset all (admin)</a>
+    UOM AI Coach &middot; v2.0<br/>
+    <a onclick="signOut()">Sign out</a>
   </div>
 
   <div class="nav">
-    <button type="button" data-nav="checkin" class="on" onclick="nav('checkin')"><div class="ic">📅</div>Today</button>
-    <button type="button" data-nav="sparks" onclick="nav('sparks')"><div class="ic">⚡</div>Sparks</button>
-    <button type="button" data-nav="tiers" onclick="nav('tiers')"><div class="ic">🏅</div>Tiers</button>
-    <button type="button" data-nav="lib" onclick="nav('lib')"><div class="ic">📚</div>Library</button>
-    <button type="button" data-nav="task" onclick="nav('task')"><div class="ic">🎯</div>Task</button>
+    <button type="button" data-nav="checkin" class="on" onclick="nav('checkin')"><div class="ic">&#x1F4C5;</div>Today</button>
+    <button type="button" data-nav="sparks" onclick="nav('sparks')"><div class="ic">&#x26A1;</div>Sparks</button>
+    <button type="button" data-nav="tiers" onclick="nav('tiers')"><div class="ic">&#x1F3C5;</div>Tiers</button>
+    <button type="button" data-nav="lib" onclick="nav('lib')"><div class="ic">&#x1F4DA;</div>Library</button>
+    <button type="button" data-nav="task" onclick="nav('task')"><div class="ic">&#x1F3AF;</div>Task</button>
   </div>
 
 </div>
 
 <div id="confetti" class="confetti"></div>
 
-<script>
-(function(){
-  var ACCESS = "uom2026";
-  var KEY = "uoa_state_v1_4";
-
-  var TIERS = [
-    { id:"bronze",   name:"Bronze",   emoji:"🟫", color:"#CD7F32", desc:"14-day starter ladder. Build the daily habit. End with your first 7 posts." },
-    { id:"silver",   name:"Silver",   emoji:"⚪", color:"#C0C0C0", desc:"Image posts. Add a picture to your words." },
-    { id:"gold",     name:"Gold",     emoji:"🟡", color:"#FFD700", desc:"Threads. A short story across 5 posts." },
-    { id:"platinum", name:"Platinum", emoji:"🔘", color:"#E5E4E2", desc:"Voice videos. No face — just your voice + text on screen." },
-    { id:"diamond",  name:"Diamond",  emoji:"💎", color:"#B9F2FF", desc:"Face or AI avatar videos. The big leap." },
-    { id:"crown",    name:"Crown",    emoji:"👑", color:"#FFD700", desc:"$1,000 in real commissions earned through UOM." }
-  ];
-
-  // ===== BRONZE 14-DAY LADDER =====
-  // Built on the Encouragement Playbook. Days 1-6 = action only (no posting yet).
-  // Day 7 = pin welcome post. Days 8-14 = daily PEEL post + comments.
-  var BRONZE = [
-    { day:1, title:"Save 1 post you liked",
-      time:"⏱️ 90 sec",
-      why:"Tiny start. So small your brain can't resist. This is Day 1 of your creator life.",
-      source:"<b>SOURCE:</b> BJ Fogg, Tiny Habits (Stanford Behavior Design Lab, 2019). Habits form from emotion + small actions, not big leaps.",
-      steps:[
-        "Open Facebook on your phone",
-        "Scroll for 90 seconds",
-        "Find ONE post that made you stop — tap 'Save'"
-      ],
-      type:"action", badge:null
-    },
-    { day:2, title:"Save 1 + leave 1 real comment",
-      time:"⏱️ 5 min",
-      why:"Real comments on big posts is how unknown people get found in Week 1.",
-      source:"<b>SOURCE:</b> Gary Vee's $1.80 Strategy (Crushing It!, 2018). Leave your two cents on real posts every day.",
-      steps:[
-        "Save 1 new post that made you pause",
-        "Find one BIG post (1000+ likes) in any topic you care about",
-        "Comment ONE line that adds your thought — never 'Great post!'"
-      ],
-      type:"action", badge:null
-    },
-    { day:3, title:"Save 1 + leave 3 real comments",
-      time:"⏱️ 15 min",
-      why:"Three days creates the first momentum. Your brain now expects this.",
-      source:"<b>SOURCE:</b> BJ Fogg's Stanford lab (40,000-person study). First behavioral momentum locks in by Day 3.",
-      steps:[
-        "Save 1 post you liked",
-        "Find 3 BIG posts in your interest area",
-        "Leave 3 real comments — each adds a thought, never just praise"
-      ],
-      type:"action", badge:"🎉 First Wave — Day 3"
-    },
-    { day:4, title:"Save 1 + leave 5 real comments",
-      time:"⏱️ 20 min",
-      why:"Five comments a day = 35 a week. People click your profile to see who left such thoughtful comments.",
-      source:"<b>SOURCE:</b> Justin Welsh — 'Engagement before content' (The Saturday Solopreneur newsletter).",
-      steps:[
-        "Save 1 post",
-        "Find 5 BIG posts in your interest area",
-        "Leave 5 real comments — each one is a real thought or quick story"
-      ],
-      type:"action", badge:null
-    },
-    { day:5, title:"5 comments + write your 1-line bio",
-      time:"⏱️ 25 min",
-      why:"You've shown up 4 days. NOW your profile gets a line so visitors know who you are.",
-      source:"<b>SOURCE:</b> Justin Welsh — 'Profile is your sales page' (LinkedIn Operating System course).",
-      steps:[
-        "Leave 5 real comments (like yesterday)",
-        "Go to your Facebook 'About' → write ONE line: 'I help ___ do ___'",
-        "Save"
-      ],
-      type:"action", badge:null
-    },
-    { day:6, title:"5 comments + 3-line bio + clear profile photo",
-      time:"⏱️ 30 min",
-      why:"Now your profile sells you. Posts coming next week will land on a real page.",
-      source:"<b>SOURCE:</b> Justin Welsh — Profile-as-sales-page rule.",
-      steps:[
-        "Leave 5 real comments",
-        "Update profile photo to a clear recent photo of you",
-        "Bio gets 3 lines: WHO you help → with WHAT → the RESULT they get"
-      ],
-      type:"action", badge:null
-    },
-    { day:7, title:"10 comments + pin a welcome post",
-      time:"⏱️ 45 min",
-      why:"End of Week 1. Your profile is ready. Your daily habit is alive.",
-      source:"<b>SOURCE:</b> Phillippa Lally, UCL European Journal of Social Psychology (2009). Seven days = behavior starts to feel familiar.",
-      steps:[
-        "Leave 10 real comments",
-        "Copy the welcome post below → post to Facebook",
-        "Tap the 3 dots on the post → 'Pin to top of profile'"
-      ],
-      type:"posting", badge:"🎉 Week 1 Done — Day 7",
-      ready:"Hi 👋\n\nI'm here to share what I'm learning every day.\n\nIf any of it helps you save time, money, or your sanity — let's stay connected.\n\nWhat's ONE thing you wish you knew sooner?",
-      safetyNote:"✅ Honest welcome — no fake claim. Safe to post.",
-      polishHint:"Paste any 'welcome' line you saw. I'll trim it to 4 short lines."
-    },
-    { day:8, title:"Your FIRST post (PEEL) + 10 comments",
-      time:"⏱️ 60 min",
-      why:"Today you cross from consumer to creator. PEEL gives the post a beginning, middle, end.",
-      source:"<b>SOURCE:</b> Justin Welsh's PEEL framework — Point, Evidence, Explain, Link. Used in his $5M business.",
-      steps:[
-        "Copy the post below (or write your own in PEEL order)",
-        "Open Facebook → 'What's on your mind?' → paste → Post",
-        "Leave 10 real comments on big posts in your interest area"
-      ],
-      type:"posting", badge:null,
-      ready:"Most people are one skill away from doubling their income.\n\nThey just don't know which skill.\n\nThe internet has the map.\n\nFew read it.\n\nWhat skill would YOU bet on for the next 12 months?",
-      safetyNote:"✅ Universal truth + question. Safe to post — no personal claim.",
-      polishHint:"Paste any 'one skill' or 'income' line. I'll cut it down."
-    },
-    { day:9, title:"Post #2 (PEEL) + 10 comments",
-      time:"⏱️ 60 min",
-      why:"Pick a different hook type from yesterday. Variety teaches the algorithm you're a real creator.",
-      source:"<b>SOURCE:</b> Alex Hormozi — '5 Hook Types' for daily content variation.",
-      steps:[
-        "Copy the post below (different style than Day 8)",
-        "Post on Facebook",
-        "Leave 10 real comments"
-      ],
-      type:"posting", badge:null,
-      ready:"Quick question for you:\n\nIf money wasn't a worry today, what would you do?\n\nNow ask yourself:\n\nWhy aren't you doing it?",
-      safetyNote:"✅ Pure question. Safe to post.",
-      polishHint:"Paste any 'imagine if...' question. I'll shape it."
-    },
-    { day:10, title:"Post #3 (PEEL) + 10 comments",
-      time:"⏱️ 60 min",
-      why:"Three posts in three days. People remember the regular ones.",
-      source:"<b>SOURCE:</b> Dickie Bush + Nicolas Cole (Ship 30 for 30) — daily shipping locks in identity.",
-      steps:[
-        "Copy the post below",
-        "Post on Facebook",
-        "Leave 10 real comments"
-      ],
-      type:"posting", badge:null,
-      ready:"Hard truth:\n\nYour job will replace you in 2 weeks if you quit.\n\nYour family won't.\n\nChoose where your time goes.",
-      safetyNote:"✅ Universal truth. Safe to post.",
-      polishHint:"Paste any 'hard truth' line. I'll trim."
-    },
-    { day:11, title:"Post #4 (PEEL) + 10 comments",
-      time:"⏱️ 75 min",
-      why:"Your comments are getting return-likes by now. People know your name.",
-      source:"<b>SOURCE:</b> Gary Vee — borrowed audience builds your own audience.",
-      steps:[
-        "Copy the post below",
-        "Post on Facebook",
-        "Leave 10 real comments — especially on people who commented back to you"
-      ],
-      type:"posting", badge:null,
-      ready:"The biggest reason people don't start:\n\nThey wait to feel ready.\n\nHere's what nobody tells you:\n\nYou never feel ready.\n\nStart anyway.",
-      safetyNote:"✅ Universal observation. Safe to post.",
-      polishHint:"Paste any 'feel ready' line. I'll format."
-    },
-    { day:12, title:"Post #5 (PEEL) + 10 comments",
-      time:"⏱️ 75 min",
-      why:"Five posts in. You now have data — which got likes? Which got comments? Use that tomorrow.",
-      source:"<b>SOURCE:</b> Alex Hormozi — 'Content Review Loop' (Acquisition.com content).",
-      steps:[
-        "Copy the post below",
-        "Post on Facebook",
-        "Leave 10 real comments"
-      ],
-      type:"posting", badge:null,
-      ready:"Myth: You need money to make money.\n\nTruth: You need attention.\n\nGet attention first.\n\nThe money follows.",
-      safetyNote:"✅ Universal truth. Safe to post.",
-      polishHint:"Paste any myth-vs-truth line. I'll cut to 3 lines."
-    },
-    { day:13, title:"Post #6 (PEEL) + 10 comments",
-      time:"⏱️ 75 min",
-      why:"One day from Identity Shift. The behavior is becoming who you are.",
-      source:"<b>SOURCE:</b> James Clear, Atomic Habits, Chapter 2 — 'Every action is a vote for who you are becoming.'",
-      steps:[
-        "Copy the post below",
-        "Post on Facebook",
-        "Leave 10 real comments"
-      ],
-      type:"posting", badge:null,
-      ready:"Most 'no' is just 'not yet.'\n\nThe people who win are the ones who keep going one round longer than the rest.\n\nWhich 'no' are you giving up on too early?",
-      safetyNote:"✅ Universal truth + question. Safe to post.",
-      polishHint:"Paste any 'don't give up' line. I'll shape it."
-    },
-    { day:14, title:"Post #7 + Weekly Review",
-      time:"⏱️ 75 min",
-      why:"Day 14 is the quitter's cliff. You're across it. You ARE a creator.",
-      source:"<b>SOURCE:</b> Phillippa Lally (UCL, 2009) — Day 14 is the inflection point. Most quitters quit here. You didn't.",
-      steps:[
-        "Post #7 (use the one below — it's honest because you DID show up 14 days)",
-        "Look at all 7 posts — which got the most reactions?",
-        "Write ONE line in your Spark Log: 'Next week I'll do more of ___'"
-      ],
-      type:"posting", badge:"🎉 IDENTITY SHIFT — Day 14",
-      ready:"Two weeks ago, I started showing up online every day.\n\nNothing huge happened.\nNo viral post. No flood of followers.\n\nJust this:\n\nI know now that I CAN be the person who shows up.\n\nThat is the win.",
-      safetyNote:"✅ Honest reflection on showing up. Safe — every UOM member who reaches Day 14 earned this.",
-      polishHint:"Paste your honest 14-day reflection. I'll trim it."
-    }
-  ];
-
-  var TASKS = {
-    bronze: BRONZE,
-    silver: [{
-      title:"Post a quote image on Facebook", time:"⏱️ 30 min",
-      why:"Image posts reach 3x more people than plain text on Facebook.",
-      source:"<b>SOURCE:</b> Facebook's own algorithm boosts images. Confirmed by Meta's 2024 creator report.",
-      steps:[
-        "Open Canva (free) → search 'quote post' → pick a 1080x1080 template",
-        "Paste your last winning text post line into the image",
-        "Download → post to Facebook with one short caption"
-      ],
-      type:"posting",
-      ready:"[Open Canva and design a 1080x1080 image with your last winning quote in white text on dark background. Caption: 'Saved this for the days I forget. 👇']",
-      safetyNote:"✅ Your own words in an image. Safe to post.",
-      polishHint:"Paste a quote — I'll suggest 3 caption styles."
-    }],
-    gold: [{
-      title:"Post a 5-line thread on Facebook or Threads", time:"⏱️ 45 min",
-      why:"Threads keep people in your post longer. Longer = more reach.",
-      source:"<b>SOURCE:</b> Format pioneered by Naval Ravikant on Twitter. Works the same on Facebook.",
-      steps:[
-        "Write 1 hook + 4 lesson lines + 1 question",
-        "Post as one Facebook post (or as a Threads thread)",
-        "Pin to top of your profile"
-      ],
-      type:"posting",
-      ready:"Hook: Most beginners quit at Day 14.\n\n1. They wait to feel ready.\n2. They compare to creators 5 years ahead.\n3. They post once, hear nothing, quit.\n4. They forget — early posts are reps, not rockets.\n\nWhat would YOU do differently if you started over?",
-      safetyNote:"✅ Universal observations. Safe to post.",
-      polishHint:"Paste any topic — I'll build a 6-line thread."
-    }],
-    platinum: [{
-      title:"Record a 60-second voice video (no face)", time:"⏱️ 60 min",
-      why:"Voice videos let you practice talking. No face = no fear.",
-      source:"<b>SOURCE:</b> Format used by Mel Robbins on her early Instagram. Black screen + voice + captions.",
-      steps:[
-        "Pick your most popular text post",
-        "Open CapCut → record audio of you reading it with emotion",
-        "Add white text on black background → export → post to Facebook Reels"
-      ],
-      type:"posting",
-      ready:"[Use your last winning text post as the script. Read it out loud with feeling. CapCut → black background → white text → export.]",
-      safetyNote:"✅ Your own voice, your own script. Safe to post.",
-      polishHint:"Paste your script — I'll trim it to exactly 60 seconds."
-    }],
-    diamond: [{
-      title:"Record a 60-second face or AI-avatar video", time:"⏱️ 60 min",
-      why:"Face videos build trust fastest. AI avatars work if you're camera-shy.",
-      source:"<b>SOURCE:</b> Format from Ali Abdaal's early YouTube. HeyGen AI works for avatar version.",
-      steps:[
-        "Use the same script from your Platinum video",
-        "Record yourself talking to camera (or use HeyGen for an AI avatar)",
-        "Post to Facebook Reels and YouTube Shorts"
-      ],
-      type:"posting",
-      ready:"[Use your Platinum script. Look at camera. Smile at the start. Pause for 1 second at the end.]",
-      safetyNote:"✅ Your own script. Safe to post.",
-      polishHint:"Paste your script — I'll add 3 hook variations to test."
-    }],
-    crown: [{
-      title:"Log a real commission", time:"⏱️ 5 min",
-      why:"Crown is earned, not given. Every dollar through UOM counts.",
-      source:"<b>SOURCE:</b> Your Warrior Plus or Systeme.io dashboard.",
-      steps:[
-        "Open Warrior Plus → Reports → Affiliate sales",
-        "Screenshot your earnings",
-        "Paste total earned in the box below"
-      ],
-      type:"posting",
-      ready:"[Paste your screenshot link or type the total earned here. Each $100 = 1 win toward Crown.]",
-      safetyNote:"✅ Your real data. Logged for you.",
-      polishHint:"Paste your earnings total. I'll log it."
-    }]
-  };
-
-  var state = {
-    userName: "", streak: 0, lastWinDate: "",
-    currentTier: 0,
-    tierProgress: { bronze:0, silver:0, gold:0, platinum:0, diamond:0, crown:0 },
-    bronzeDay: 1,
-    sparks: [],
-    checkin: { time:"", energy:"", mood:"" },
-    todayDone: false, todayDate: ""
-  };
-
-  function load() {
-    try {
-      var raw = localStorage.getItem(KEY);
-      if (raw) {
-        var saved = JSON.parse(raw);
-        for (var k in saved) state[k] = saved[k];
-      }
-    } catch(e) {}
-    if (!state.sparks) state.sparks = [];
-    if (!state.bronzeDay) state.bronzeDay = 1;
-  }
-  function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch(e) {} }
-
-  function todayStr() { var d = new Date(); return d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate(); }
-  function yesterdayStr() { var d = new Date(); d.setDate(d.getDate()-1); return d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate(); }
-
-  window.doLogin = function() {
-    var name = document.getElementById("nameInput").value.trim();
-    var code = document.getElementById("codeInput").value.trim();
-    var err = document.getElementById("err");
-    if (!name) { err.textContent = "Please type your first name."; return; }
-    if (code !== ACCESS) { err.textContent = "Wrong code. The code is uom2026"; return; }
-    state.userName = name;
-    save();
-    enterApp();
-  };
-  window.doDemo = function() { state.userName = "Demo"; save(); enterApp(); };
-
-  function enterApp() {
-    document.getElementById("login").style.display = "none";
-    document.getElementById("app").style.display = "block";
-    document.getElementById("greetName").textContent = state.userName;
-    if (state.lastWinDate === todayStr()) state.todayDone = true;
-    else if (state.lastWinDate !== yesterdayStr() && state.lastWinDate !== "") state.streak = 0;
-    if (state.todayDate !== todayStr()) {
-      state.todayDate = todayStr();
-      state.todayDone = (state.lastWinDate === todayStr());
-      state.checkin = { time:"", energy:"", mood:"" };
-    }
-    save();
-    refreshUI();
-    if (state.todayDone) showDone();
-    else nav("checkin");
-  }
-
-  function refreshUI() {
-    document.getElementById("streak").textContent = state.streak;
-    var t = TIERS[state.currentTier];
-    document.getElementById("tierChip").innerHTML = t.emoji + " " + t.name;
-    var dayChip = document.getElementById("dayChip");
-    if (t.id === "bronze") {
-      dayChip.textContent = "Day " + state.bronzeDay + "/14";
-      dayChip.style.display = "flex";
-    } else {
-      dayChip.style.display = "none";
-    }
-    renderTiers();
-    renderSparks();
-  }
-
-  document.addEventListener("click", function(e){
-    var b = e.target.closest(".opt");
-    if (!b) return;
-    var q = b.getAttribute("data-q");
-    var v = b.getAttribute("data-v");
-    state.checkin[q] = v;
-    var siblings = b.parentElement.querySelectorAll(".opt");
-    for (var i=0;i<siblings.length;i++) siblings[i].classList.remove("on");
-    b.classList.add("on");
-    save();
-    var ok = state.checkin.time && state.checkin.energy && state.checkin.mood;
-    document.getElementById("goBtn").disabled = !ok;
-  });
-
-  function currentTask() {
-    var tier = TIERS[state.currentTier];
-    var pool = TASKS[tier.id] || [];
-    if (tier.id === "bronze") {
-      var idx = Math.max(0, Math.min(state.bronzeDay - 1, pool.length - 1));
-      return pool[idx];
-    }
-    return pool[0];
-  }
-
-  function _switchScreen(name) {
-    var screens = ["checkin","task","done","sparks","tiers","lib"];
-    for (var i=0;i<screens.length;i++) {
-      var el = document.getElementById("s-"+screens[i]);
-      if (el) el.classList.toggle("active", screens[i] === name);
-    }
-    var btns = document.querySelectorAll(".nav button");
-    for (var j=0;j<btns.length;j++) {
-      btns[j].classList.toggle("on", btns[j].getAttribute("data-nav") === name);
-    }
-    try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch(e) { window.scrollTo(0,0); }
-  }
-
-  window.showTask = function() {
-    var t = currentTask();
-    var tier = TIERS[state.currentTier];
-
-    // Day pill (Bronze only)
-    var pill = document.getElementById("dayPill");
-    if (tier.id === "bronze" && t.day) {
-      pill.textContent = "DAY " + t.day + " OF 14 — " + tier.name.toUpperCase();
-      pill.style.display = "inline-block";
-    } else {
-      pill.textContent = tier.emoji + " " + tier.name.toUpperCase();
-      pill.style.display = "inline-block";
-    }
-
-    // Badge banner if earned today
-    var bb = document.getElementById("badgeBanner");
-    if (t.badge) {
-      bb.textContent = t.badge;
-      bb.classList.add("show");
-    } else {
-      bb.classList.remove("show");
-    }
-
-    document.getElementById("tTitle").textContent = t.title;
-    document.getElementById("tTime").textContent = t.time || "";
-    document.getElementById("tWhy").textContent = t.why;
-    document.getElementById("tSource").innerHTML = t.source;
-
-    var ol = document.getElementById("tSteps");
-    ol.innerHTML = "";
-    for (var i=0;i<t.steps.length;i++) {
-      var li = document.createElement("li");
-      li.textContent = t.steps[i];
-      ol.appendChild(li);
-    }
-
-    // Show/hide posting paths based on task type
-    var pathTabs = document.getElementById("pathTabs");
-    var pathA = document.getElementById("path-a");
-    var pathB = document.getElementById("path-b");
-    if (t.type === "posting") {
-      pathTabs.classList.add("show");
-      pathA.style.display = "block";
-      pathB.style.display = "none";
-      document.getElementById("readyPost").textContent = t.ready || "";
-      var sb = document.getElementById("safeBadge");
-      if (sb) sb.textContent = t.safetyNote || "✅ Safe to post — no personal claim made.";
-      switchPath('a');
-    } else {
-      pathTabs.classList.remove("show");
-      pathA.style.display = "none";
-      pathB.style.display = "none";
-    }
-
-    // Reset spark UI
-    document.getElementById("sparkLine").value = "";
-    document.getElementById("sparkSaved").classList.remove("show");
-    document.getElementById("tInput").value = "";
-    document.getElementById("tPolished").classList.remove("show");
-
-    _switchScreen("task");
-  };
-
-  window.switchPath = function(which) {
-    document.getElementById("pathA").classList.toggle("on", which === "a");
-    document.getElementById("pathB").classList.toggle("on", which === "b");
-    document.getElementById("path-a").classList.toggle("on", which === "a");
-    document.getElementById("path-b").classList.toggle("on", which === "b");
-  };
-
-  window.copyReady = function() {
-    var text = document.getElementById("readyPost").textContent;
-    copyString(text);
-    alert("✅ Copied! Now open Facebook → 'What's on your mind?' → paste → Post.");
-  };
-
-  window.pasteFromClipboard = async function() {
-    try {
-      var text = await navigator.clipboard.readText();
-      document.getElementById("tInput").value = text;
-    } catch(e) {
-      alert("Tap inside the box and press paste on your keyboard.");
-    }
-  };
-
-  window.polish = function() {
-    var input = document.getElementById("tInput").value.trim();
-    var t = currentTask();
-    var p = document.getElementById("tPolished");
-    if (!input) {
-      p.textContent = "💡 Paste something first. " + (t.polishHint || "");
-    } else {
-      var polished = simulatePolish(input);
-      p.textContent = "✨ Here's your polished post (copy this):\n\n" + polished;
-    }
-    p.classList.add("show");
-  };
-
-  function simulatePolish(text) {
-    var parts = text.replace(/\s+/g, " ").trim().split(/(?<=[.!?])\s+/);
-    var out = [];
-    for (var i = 0; i < Math.min(parts.length, 6); i++) {
-      var s = parts[i].trim();
-      if (s.length > 80) s = s.substring(0, 77) + "...";
-      out.push(s);
-      if (i < parts.length - 1) out.push("");
-    }
-    return out.join("\n");
-  }
-
-  function copyString(text) {
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(text).catch(function(){ fallbackCopy(text); });
-    } else { fallbackCopy(text); }
-  }
-  function fallbackCopy(text) {
-    var ta = document.createElement("textarea");
-    ta.value = text;
-    document.body.appendChild(ta);
-    ta.select();
-    try { document.execCommand("copy"); } catch(e) {}
-    document.body.removeChild(ta);
-  }
-
-  window.saveSpark = function() {
-    var line = document.getElementById("sparkLine").value.trim();
-    if (!line) {
-      alert("Write ONE line first — what you learned today + what you want to know more about.");
-      return;
-    }
-    var tier = TIERS[state.currentTier];
-    var t = currentTask();
-    state.sparks.push({
-      day: (tier.id === "bronze" && t.day) ? t.day : null,
-      date: todayStr(),
-      line: line
-    });
-    save();
-    document.getElementById("sparkSaved").classList.add("show");
-    renderSparks();
-  };
-
-  function renderSparks() {
-    var list = document.getElementById("sparkList");
-    if (!list) return;
-    list.innerHTML = "";
-    if (state.sparks.length === 0) {
-      list.innerHTML = '<div class="empty-state">No sparks yet.<br/><br/>Do your task today — save your first spark from the Daily Spark box on the task screen.</div>';
-      return;
-    }
-    for (var i = state.sparks.length - 1; i >= 0; i--) {
-      var s = state.sparks[i];
-      var item = document.createElement("div");
-      item.className = "spark-log-item";
-      var label = s.day ? ("Day " + s.day + " · " + s.date) : s.date;
-      item.innerHTML = '<div class="day">⚡ ' + label + '</div><div class="line">' + escapeHtml(s.line) + '</div>';
-      list.appendChild(item);
-    }
-  }
-
-  function escapeHtml(s) {
-    return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
-  }
-
-  window.completeTask = function() {
-    var tier = TIERS[state.currentTier];
-    state.tierProgress[tier.id] = (state.tierProgress[tier.id] || 0) + 1;
-
-    var leveledUp = false;
-    if (tier.id === "bronze") {
-      if (state.bronzeDay >= 14) {
-        // Day 14 complete → unlock Silver
-        state.currentTier = 1;
-        state.bronzeDay = 14;
-        leveledUp = true;
-      } else {
-        state.bronzeDay++;
-      }
-    } else {
-      // Silver+ tier: 10 wins to climb
-      if ((state.tierProgress[tier.id] || 0) >= 10 && state.currentTier < TIERS.length - 1) {
-        state.currentTier++;
-        leveledUp = true;
-      }
-    }
-
-    if (state.lastWinDate === yesterdayStr() || state.lastWinDate === "") state.streak++;
-    else if (state.lastWinDate !== todayStr()) state.streak = 1;
-    state.lastWinDate = todayStr();
-    state.todayDone = true;
-
-    save();
-    refreshUI();
-    fireConfetti();
-
-    if (leveledUp) showTierUp();
-    else showDone();
-  };
-
-  function showDone() {
-    nav("done");
-    var tier = TIERS[state.currentTier];
-    document.getElementById("dEmoji").textContent = "🎉";
-    document.getElementById("dTitle").textContent = "Another win for a creator!";
-    var msg = "";
-    if (tier.id === "bronze") {
-      var nextDay = state.bronzeDay;
-      msg = "You're on Day " + nextDay + " of 14. Come back tomorrow and I'll show you Day " + nextDay + "'s task.";
-    } else {
-      var remaining = 10 - (state.tierProgress[tier.id] || 0);
-      var next = TIERS[Math.min(state.currentTier+1, TIERS.length-1)];
-      msg = remaining > 0
-        ? remaining + " more wins to unlock " + next.name + "."
-        : "You're at the edge of " + next.name + ". One more push.";
-    }
-    document.getElementById("dMsg").textContent = msg;
-  }
-  function showTierUp() {
-    nav("done");
-    var t = TIERS[state.currentTier];
-    document.getElementById("dEmoji").textContent = t.emoji;
-    document.getElementById("dTitle").textContent = "🎊 You unlocked " + t.name + "!";
-    document.getElementById("dMsg").textContent = "New tier. New challenges. Keep going.";
-  }
-
-  window.goCheckin = function() { nav("checkin"); };
-  window.shareWin = function() {
-    var url = "https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fultimateonlinemastery.com&quote="+
-      encodeURIComponent("Another win for a creator. " + state.streak + " day streak in UOM Action Brain. 🔥");
-    window.open(url, "_blank");
-  };
-
-  function renderTiers() {
-    var box = document.getElementById("tiersList");
-    if (!box) return;
-    box.innerHTML = "";
-    for (var i=0;i<TIERS.length;i++) {
-      var t = TIERS[i];
-      var prog, goal, goalText;
-      if (t.id === "bronze") {
-        prog = (i < state.currentTier) ? 14 : (i === state.currentTier ? Math.max(0, state.bronzeDay - 1) : 0);
-        goal = 14;
-        goalText = "Day " + Math.min(state.bronzeDay, 14) + " / 14";
-        if (i < state.currentTier) goalText = "Complete ✅";
-      } else if (t.id === "crown") {
-        prog = state.tierProgress[t.id] || 0;
-        goal = 1000;
-        goalText = "$" + prog + " / $1,000";
-      } else {
-        prog = state.tierProgress[t.id] || 0;
-        goal = 10;
-        goalText = prog + " / 10 wins";
-      }
-      var pct = Math.min(100, (prog/goal)*100);
-      var cls = "tier-row";
-      if (i <= state.currentTier) cls += " active";
-      else cls += " locked";
-      var lockIcon = (i > state.currentTier) ? " 🔒" : "";
-      var row = document.createElement("div");
-      row.className = cls;
-      row.innerHTML =
-        '<div class="tier-icon" style="background:'+t.color+';">'+t.emoji+'</div>'+
-        '<div class="tier-info">'+
-          '<div class="tier-name">'+t.name+lockIcon+'</div>'+
-          '<div class="tier-desc">'+t.desc+'</div>'+
-          '<div class="bar"><div class="bar-fill" style="width:'+pct+'%;"></div></div>'+
-          '<div class="bar-text">'+goalText+'</div>'+
-        '</div>';
-      box.appendChild(row);
-    }
-  }
-
-  window.nav = function(name) {
-    if (name === "task") {
-      var ck = state.checkin || {};
-      var done = ck.time && ck.energy && ck.mood;
-      if (!done) {
-        alert("Finish your 3-tap check-in first. Then I'll show you today's task.");
-        _switchScreen("checkin");
-        return;
-      }
-      showTask();
-      return;
-    }
-    _switchScreen(name);
-  };
-
-  function fireConfetti() {
-    var box = document.getElementById("confetti");
-    var colors = ["#FFD700","#FFA500","#00E676","#FF6B6B","#4ECDC4"];
-    for (var i=0;i<40;i++) {
-      var dot = document.createElement("div");
-      dot.className = "dot";
-      dot.style.left = Math.random()*100+"%";
-      dot.style.top = "-20px";
-      dot.style.background = colors[Math.floor(Math.random()*colors.length)];
-      dot.style.animationDelay = (Math.random()*0.4)+"s";
-      box.appendChild(dot);
-    }
-    setTimeout(function(){ box.innerHTML = ""; }, 2500);
-  }
-
-  window.resetAll = function() {
-    if (!confirm("Wipe everything and start over?")) return;
-    try { localStorage.removeItem(KEY); } catch(e) {}
-    location.reload();
-  };
-
-  load();
-  if (state.userName) enterApp();
-})();
-</script>
+<script src="/assets/app.js"></script>
 </body>
 </html>

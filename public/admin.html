@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="theme-color" content="#0B0F14" />
+<title>UOM Coach · Admin</title>
+<script src="/config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<link rel="stylesheet" href="/assets/style.css" />
+<style>
+  body { padding-bottom: 40px; }
+  .admin-wrap { max-width: 1100px; margin: 0 auto; padding: 24px 18px; }
+  .admin-head {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 18px 0; border-bottom: 1px solid var(--border-soft); margin-bottom: 24px;
+  }
+  .admin-head .brand {
+    font-size: 16px; letter-spacing: 2px; color: var(--gold); font-weight: 500;
+  }
+  .admin-head .brand .sub { color: var(--ivory-soft); font-size: 12px; letter-spacing: 1px; margin-left: 10px; }
+  .stats {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 14px; margin-bottom: 28px;
+  }
+  .stat {
+    background: var(--bg-surface); border: 1px solid var(--border);
+    border-radius: 14px; padding: 18px;
+  }
+  .stat .label { font-size: 10px; color: var(--gold); font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 6px; }
+  .stat .value { font-size: 32px; font-weight: 300; color: var(--ivory); letter-spacing: -0.5px; }
+  .stat .hint { font-size: 11px; color: var(--muted); margin-top: 4px; }
+  .panel {
+    background: var(--bg-surface); border: 1px solid var(--border);
+    border-radius: 14px; padding: 20px; margin-bottom: 20px;
+  }
+  .panel h2 {
+    font-size: 12px; color: var(--gold); font-weight: 700; text-transform: uppercase;
+    letter-spacing: 1.5px; margin-bottom: 16px;
+  }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { text-align: left; color: var(--muted); font-weight: 600; padding: 10px 12px; border-bottom: 1px solid var(--border-soft); font-size: 11px; text-transform: uppercase; letter-spacing: 1px; }
+  td { color: var(--ivory-soft); padding: 12px; border-bottom: 1px solid var(--border-soft); }
+  tr:last-child td { border-bottom: none; }
+  .badge-mini {
+    display: inline-block; padding: 2px 8px; border-radius: 10px;
+    font-size: 10px; font-weight: 700; letter-spacing: 0.5px;
+  }
+  .b-active { background: rgba(123,168,143,0.15); color: var(--sage); border: 1px solid var(--sage); }
+  .b-risk   { background: rgba(201,123,92,0.15); color: var(--terracotta); border: 1px solid var(--terracotta); }
+  .b-cold   { background: rgba(138,132,120,0.15); color: var(--muted); border: 1px solid var(--muted); }
+  .empty { text-align: center; padding: 30px; color: var(--muted); font-size: 13px; }
+  .gate {
+    min-height: 100vh; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; padding: 40px 24px; text-align: center;
+  }
+  .gate h1 { font-size: 22px; font-weight: 300; letter-spacing: 1.5px; color: var(--ivory); margin-bottom: 8px; text-transform: uppercase; }
+  .gate p { color: var(--muted); font-size: 14px; margin-bottom: 24px; max-width: 360px; line-height: 1.6; }
+  .gate input { width: 100%; max-width: 320px; padding: 14px 16px; margin-bottom: 10px; background: var(--bg-surface); border: 1px solid var(--border); border-radius: 10px; color: var(--ivory); font-size: 15px; outline: none; }
+  .gate input:focus { border-color: var(--gold); }
+  .gate button { width: 100%; max-width: 320px; padding: 14px; background: linear-gradient(135deg, var(--gold), var(--gold-light)); color: var(--bg-base); border: none; border-radius: 10px; font-size: 15px; font-weight: 700; cursor: pointer; letter-spacing: 0.5px; }
+  .signout { background: transparent; color: var(--muted); border: 1px solid var(--border); padding: 6px 14px; border-radius: 8px; font-size: 12px; cursor: pointer; }
+  .signout:hover { color: var(--gold); border-color: var(--gold-deep); }
+</style>
+</head>
+<body>
+<div id="loading" class="loading-screen">
+  <div style="text-align:center;"><div class="spinner"></div></div>
+</div>
+
+<div id="gate" class="gate" style="display:none;">
+  <div style="font-size:48px;margin-bottom:18px;">👑</div>
+  <h1>Admin Sign In</h1>
+  <p>Only the UOM admin can access this dashboard.</p>
+  <input id="emailInput" type="email" placeholder="Admin email" autocomplete="email" />
+  <input id="passwordInput" type="password" placeholder="Password" autocomplete="current-password" />
+  <button type="button" id="gateBtn" onclick="adminSignIn()">Sign In</button>
+  <div id="err" class="err" style="margin-top:16px;color:#C56B5C;"></div>
+</div>
+
+<div id="dash" class="admin-wrap" style="display:none;">
+  <div class="admin-head">
+    <div class="brand">UOM AI COACH<span class="sub">ADMIN DASHBOARD</span></div>
+    <button class="signout" onclick="signOut()">Sign out</button>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="label">Total Members</div><div class="value" id="sTotal">0</div></div>
+    <div class="stat"><div class="label">Active This Week</div><div class="value" id="sActive">0</div><div class="hint">Posted in last 7 days</div></div>
+    <div class="stat"><div class="label">Avg Streak</div><div class="value" id="sStreak">0</div><div class="hint">across all members</div></div>
+    <div class="stat"><div class="label">At Risk</div><div class="value" id="sRisk">0</div><div class="hint">No win in 3+ days</div></div>
+    <div class="stat"><div class="label">Sparks Saved</div><div class="value" id="sSparks">0</div><div class="hint">all time</div></div>
+  </div>
+
+  <div class="panel">
+    <h2>⚠ At-risk members (no win in 3+ days)</h2>
+    <div id="riskTable">
+      <div class="empty">Loading...</div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>All members</h2>
+    <div id="memberTable">
+      <div class="empty">Loading...</div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>Top sparks this week</h2>
+    <div id="sparksList">
+      <div class="empty">Loading...</div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const C = window.UOM_CONFIG || {};
+  const sb = window.supabase.createClient(C.supabaseUrl, C.supabaseAnonKey);
+  const $ = s => document.querySelector(s);
+
+  window.adminSignIn = async function() {
+    const email = $('#emailInput').value.trim();
+    const password = $('#passwordInput').value;
+    const err = $('#err');
+    err.textContent = '';
+    $('#gateBtn').disabled = true;
+    $('#gateBtn').textContent = '...';
+    try {
+      const { error } = await sb.auth.signInWithPassword({ email, password });
+      if (error) throw error;
+      await checkAdmin();
+    } catch (e) {
+      err.textContent = e.message || 'Sign-in failed.';
+    } finally {
+      $('#gateBtn').disabled = false;
+      $('#gateBtn').textContent = 'Sign In';
+    }
+  };
+
+  window.signOut = async function() {
+    await sb.auth.signOut();
+    location.reload();
+  };
+
+  async function checkAdmin() {
+    const { data: { user } } = await sb.auth.getUser();
+    if (!user) return showGate();
+    const { data } = await sb.from('uom_profiles').select('is_admin, email').eq('id', user.id).maybeSingle();
+    if (!data || !data.is_admin) {
+      // If their email matches the configured admin email, promote them once.
+      if (user.email && user.email.toLowerCase() === (C.adminEmail || '').toLowerCase()) {
+        await sb.from('uom_profiles').update({ is_admin: true }).eq('id', user.id);
+      } else {
+        alert('Not an admin account.');
+        await sb.auth.signOut();
+        return showGate();
+      }
+    }
+    enterDash();
+  }
+
+  function showGate() {
+    $('#loading').style.display = 'none';
+    $('#dash').style.display = 'none';
+    $('#gate').style.display = 'flex';
+  }
+  function enterDash() {
+    $('#loading').style.display = 'none';
+    $('#gate').style.display = 'none';
+    $('#dash').style.display = 'block';
+    loadAll();
+  }
+
+  function daysSince(dateStr) {
+    if (!dateStr) return 999;
+    const d = new Date(dateStr);
+    const now = new Date();
+    return Math.floor((now - d) / (24*60*60*1000));
+  }
+  function escapeHtml(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  async function loadAll() {
+    const { data: members } = await sb.from('uom_profiles')
+      .select('id, display_name, email, current_tier, bronze_day, streak, last_win_date, created_at, is_admin')
+      .order('created_at', { ascending: false });
+    const ms = members || [];
+
+    // Stats
+    $('#sTotal').textContent = ms.length;
+    const today = new Date().toISOString().slice(0,10);
+    const weekAgo = new Date(Date.now() - 7*24*60*60*1000).toISOString().slice(0,10);
+    const activeCount = ms.filter(m => m.last_win_date && m.last_win_date >= weekAgo).length;
+    $('#sActive').textContent = activeCount;
+    const avgStreak = ms.length ? Math.round(ms.reduce((a,m) => a + (m.streak||0), 0) / ms.length) : 0;
+    $('#sStreak').textContent = avgStreak;
+    const atRisk = ms.filter(m => m.last_win_date && daysSince(m.last_win_date) >= 3 && daysSince(m.last_win_date) < 14);
+    $('#sRisk').textContent = atRisk.length;
+
+    // Risk table
+    if (atRisk.length === 0) {
+      $('#riskTable').innerHTML = '<div class="empty">No members at risk. Everyone is on track.</div>';
+    } else {
+      let h = '<table><thead><tr><th>Member</th><th>Day</th><th>Streak</th><th>Last win</th><th>Days idle</th></tr></thead><tbody>';
+      atRisk.forEach(m => {
+        h += `<tr>
+          <td>${escapeHtml(m.display_name || m.email)}</td>
+          <td>${m.current_tier === 'bronze' ? 'Day ' + m.bronze_day : m.current_tier}</td>
+          <td>${m.streak || 0} 🔥</td>
+          <td>${m.last_win_date || '—'}</td>
+          <td><span class="badge-mini b-risk">${daysSince(m.last_win_date)} days</span></td>
+        </tr>`;
+      });
+      h += '</tbody></table>';
+      $('#riskTable').innerHTML = h;
+    }
+
+    // Member table
+    if (ms.length === 0) {
+      $('#memberTable').innerHTML = '<div class="empty">No members yet.</div>';
+    } else {
+      let h = '<table><thead><tr><th>Member</th><th>Email</th><th>Tier</th><th>Day</th><th>Streak</th><th>Last win</th><th>Status</th></tr></thead><tbody>';
+      ms.forEach(m => {
+        const d = daysSince(m.last_win_date);
+        let status = '<span class="badge-mini b-cold">never</span>';
+        if (m.last_win_date) {
+          if (d === 0) status = '<span class="badge-mini b-active">today</span>';
+          else if (d === 1) status = '<span class="badge-mini b-active">yesterday</span>';
+          else if (d < 3) status = '<span class="badge-mini b-active">' + d + 'd</span>';
+          else if (d < 14) status = '<span class="badge-mini b-risk">' + d + 'd</span>';
+          else status = '<span class="badge-mini b-cold">' + d + 'd</span>';
+        }
+        h += `<tr>
+          <td>${escapeHtml(m.display_name || '—')}${m.is_admin?' <span class="badge-mini b-active">admin</span>':''}</td>
+          <td>${escapeHtml(m.email || '—')}</td>
+          <td>${escapeHtml(m.current_tier)}</td>
+          <td>${m.current_tier === 'bronze' ? 'Day ' + m.bronze_day : '—'}</td>
+          <td>${m.streak || 0} 🔥</td>
+          <td>${m.last_win_date || '—'}</td>
+          <td>${status}</td>
+        </tr>`;
+      });
+      h += '</tbody></table>';
+      $('#memberTable').innerHTML = h;
+    }
+
+    // Top sparks
+    const { data: sparks } = await sb.from('uom_sparks')
+      .select('line, day, created_at, user_id')
+      .gte('created_at', weekAgo)
+      .order('created_at', { ascending: false })
+      .limit(20);
+    $('#sSparks').textContent = (sparks || []).length;
+
+    if (!sparks || sparks.length === 0) {
+      $('#sparksList').innerHTML = '<div class="empty">No sparks saved this week yet.</div>';
+    } else {
+      let h = '';
+      // Make a quick lookup of user id → name
+      const nameMap = {};
+      ms.forEach(m => { nameMap[m.id] = m.display_name || m.email; });
+      sparks.forEach(s => {
+        const who = nameMap[s.user_id] || 'Member';
+        const d = (s.created_at || '').slice(0,10);
+        h += `<div class="spark-log-item">
+          <div class="day">⚡ ${escapeHtml(who)} · ${s.day ? 'Day ' + s.day + ' · ' : ''}${d}</div>
+          <div class="line">${escapeHtml(s.line)}</div>
+        </div>`;
+      });
+      $('#sparksList').innerHTML = h;
+    }
+  }
+
+  (async function init() {
+    try {
+      const { data: { session } } = await sb.auth.getSession();
+      if (session) await checkAdmin();
+      else showGate();
+    } catch (e) {
+      showGate();
+    }
+  })();
+})();
+</script>
+</body>
+</html>
