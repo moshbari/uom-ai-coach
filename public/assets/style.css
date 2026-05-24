@@ -749,3 +749,11 @@ textarea::placeholder { color: var(--muted-soft); }
   font-style: italic;
   font-family: Georgia, Cambria, serif;
 }
+
+/* === Comment helper saved-state — default hidden, toggled by .show === */
+.comment-helper .saved {
+  display: none;
+  color: var(--sage); font-size: 12px; font-weight: 600;
+  margin-top: 10px; text-align: center; letter-spacing: 0.3px;
+}
+.comment-helper .saved.show { display: block; }
