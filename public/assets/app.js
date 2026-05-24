@@ -1018,9 +1018,15 @@ Here is the Facebook post:
       reflEl.style.display = 'none';
       reflLoading.style.display = 'block';
       try {
+        // Send the FULL spark history (most recent first, today's spark already at index 0)
+        // so the AI Coach can detect alignment / divergence / scatter / pattern across days.
+        const history = (state.sparks || []).slice(0, 30).map(s => ({
+          line: s.line || '',
+          day: s.day || null
+        }));
         const r = await fetch(C.sparkReflectUrl || '/api/spark-reflect', {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ line, count: state.sparks.length })
+          body: JSON.stringify({ sparks: history, line })
         });
         const out = await r.json();
         if (r.ok && out.reflection) {

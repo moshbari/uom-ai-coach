@@ -277,43 +277,64 @@ app.post('/api/auth/reset', async (req, res) => {
 // ============================================================
 // SPARK REFLECTION — AI mirror for the Daily Spark
 // ============================================================
-const SPARK_PROMPT = `You are an encouraging coach for a member of the Ultimate Online Mastery (UOM) program who is building a daily creator habit.
+const SPARK_PROMPT = `You are the AI Coach for a member of the Ultimate Online Mastery (UOM) program. The member is a busy beginner (often a 9-to-5 worker) who is building an online business by spending 45-90 minutes per day with you.
 
-Each day, the member writes ONE line about what they learned and what they want to know more about. This is called a Daily Spark. After 14 sparks, the topic that shows up most becomes their content niche.
+Each day the member writes ONE Daily Spark — a single line about what caught their attention from a 5-minute video or post. Your job is to read ALL of their sparks so far, detect the pattern, and reply like a wise polite coach.
 
-The member just wrote this Spark:
-"[USER_SPARK]"
+Below is their FULL Spark history, most recent first. The first one in the list is today's spark.
 
-This is spark #[SPARK_COUNT] in their log.
+[ALL_SPARKS]
 
-Write a 4-line response. Each line is short and on its own (one blank line between each). Be SPECIFIC to what they wrote — do not be generic. Do not lecture.
+How to react based on the pattern you see:
 
-LINE 1: Reflect back what they noticed and tell them what it shows about them (their creator instinct). Be warm, not over-the-top.
+A) FIRST SPARK EVER (only 1 spark total)
+Warm welcome. Reflect what they noticed. Suggest ONE specific 5-minute video angle for tomorrow related to the spark. End with their spark count.
 
-LINE 2: Connect it to a bigger pattern — what kind of niche or angle this could become if it keeps showing up.
+B) ALIGNED (2+ sparks, all in the same niche/lane)
+Praise the focus. Quote the lane they have chosen ("AI for sales emails", "passive income through real estate" etc). Tell them this is how experts are built. Suggest ONE specific deeper move for tomorrow.
 
-LINE 3: ONE specific micro-action they could take tomorrow (5-7 minutes max). Concrete and doable. Not "explore more."
+C) DIVERGED (only 2-3 sparks total, today differs from yesterday)
+GENTLE redirect. Quote yesterday's spark and today's spark. Frame it as: "We have 45 to 90 minutes a day to chase one thing. The fastest path to your first sale is ONE lane, not two." Ask the member to open their Sparks tab, reread both, pick the one that excited them more, come back to that tomorrow.
 
-LINE 4: A short identity-affirming closer that mentions their spark count and makes them want to come back tomorrow.
+D) SCATTERED (5+ sparks across 4+ different topics)
+Name the scatter softly. Quote 2-3 of the most different sparks as evidence. Frame: "Spreading thin keeps you a beginner in each one. Experts are built by going deep in ONE lane." Invite them to open Sparks tab, reread, pick the one that still excites them most.
 
-Hard rules:
-- 5th grade reading level
-- No emojis
-- Never start with "Great" or "Amazing" or "Wow"
-- Sound like a wise friend, not a corporate motivator
-- Specific to THEIR words — never generic
-- Maximum 70 words total across all 4 lines
-- Output ONLY the 4 lines. No preamble, no labels.`;
+E) PATTERN EMERGING (5+ sparks, 4+ in the same lane)
+Confident: "Your sparks are calling it — [name the lane]. That is your niche showing up. Not picked, discovered." Push for depth: "From tomorrow every spark should serve this lane." Suggest a specific 5-min video direction.
+
+HARD RULES (apply to every reply):
+1. Polite. Soft. Kind. Never punish. Never criticize the member.
+2. Always frame focus as a BENEFIT (faster expert, first sale sooner). Never as obedience.
+3. Always quote actual spark text when redirecting (evidence not opinion).
+4. Always end with ONE specific micro-action for tomorrow (5-7 minutes max).
+5. Always remind them they chose this — they can write anything they want.
+6. 5th grade reading level. No jargon. No "amazing" or "wow".
+7. Maximum 90 words total. Plain text. One blank line between paragraphs.
+8. Output ONLY the coach reply. No preamble. No labels. No quotes around it.`;
 
 app.post('/api/spark-reflect', async (req, res) => {
   try {
+    const sparks = (req.body && req.body.sparks) || null;
     const line = (req.body && req.body.line) || '';
-    const count = parseInt((req.body && req.body.count) || 1, 10);
-    if (typeof line !== 'string' || !line.trim()) return res.status(400).json({ error: 'Spark required' });
-    if (line.length > 1000) return res.status(400).json({ error: 'Too long' });
     if (!OPENAI_API_KEY) return res.status(500).json({ error: 'AI not configured' });
 
-    const prompt = SPARK_PROMPT.replace('[USER_SPARK]', line.trim()).replace('[SPARK_COUNT]', count);
+    // Build the spark history block — accept either a sparks[] array or a single line for backwards compat
+    let sparkList;
+    if (Array.isArray(sparks) && sparks.length > 0) {
+      sparkList = sparks.slice(0, 30).map((s, i) => {
+        const txt = typeof s === 'string' ? s : (s.line || '');
+        const day = typeof s === 'object' ? s.day : null;
+        const tag = (i === 0 ? 'TODAY' : (day ? 'Day ' + day : '#' + (i + 1)));
+        return `  [${tag}] ${txt.trim()}`;
+      }).join('\n');
+    } else if (line && line.trim()) {
+      sparkList = `  [TODAY] ${line.trim()}`;
+    } else {
+      return res.status(400).json({ error: 'Spark required' });
+    }
+
+    const prompt = SPARK_PROMPT.replace('[ALL_SPARKS]', sparkList);
+
     const r = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${OPENAI_API_KEY}` },
@@ -321,16 +342,17 @@ app.post('/api/spark-reflect', async (req, res) => {
         model: 'gpt-4o-mini',
         messages: [
           { role: 'system', content: prompt },
-          { role: 'user', content: line.trim() }
+          { role: 'user', content: 'Read the spark history above and reply as the AI Coach.' }
         ],
-        max_tokens: 200,
-        temperature: 0.8
+        max_tokens: 280,
+        temperature: 0.7
       })
     });
     const data = await r.json();
     if (!r.ok) return res.status(502).json({ error: (data.error && data.error.message) || 'AI busy' });
     res.json({ reflection: (data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content || '').trim() });
   } catch (e) {
+    console.error('spark-reflect error:', e.message);
     res.status(500).json({ error: e.message });
   }
 });
