@@ -275,102 +275,208 @@ app.post('/api/auth/reset', async (req, res) => {
 
 
 // ============================================================
-// SPARK REFLECTION — AI mirror for the Daily Spark
+// SPARK REFLECTION — 2-call AI Coach (classify then respond)
 // ============================================================
-const SPARK_PROMPT = `You are the AI Coach for a member of the Ultimate Online Mastery (UOM) program. The member is a busy beginner (often a 9-to-5 worker) who is building an online business by spending 45-90 minutes per day with you.
+// Why 2 calls: a single-prompt model kept inventing umbrella niches
+// ("practical skills") to make K=1. Splitting into (1) deterministic
+// JSON classify then (2) mode-locked reply forces honest scatter detection.
 
-Each day the member writes ONE Daily Spark — a single line about what caught their attention from a 5-minute video or post. Your job is to read ALL of their sparks so far, detect the pattern, and reply like a wise polite coach.
+const CLASSIFY_PROMPT = `You are an industry classifier. For each spark below, output the SPECIFIC industry it lives in.
 
-Below is their FULL Spark history, most recent first. The first one in the list is today's spark.
+Rules:
+- 1 to 3 words per industry, lowercase, specific.
+- A niche = a real INDUSTRY or DOMAIN (fitness, agriculture, real estate, ai-coding, weight-loss, crypto, stock-trading, parenting, beauty, gaming, cooking, etc).
+- DO NOT use vague umbrellas like "practical skills", "self improvement", "making money", "learning", "growth", "online business", "physical activities", "personal development".
+- "ChatGPT for writing" = ai-writing.
+- "Bicep curls" = fitness.
+- "How to drive a tractor" = agriculture.
+- "Today I learned to swim" = swimming.
+- "AI cold email tools" = ai-sales.
+- "AI for Facebook ads" = ai-marketing.
+- "Weight loss tips" = weight-loss.
+- "Crypto staking" = crypto.
 
-[ALL_SPARKS]
+Output ONLY valid JSON in this exact shape:
+{"industries":["industry1","industry2",...]}
 
-DECISION TREE — follow exactly. Do not skip steps. Do not blend modes.
+Match order to the input order. No prose. No labels.`;
 
-STEP 1: Count the sparks. Call this N.
-STEP 2: Count how many DIFFERENT niches the sparks cover. Call this K.
+async function classifySparks(sparkLines) {
+  if (!sparkLines || sparkLines.length === 0) return [];
+  const userMsg = sparkLines.map((s, i) => `${i+1}. ${s}`).join('\n');
+  const r = await fetch('https://api.openai.com/v1/chat/completions', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${OPENAI_API_KEY}` },
+    body: JSON.stringify({
+      model: 'gpt-4o-mini',
+      messages: [
+        { role: 'system', content: CLASSIFY_PROMPT },
+        { role: 'user', content: userMsg }
+      ],
+      max_tokens: 200,
+      temperature: 0,
+      response_format: { type: 'json_object' }
+    })
+  });
+  const data = await r.json();
+  if (!r.ok) throw new Error('Classify failed: ' + ((data.error && data.error.message) || 'unknown'));
+  try {
+    const parsed = JSON.parse(data.choices[0].message.content);
+    return (parsed.industries || []).map(s => String(s).toLowerCase().trim());
+  } catch (e) {
+    throw new Error('Classify returned invalid JSON');
+  }
+}
 
-A niche = a specific INDUSTRY or DOMAIN. Examples below — follow these strictly.
+function pickMode(N, K) {
+  if (N === 1) return 'A';
+  if (N >= 2 && N <= 3 && K === 1) return 'B';
+  if (N >= 2 && N <= 3 && K >= 2) return 'C';
+  if (N >= 4 && K === 1) return 'E';
+  if (N >= 4 && K === 2) return 'B_soft';
+  return 'D';
+}
 
-SAME niche (K does NOT increase):
-  - "AI for sales emails" + "AI cold email tools" + "ChatGPT for outreach" = all 1 niche (AI sales tech)
-  - "Weight loss tips" + "fat burning workouts" + "calorie deficit" = all 1 niche (weight loss)
-  - "Real estate flipping" + "rental property cash flow" = 1 niche (real estate investing)
+function modeTemplate(mode) {
+  const templates = {
+    A: `Member just wrote their FIRST EVER spark. There is NO yesterday spark — do not invent one.
+Required shape (3 lines, blank line between each):
+- Reflect back what they noticed in plain warm words.
+- Suggest ONE specific 5-minute video angle for tomorrow related to their spark.
+- "Spark #1 saved. See you tomorrow."`,
 
-DIFFERENT niches (K must increase by 1 each):
-  - "ChatGPT for writing"  →  AI/writing
-  - "Bicep curls workouts"  →  Fitness
-  - "How to drive a tractor"  →  Agriculture/machinery
-  Result: K = 3 (three unrelated industries)
+    B: `All sparks share ONE niche. Praise the focus.
+Required shape (4 lines):
+- "Your sparks are calling it — [niche name in 2-4 words]. That is your niche showing up. Not picked, discovered."
+- "From tomorrow every spark should serve this lane. Depth before breadth. This is how experts are built."
+- ONE specific 5-minute video suggestion that goes deeper in the lane.
+- "Spark #[N] saved."
+FORBIDDEN words: "scattered", "spreading thin", "different topics", "open Sparks tab to choose".`,
 
-  - "AI agents" + "weight loss" + "crypto staking" + "stock picks"  →  K = 4
+    B_soft: `Sparks lean toward ONE main lane with a side-theme. Praise the main lane, gently flag the side-theme.
+Required shape (4 lines):
+- "Most of your sparks point to [main niche]. That is your lane forming."
+- "One spark touched [side niche] — fine to explore, but next 7 days, stay in [main niche] to go deeper."
+- ONE specific 5-minute video suggestion in the main lane.
+- "Spark #[N] saved."`,
 
-FORBIDDEN: Do NOT group sparks under abstract umbrellas like "practical skills", "self improvement", "making money", "learning", "growth", "online business". Those are too broad and meaningless. Count by INDUSTRY, not by purpose.
-
-If you find yourself wanting to say "your niche is practical skills" or "your niche is learning new things" — STOP. That means K is actually 2 or more and the correct mode is C or D, not E.
-STEP 3: Pick the mode using this exact lookup:
-  - If N == 1                      → MODE A
-  - If N == 2 or 3, and K == 1     → MODE B
-  - If N == 2 or 3, and K >= 2     → MODE C
-  - If N >= 4 and K == 1           → MODE E   (THIS MEANS PATTERN, NOT SCATTER)
-  - If N >= 4 and K >= 3           → MODE D
-  - If N >= 4 and K == 2           → MODE B with a soft note that two related themes are showing
-STEP 4: Use ONLY the matched mode's template. Never combine templates. Never use Mode D wording when in Mode E.
-
-MODE A — Use when N = 1 (only ONE spark total, first ever)
-There is NO yesterday. Do not invent one. Do not say "yesterday was X". Do NOT start with a count line like "1 spark in 1 day". Just open with the warm reflection.
-Required shape:
-- Line 1: Reflect back what they noticed in plain words.
-- Line 2: Suggest ONE specific 5-minute video angle for tomorrow related to their spark.
-- Line 3: "Spark #1 saved. See you tomorrow."
-
-CORRECT EXAMPLE for Mode A (single spark "AI agents look powerful — want to learn how to build one"):
-"You noticed AI agents are powerful. That curiosity is your starting point. Tomorrow, watch 5 minutes of any beginner intro on YouTube about how AI agents actually run. Save the one line that stops you. Spark #1 saved. See you tomorrow."
-
-MODE B — Use when sparks share ONE niche (selected via the lookup above)
-Praise the focus. Name the lane in plain words. Frame: "This is how experts are built — one lane, daily, depth before breadth." Suggest ONE specific 5-minute deeper move for tomorrow inside that lane. End with spark count. NEVER mention scattering or "spreading thin" in this mode.
-
-MODE C — Use when N is 2 OR 3 AND today differs from yesterday's lane
-DO NOT combine the two topics into one niche. They are different lanes.
-Required shape:
-- "Yesterday was [yesterday's topic]. Today is [today's topic]. Both are great, but they live in different niches."
+    C: `Sparks are in DIFFERENT niches with only 2-3 total. Gentle redirect.
+Required shape (4 lines):
+- "Yesterday was [yesterday's spark in plain words]. Today is [today's spark in plain words]. Both are great, but they live in different niches."
 - "We have 45 to 90 minutes a day to chase one thing. The fastest path to your first sale is ONE lane, not two."
 - "Open your Sparks tab. Read both. Which one made you feel more alive? Come back to that one tomorrow."
 - "Spark #[N] saved."
+FORBIDDEN: combining the two topics into one niche. They are different lanes — say so.`,
 
-MODE D — Use when N >= 5 AND there are 4 or more DIFFERENT topics
-List the spread. Quote 3 of the most different sparks. Soft framing.
-Required shape:
-- "[N] sparks in [N] days, but across [number] different topics."
-- Quote 3 sparks by short description (e.g. "AI agents, weight loss, crypto staking, stock picks").
+    D: `Sparks are SCATTERED across 3+ different industries. Honest call-out, soft framing.
+Required shape (5 lines):
+- "In [N] sparks you have written about [K] different niches: [list each industry separated by commas]."
+- Quote 3 of the actual spark lines as evidence.
 - "Spreading thin keeps you a beginner in each one. Experts are built by going deep in ONE lane."
-- "Open your Sparks tab. Read every spark again. Which one still excites you most? Tomorrow's spark, come back to that one."
+- "Open your Sparks tab. Read every spark again. Which one still excites you most? Tomorrow, come back to that one."
+- "Spark #[N] saved."`,
+
+    E: `Sparks are CONVERGING on ONE niche over 4+ days. Member is winning. Confident energizing tone.
+Required shape (4 lines):
+- "Your sparks are calling it — [niche name in 2-4 words]. That is your niche showing up. Not picked, discovered."
+- "From tomorrow every spark should serve this lane. Depth before breadth."
+- ONE specific 5-minute video suggestion that goes deeper in that lane.
 - "Spark #[N] saved."
+FORBIDDEN: "scattered", "spreading thin", "different topics", "open Sparks tab to choose".`
+  };
+  return templates[mode] || templates.A;
+}
 
-MODE E — Use when sparks are CONVERGING on ONE lane (selected via lookup above)
-This is GOOD news. The member is winning. Tone is confident and energizing, NOT a warning.
-Required shape EXACTLY:
-- Line 1: "Your sparks are calling it — [name the actual lane in 3-6 words]. That is your niche showing up. Not picked, discovered."
-- Line 2: "From tomorrow every spark should serve this lane. Depth before breadth."
-- Line 3: ONE specific 5-minute video suggestion that goes DEEPER in that lane.
-- Line 4: "Spark #[N] saved."
-FORBIDDEN in Mode E: words "scattered", "spreading thin", "different topics", "beginner in each", "open your Sparks tab to choose". Those are Mode D only.
+const REPLY_SYSTEM = `You are the AI Coach for a UOM member building an online business with 45-90 min per day.
 
-HARD RULES (apply to every reply):
-1. Polite. Soft. Kind. Never punish. Never criticize the member.
-2. Always frame focus as a BENEFIT (faster expert, first sale sooner). Never as obedience.
-3. Always quote actual spark text when redirecting (evidence not opinion).
-4. Always end with ONE specific micro-action for tomorrow (5-7 minutes max).
-5. Always remind them they chose this — they can write anything they want.
-6. 5th grade reading level. No jargon. No "amazing" or "wow".
-7. Maximum 90 words total. Plain text. One blank line between paragraphs.
-8. Output ONLY the coach reply. No preamble. No labels. No quotes around it.`;
+Hard rules (apply to every reply):
+1. Polite. Soft. Kind. Never punish. Never criticize.
+2. Frame focus as a BENEFIT (faster expert, first sale sooner) — never as obedience.
+3. End with one specific micro-action they can do tomorrow.
+4. 5th grade reading level. No jargon. No "amazing" or "wow".
+5. Maximum 100 words. Plain text. One blank line between paragraphs.
+6. Output ONLY the coach reply. No preamble. No labels.
+
+Below is the EXACT shape and tone for today's reply. Follow it precisely.`;
 
 app.post('/api/spark-reflect', async (req, res) => {
   try {
     const sparks = (req.body && req.body.sparks) || null;
     const line = (req.body && req.body.line) || '';
     if (!OPENAI_API_KEY) return res.status(500).json({ error: 'AI not configured' });
+
+    // Build the list of spark text in ORDER MOST-RECENT-FIRST
+    let sparkObjs = [];
+    if (Array.isArray(sparks) && sparks.length > 0) {
+      sparkObjs = sparks.slice(0, 30).map(s => ({
+        line: (typeof s === 'string' ? s : (s.line || '')).trim(),
+        day: typeof s === 'object' ? s.day : null
+      })).filter(s => s.line);
+    } else if (line && line.trim()) {
+      sparkObjs = [{ line: line.trim(), day: null }];
+    } else {
+      return res.status(400).json({ error: 'Spark required' });
+    }
+
+    const N = sparkObjs.length;
+
+    // STEP 1: classify each spark's industry
+    let industries = [];
+    try {
+      industries = await classifySparks(sparkObjs.map(s => s.line));
+    } catch (e) {
+      console.error('classify error:', e.message);
+      return res.status(502).json({ error: 'AI classify busy. Try again.' });
+    }
+    const uniqueIndustries = [...new Set(industries.map(s => s.toLowerCase().trim()).filter(Boolean))];
+    const K = uniqueIndustries.length;
+
+    // STEP 2: pick mode
+    const mode = pickMode(N, K);
+    const template = modeTemplate(mode);
+
+    // STEP 3: build the context block for the reply
+    const sparkBlock = sparkObjs.map((s, i) => {
+      const tag = (i === 0 ? 'TODAY' : (s.day ? 'Day ' + s.day : '#' + (i + 1)));
+      const industry = industries[i] || 'unknown';
+      return `  [${tag} | industry: ${industry}] ${s.line}`;
+    }).join('\n');
+
+    const userPayload = `Member spark history (most recent first):
+${sparkBlock}
+
+Stats: N=${N} (total sparks), K=${K} (distinct industries: ${uniqueIndustries.join(', ')})
+
+Mode you must use: ${mode}
+
+Mode template:
+${template}
+
+Now write the coach's reply, following the template's required shape exactly.`;
+
+    const r = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${OPENAI_API_KEY}` },
+      body: JSON.stringify({
+        model: 'gpt-4o-mini',
+        messages: [
+          { role: 'system', content: REPLY_SYSTEM },
+          { role: 'user', content: userPayload }
+        ],
+        max_tokens: 280,
+        temperature: 0.5
+      })
+    });
+    const data = await r.json();
+    if (!r.ok) return res.status(502).json({ error: (data.error && data.error.message) || 'AI busy' });
+
+    const reflection = ((data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) || '').trim();
+    res.json({ reflection, debug: { mode, N, K, industries: uniqueIndustries } });
+  } catch (e) {
+    console.error('spark-reflect error:', e.message);
+    res.status(500).json({ error: e.message });
+  }
+});
 
     // Build the spark history block — accept either a sparks[] array or a single line for backwards compat
     let sparkList;
