@@ -292,9 +292,13 @@ Here is the Facebook post:
         switchAuthTab('login');
       } else { // login (password)
         if (!password) { err.textContent = 'Password required.'; return; }
-        const { error } = await sb.auth.signInWithPassword({ email, password });
-        if (error) throw error;
-        await onSignedIn();
+        const result = await withTimeout(
+          sb.auth.signInWithPassword({ email, password }),
+          10000,
+          'signInWithPassword'
+        );
+        if (result && result.error) throw result.error;
+        await withTimeout(onSignedIn(), 10000, 'onSignedIn-after-password');
       }
     } catch (e) {
       err.textContent = e.message || 'Sign-in failed.';
