@@ -288,7 +288,26 @@ Below is their FULL Spark history, most recent first. The first one in the list 
 DECISION TREE — follow exactly. Do not skip steps. Do not blend modes.
 
 STEP 1: Count the sparks. Call this N.
-STEP 2: Count how many DIFFERENT niches the sparks cover. Call this K. Note: "AI for sales emails" and "AI cold email tools" are the SAME niche (count as 1). "Crypto" and "weight loss" are different niches (count as 2).
+STEP 2: Count how many DIFFERENT niches the sparks cover. Call this K.
+
+A niche = a specific INDUSTRY or DOMAIN. Examples below — follow these strictly.
+
+SAME niche (K does NOT increase):
+  - "AI for sales emails" + "AI cold email tools" + "ChatGPT for outreach" = all 1 niche (AI sales tech)
+  - "Weight loss tips" + "fat burning workouts" + "calorie deficit" = all 1 niche (weight loss)
+  - "Real estate flipping" + "rental property cash flow" = 1 niche (real estate investing)
+
+DIFFERENT niches (K must increase by 1 each):
+  - "ChatGPT for writing"  →  AI/writing
+  - "Bicep curls workouts"  →  Fitness
+  - "How to drive a tractor"  →  Agriculture/machinery
+  Result: K = 3 (three unrelated industries)
+
+  - "AI agents" + "weight loss" + "crypto staking" + "stock picks"  →  K = 4
+
+FORBIDDEN: Do NOT group sparks under abstract umbrellas like "practical skills", "self improvement", "making money", "learning", "growth", "online business". Those are too broad and meaningless. Count by INDUSTRY, not by purpose.
+
+If you find yourself wanting to say "your niche is practical skills" or "your niche is learning new things" — STOP. That means K is actually 2 or more and the correct mode is C or D, not E.
 STEP 3: Pick the mode using this exact lookup:
   - If N == 1                      → MODE A
   - If N == 2 or 3, and K == 1     → MODE B
