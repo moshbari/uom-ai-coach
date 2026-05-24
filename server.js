@@ -467,6 +467,16 @@ Now write the coach's reply, following the template's required shape exactly.`;
         temperature: 0.5
       })
     });
+    const data = await r.json();
+    if (!r.ok) return res.status(502).json({ error: (data.error && data.error.message) || 'AI busy' });
+
+    const reflection = ((data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) || '').trim();
+    res.json({ reflection, debug: { mode, N, K, industries: uniqueIndustries } });
+  } catch (e) {
+    console.error('spark-reflect error:', e.message);
+    res.status(500).json({ error: e.message });
+  }
+});
 
 // ============================================================
 // SPARK EXPLORER — turn one spark into 40 content ideas
