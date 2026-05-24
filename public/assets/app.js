@@ -62,7 +62,7 @@
       source:"<b>SOURCE:</b> Phillippa Lally, UCL (2009). Seven days = behavior starts to feel familiar.",
       steps:["Leave 10 real comments","Copy the welcome post → post to Facebook","Tap the 3 dots → 'Pin to top of profile'"],
       type:"posting", badge:"🎉 Week 1 Done — Day 7", badge_key:"week_1_done",
-      ready:"Hi 👋\n\nI'm here to share what I'm learning every day.\n\nIf any of it helps you save time, money, or your sanity — let's stay connected.\n\nWhat's ONE thing you wish you knew sooner?",
+      ready:"Most people scroll all day and remember nothing.\n\nI'm trying something different.\n\nEvery day I'm saving ONE thing I learned. After a month I'll have a map of what actually matters to me.\n\nMaybe it'll be useful to you too.\n\nWhat's ONE thing you wish someone had told you about earlier?",
       safetyNote:"✓ Honest welcome — no fake claim. Safe to post." },
     { day:8, title:"Your FIRST post (PEEL) + 10 comments", time:"⏱ 60 min",
       why:"Today you cross from consumer to creator. PEEL gives the post a beginning, middle, end.",
