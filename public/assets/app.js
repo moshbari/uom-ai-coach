@@ -588,6 +588,8 @@ Here is the Facebook post:
   }
 
   function refreshUI() {
+    const emailEl = document.getElementById('headerEmail');
+    if (emailEl && state.user && state.user.email) emailEl.textContent = state.user.email;
     $('#streak').textContent = state.profile.streak || 0;
     const tier = TIERS.find(t => t.id === state.profile.current_tier) || TIERS[0];
     $('#tierChip').textContent = tier.name;
@@ -761,6 +763,69 @@ Here is the Facebook post:
       await generatePersonalPost(task, { force: true });
       btn.disabled = false; btn.textContent = '↻ Try another angle';
     };
+  }
+
+
+  // ============================================================
+  // SUBTASK CHECKLIST — per-task progress counter, localStorage persisted
+  // ============================================================
+  function subtaskStorageKey(taskDay) {
+    return 'uom_sub_' + ((state.user && state.user.id) || 'anon') + '_d' + (taskDay || 'x') + '_' + todayStr();
+  }
+  function loadSubtaskProgress(taskDay) {
+    try { return JSON.parse(localStorage.getItem(subtaskStorageKey(taskDay)) || '{}'); }
+    catch(_) { return {}; }
+  }
+  function saveSubtaskProgress(taskDay, data) {
+    try { localStorage.setItem(subtaskStorageKey(taskDay), JSON.stringify(data)); } catch(_) {}
+  }
+  function renderSubtasks(task) {
+    const card = document.getElementById('subtasksCard');
+    const list = document.getElementById('subtasksList');
+    if (!card || !list) return;
+    const subs = (task && task.subtasks) || [];
+    if (!subs.length) { card.style.display = 'none'; return; }
+    card.style.display = 'block';
+    const progress = loadSubtaskProgress(task.day);
+    list.innerHTML = '';
+    subs.forEach(sub => {
+      const current = Math.min(progress[sub.id] || 0, sub.goal);
+      const done = current >= sub.goal;
+      const pct = Math.round((current / sub.goal) * 100);
+      const row = document.createElement('div');
+      row.className = 'subtask-row' + (done ? ' complete' : '');
+      const header = document.createElement('div');
+      header.style.cssText = 'display:flex;align-items:center;width:100%;';
+      header.innerHTML =
+        '<div class="subtask-label">' + escapeHtml(sub.label) + '</div>' +
+        '<div class="subtask-count ' + (done ? 'done' : '') + '">' + current + ' / ' + sub.goal + (done ? ' &#x2713;' : '') + '</div>';
+      row.appendChild(header);
+      if (sub.goal <= 14) {
+        const dots = document.createElement('div');
+        dots.className = 'subtask-dots';
+        for (let i = 0; i < sub.goal; i++) {
+          const dot = document.createElement('div');
+          dot.className = 'subtask-dot' + (i < current ? ' filled' : '');
+          dot.title = i < current ? 'Tap again to undo' : 'Tap to mark one done';
+          dot.addEventListener('click', () => {
+            const p = loadSubtaskProgress(task.day);
+            const cur = p[sub.id] || 0;
+            const target = (i < cur) ? i : i + 1;
+            p[sub.id] = target;
+            saveSubtaskProgress(task.day, p);
+            renderSubtasks(task);
+          });
+          dots.appendChild(dot);
+        }
+        row.appendChild(dots);
+      } else {
+        const bar = document.createElement('div');
+        bar.className = 'subtask-progress-bar';
+        bar.innerHTML = '<div class="subtask-progress-fill" style="width:' + pct + '%;"></div>';
+        row.appendChild(bar);
+      }
+      list.appendChild(row);
+    });
   }
 
   function _switchScreen(name) {
