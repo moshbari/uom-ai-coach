@@ -425,13 +425,26 @@ textarea::placeholder { color: var(--muted-soft); }
 .spark-box .steps-mini li { font-size: 12px; line-height: 1.65; color: var(--ivory-soft); margin-bottom: 2px; }
 .spark-box .steps-mini li::marker { color: var(--gold-light); }
 .spark-box textarea { min-height: 70px; font-size: 13px; }
-.spark-box .save-btn {
-  width: 100%; margin-top: 10px;
-  background: var(--gold); color: #FFFFFF;
-  border: none; border-radius: 10px; padding: 12px;
-  font-size: 13px; font-weight: 700; cursor: pointer; letter-spacing: 0.5px;
+
+/* === GLOBAL SAVE BUTTON (luxury) — works in any screen, not only spark-box === */
+.save-btn {
+  width: 100%; padding: 14px;
+  background: linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 100%);
+  color: #FFFFFF; border: none; border-radius: 12px;
+  font-size: 14px; font-weight: 700; cursor: pointer;
+  letter-spacing: 0.5px;
+  box-shadow: 0 4px 16px rgba(163,132,68,0.22);
+  transition: transform 0.1s ease, box-shadow 0.2s ease;
 }
-[data-theme="dark"] .spark-box .save-btn { color: var(--bg-base); }
+.save-btn:hover { box-shadow: 0 6px 22px rgba(163,132,68,0.32); transform: translateY(-1px); }
+.save-btn:active { transform: translateY(0); }
+.save-btn:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; transform: none; }
+[data-theme="dark"] .save-btn { color: var(--bg-base); }
+
+/* Compact variant for spark-box (smaller font) */
+.spark-box .save-btn {
+  padding: 12px; font-size: 13px; margin-top: 10px;
+}
 .spark-box .saved { color: var(--sage); font-size: 12px; font-weight: 600; margin-top: 8px; text-align: center; display: none; }
 .spark-box .saved.show { display: block; }
 
