@@ -467,56 +467,6 @@ Now write the coach's reply, following the template's required shape exactly.`;
         temperature: 0.5
       })
     });
-    const data = await r.json();
-    if (!r.ok) return res.status(502).json({ error: (data.error && data.error.message) || 'AI busy' });
-
-    const reflection = ((data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) || '').trim();
-    res.json({ reflection, debug: { mode, N, K, industries: uniqueIndustries } });
-  } catch (e) {
-    console.error('spark-reflect error:', e.message);
-    res.status(500).json({ error: e.message });
-  }
-});
-
-    // Build the spark history block — accept either a sparks[] array or a single line for backwards compat
-    let sparkList;
-    if (Array.isArray(sparks) && sparks.length > 0) {
-      sparkList = sparks.slice(0, 30).map((s, i) => {
-        const txt = typeof s === 'string' ? s : (s.line || '');
-        const day = typeof s === 'object' ? s.day : null;
-        const tag = (i === 0 ? 'TODAY' : (day ? 'Day ' + day : '#' + (i + 1)));
-        return `  [${tag}] ${txt.trim()}`;
-      }).join('\n');
-    } else if (line && line.trim()) {
-      sparkList = `  [TODAY] ${line.trim()}`;
-    } else {
-      return res.status(400).json({ error: 'Spark required' });
-    }
-
-    const prompt = SPARK_PROMPT.replace('[ALL_SPARKS]', sparkList);
-
-    const r = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${OPENAI_API_KEY}` },
-      body: JSON.stringify({
-        model: 'gpt-4o-mini',
-        messages: [
-          { role: 'system', content: prompt },
-          { role: 'user', content: 'Read the spark history above and reply as the AI Coach.' }
-        ],
-        max_tokens: 280,
-        temperature: 0.7
-      })
-    });
-    const data = await r.json();
-    if (!r.ok) return res.status(502).json({ error: (data.error && data.error.message) || 'AI busy' });
-    res.json({ reflection: (data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content || '').trim() });
-  } catch (e) {
-    console.error('spark-reflect error:', e.message);
-    res.status(500).json({ error: e.message });
-  }
-});
-
 
 // ============================================================
 // SPARK EXPLORER — turn one spark into 40 content ideas
