@@ -1047,23 +1047,43 @@ Here is the Facebook post:
     try {
       const urlErr = checkUrlError();
 
-      // If user arrived from a password-recovery email, route straight to recovery screen
+      // If user arrived from a password-recovery email, route straight to recovery screen.
+      // DO NOT clear the URL hash — the Supabase SDK needs it to establish the session.
+      // The SDK consumes it async and stores session in localStorage. We just wait.
       if (isRecoveryFlow()) {
         inRecoveryFlow = true;
-        // Let the SDK process the URL so we have an authenticated session for updateUser
-        let recovered = null;
-        try {
-          const r = await withTimeout(sb.auth.getSession(), 5000, 'getSession');
-          recovered = r && r.data && r.data.session;
-        } catch(_) {}
-        // Clear hash now that we've consumed it
-        if (window.location.hash) history.replaceState(null, '', window.location.pathname);
         $('#loading').style.display = 'none';
         $('#login').style.display = 'none';
         $('#app').style.display = 'block';
         const nav = document.querySelector('.nav'); if (nav) nav.style.display = 'none';
         const header = document.querySelector('.header'); if (header) header.style.display = 'none';
         _switchScreen('recovery');
+
+        // Poll for session up to 8 sec — SDK is processing hash in background
+        const btn = $('#recoverySaveBtn');
+        const err = $('#recoveryErr');
+        if (btn) { btn.disabled = true; btn.textContent = 'Verifying reset link...'; }
+        const start = Date.now();
+        let sess = null;
+        while (Date.now() - start < 8000) {
+          try {
+            const r = await sb.auth.getSession();
+            if (r && r.data && r.data.session) { sess = r.data.session; break; }
+          } catch(_) {}
+          await new Promise(res => setTimeout(res, 250));
+        }
+        // Now safe to clean the URL
+        if (window.location.hash) history.replaceState(null, '', window.location.pathname);
+
+        if (sess) {
+          if (btn) { btn.disabled = false; btn.textContent = 'Set new password and sign in'; }
+        } else {
+          if (btn) { btn.disabled = true; btn.textContent = 'Link expired'; }
+          if (err) {
+            err.style.color = 'var(--error)';
+            err.textContent = 'This reset link is no longer valid. Please request a fresh one from the login screen.';
+          }
+        }
         return;
       }
 
