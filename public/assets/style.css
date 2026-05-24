@@ -597,3 +597,29 @@ textarea::placeholder { color: var(--muted-soft); }
   border-radius: 8px; letter-spacing: 0.3px;
 }
 .theme-toggle button.on { background: var(--bg-elevated); color: var(--gold); }
+
+/* === DEVRANT DEEP LINK BUTTON === */
+.devrant-btn {
+  display: block;
+  width: 100%;
+  margin: 0 0 16px 0;
+  padding: 14px;
+  background: linear-gradient(135deg, #4a3a8a 0%, #6B5BA8 100%);
+  color: #FFFFFF;
+  text-align: center;
+  text-decoration: none;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  border: 1px solid #4a3a8a;
+  box-shadow: 0 4px 16px rgba(74,58,138,0.25);
+  transition: transform 0.1s, box-shadow 0.2s;
+  cursor: pointer;
+}
+.devrant-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 22px rgba(74,58,138,0.35); }
+.devrant-btn:active { transform: translateY(0); }
+[data-theme="dark"] .devrant-btn {
+  background: linear-gradient(135deg, #5a4aa0 0%, #7A6BC8 100%);
+  border-color: #5a4aa0;
+}

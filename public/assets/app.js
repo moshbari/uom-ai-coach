@@ -31,96 +31,105 @@
       why:"Tiny start. So small your brain can't resist. This is Day 1 of your creator life.",
       source:"<b>SOURCE:</b> BJ Fogg, Tiny Habits (Stanford Behavior Design Lab, 2019).",
       steps:["Open Facebook on your phone","Scroll for 90 seconds","Find ONE post that made you stop — tap 'Save'"],
-      type:"action", badge:null },
-    { day:2, title:"Save 1 + leave 1 real comment", time:"⏱ 5 min",
-      why:"Real comments on big posts is how unknown people get found in Week 1.",
-      source:"<b>SOURCE:</b> Gary Vee's $1.80 Strategy (Crushing It!, 2018).",
-      steps:["Save 1 new post that made you pause","Find one BIG post (1000+ likes)","Comment ONE line that adds your thought"],
-      type:"action", badge:null },
-    { day:3, title:"Save 1 + leave 3 real comments", time:"⏱ 15 min",
+      type:"action", badge:null
+    },
+    { day:2, title:"Save 1 + leave 1 strategic comment (using Comment Squad)", time:"⏱ 8 min",
+      why:"Real comments on big posts is how unknown people get found in Week 1. Comment Squad writes them for you.",
+      source:"<b>SOURCE:</b> Gary Vee's $1.80 Strategy + your devrant Comment Squad agent.",
+      steps:["Save 1 new post that made you pause","Find one BIG post (1000+ likes) in your interest area","Open Comment Squad in devrant → paste post → get a strategic comment → post it"],
+      type:"action", badge:null,
+      devrantTool:{ route:"/laboratory", label:"Open Comment Squad" }
+    },
+    { day:3, title:"Save 1 + 3 Comment Squad comments", time:"⏱ 18 min",
       why:"Three days creates the first momentum. Your brain now expects this.",
       source:"<b>SOURCE:</b> BJ Fogg's Stanford lab (40,000-person study).",
-      steps:["Save 1 post you liked","Find 3 BIG posts in your interest area","Leave 3 real comments — each adds a thought"],
-      type:"action", badge:"🎉 First Wave — Day 3", badge_key:"first_wave" },
-    { day:4, title:"Save 1 + leave 5 real comments", time:"⏱ 20 min",
-      why:"Five comments a day = 35 a week. People click your profile.",
+      steps:["Save 1 post you liked","Find 3 BIG posts in your interest area","Run each through Comment Squad → post the comments"],
+      type:"action", badge:"🎉 First Wave — Day 3", badge_key:"first_wave",
+      devrantTool:{ route:"/laboratory", label:"Open Comment Squad" }
+    },
+    { day:4, title:"5 Comment Squad comments + your FIRST text post", time:"⏱ 25 min",
+      why:"Comments warm your audience. The post is your first plant in their feed.",
       source:"<b>SOURCE:</b> Justin Welsh — Engagement before content.",
-      steps:["Save 1 post","Find 5 BIG posts in your interest area","Leave 5 real comments"],
-      type:"action", badge:null },
-    { day:5, title:"5 comments + write your 1-line bio", time:"⏱ 25 min",
-      why:"You've shown up 4 days. NOW your profile gets a line.",
-      source:"<b>SOURCE:</b> Justin Welsh — Profile-as-sales-page.",
-      steps:["Leave 5 real comments","Facebook → About → write ONE line: 'I help ___ do ___'","Save"],
-      type:"action", badge:null },
-    { day:6, title:"5 comments + 3-line bio + clear profile photo", time:"⏱ 30 min",
-      why:"Now your profile sells you. Posts coming next week will land on a real page.",
-      source:"<b>SOURCE:</b> Justin Welsh — Profile-as-sales-page.",
-      steps:["Leave 5 real comments","Update profile photo to a clear recent photo","Bio: WHO you help → with WHAT → the RESULT"],
-      type:"action", badge:null },
-    { day:7, title:"10 comments + pin a welcome post", time:"⏱ 45 min",
-      why:"End of Week 1. Your profile is ready. Your daily habit is alive.",
-      source:"<b>SOURCE:</b> Phillippa Lally, UCL (2009). Seven days = behavior starts to feel familiar.",
-      steps:["Leave 10 real comments","Copy the welcome post → post to Facebook","Tap the 3 dots → 'Pin to top of profile'"],
+      steps:["5 Comment Squad comments on big posts","Use the AI-personalized post below — copy and post to Facebook","Reply to anyone who comments on your post"],
+      type:"posting", badge:null,
+      frameworkHint:"A short universal-truth text post (3-4 lines). Should reference one of the member's recent sparks. End with a question. No personal claims that aren't supported by the sparks.",
+      safetyNote:"✓ Written for you from your sparks. Safe to post — your own voice.",
+      devrantTool:{ route:"/laboratory", label:"Open Comment Squad" }
+    },
+    { day:5, title:"⚡ FIRST VIDEO DAY — Audio Rant reaction (60 sec)", time:"⏱ 45 min",
+      why:"You don't need to show your face. A 60-sec audio reaction to a viral video in your niche = a video win by end of Week 1.",
+      source:"<b>SOURCE:</b> Mel Robbins's early Instagram method + your devrant Audio Rant tool.",
+      steps:["Find ONE viral video in your interest area (TikTok, Reels, YouTube Short)","Open Audio Rant in devrant → paste the video URL → record your 60-sec audio reaction","Download → post to Facebook Reels"],
+      type:"video", badge:null,
+      devrantTool:{ route:"/audio-rant", label:"Open Audio Rant" }
+    },
+    { day:6, title:"Audio Rant #2 + 5 comments + 1-line bio", time:"⏱ 50 min",
+      why:"Second video. Your reaction muscle is forming. Profile gets a sentence.",
+      source:"<b>SOURCE:</b> Justin Welsh — Profile-as-sales-page + your Audio Rant tool.",
+      steps:["Pick another viral video in your niche → Audio Rant → 60-sec reaction → post to Reels","Leave 5 Comment Squad comments","Facebook About → write ONE line: 'I help ___ do ___' → Save"],
+      type:"video", badge:null,
+      devrantTool:{ route:"/audio-rant", label:"Open Audio Rant" }
+    },
+    { day:7, title:"⚡ FIRST CLIP DAY + pinned welcome post", time:"⏱ 60 min",
+      why:"End of Week 1. You now know how to turn ONE long video into multiple short clips.",
+      source:"<b>SOURCE:</b> Phillippa Lally, UCL (2009) + your devrant Clip Maker.",
+      steps:["Pick a long YouTube video in your niche (10+ min)","Open Clip Maker → paste URL → AI cuts 3 viral-ready short clips","Post the BEST clip + copy the welcome post below → pin to top of your profile"],
       type:"posting", badge:"🎉 Week 1 Done — Day 7", badge_key:"week_1_done",
-      frameworkHint:"An HONEST WELCOME pinned post. Style: contrarian opener like Dan Koe ('Most people scroll all day and remember nothing — I'm trying something different'). Mention that the member has been collecting one curiosity a day. Promise quietly that future posts will share what they're learning. End with an inviting question.",
-      ready:"Most people scroll all day and remember nothing.\n\nI'm trying something different.\n\nEvery day I'm saving ONE thing I learned. After a month I'll have a map of what actually matters to me.\n\nMaybe it'll be useful to you too.\n\nWhat's ONE thing you wish someone had told you about earlier?",
-      safetyNote:"✓ Honest welcome — no fake claim. Safe to post." },
-    { day:8, title:"Your FIRST post (PEEL) + 10 comments", time:"⏱ 60 min",
-      why:"Today you cross from consumer to creator. PEEL gives the post a beginning, middle, end.",
-      source:"<b>SOURCE:</b> Justin Welsh's PEEL framework (Point, Evidence, Explain, Link).",
-      steps:["Copy the post below","Facebook → 'What's on your mind?' → paste → Post","Leave 10 real comments"],
-      type:"posting", badge:null,
-      frameworkHint:"A FIRST PEEL post. Style: Point + Evidence + Explain + Link question. Use ONE of their actual recent learnings as the Point. Make the Evidence a quick observation (no fake stats). Explain why it matters to the reader. End with a forward-looking question.",
-      ready:"Most people are one skill away from doubling their income.\n\nThey just don't know which skill.\n\nThe internet has the map.\n\nFew read it.\n\nWhat skill would YOU bet on for the next 12 months?",
-      safetyNote:"✓ Universal truth + question. Safe to post." },
-    { day:9, title:"Post #2 (PEEL) + 10 comments", time:"⏱ 60 min",
-      why:"Pick a different hook type from yesterday. Variety teaches the algorithm.",
-      source:"<b>SOURCE:</b> Alex Hormozi — 5 Hook Types for daily content.",
-      steps:["Copy the post below (different style than Day 8)","Post on Facebook","Leave 10 real comments"],
-      type:"posting", badge:null,
-      frameworkHint:"A QUESTION-LED post (Justin Welsh hook style). Start with a quick question that makes the reader stop. Then provide a short 'here is what nobody tells you' twist. Keep it under 5 lines. End with another invite-comment question.",
-      ready:"Quick question for you:\n\nIf money wasn't a worry today, what would you do?\n\nNow ask yourself:\n\nWhy aren't you doing it?",
-      safetyNote:"✓ Pure question. Safe to post." },
-    { day:10, title:"Post #3 (PEEL) + 10 comments", time:"⏱ 60 min",
-      why:"Three posts in three days. People remember the regular ones.",
-      source:"<b>SOURCE:</b> Dickie Bush + Nicolas Cole (Ship 30 for 30).",
-      steps:["Copy the post below","Post on Facebook","Leave 10 real comments"],
-      type:"posting", badge:null,
-      frameworkHint:"A HARD-TRUTH post (Alex Hormozi style). Open with 'Hard truth:' or 'Real talk:' then deliver a 3-line uncomfortable observation tied to one of the member's learnings. End with a reflective question.",
-      ready:"Hard truth:\n\nYour job will replace you in 2 weeks if you quit.\n\nYour family won't.\n\nChoose where your time goes.",
-      safetyNote:"✓ Universal truth. Safe to post." },
-    { day:11, title:"Post #4 (PEEL) + 10 comments", time:"⏱ 75 min",
-      why:"Your comments are getting return-likes by now. People know your name.",
-      source:"<b>SOURCE:</b> Gary Vee — borrowed audience builds your own audience.",
-      steps:["Copy the post below","Post on Facebook","Leave 10 real comments"],
-      type:"posting", badge:null,
-      frameworkHint:"A PERMISSION-TO-START post. Style: name a common fear/excuse, then dismantle it in 2 short lines. Tie the angle to whatever the member has been exploring. End with a question that nudges action.",
-      ready:"The biggest reason people don't start:\n\nThey wait to feel ready.\n\nHere's what nobody tells you:\n\nYou never feel ready.\n\nStart anyway.",
-      safetyNote:"✓ Universal observation. Safe to post." },
-    { day:12, title:"Post #5 (PEEL) + 10 comments", time:"⏱ 75 min",
-      why:"Five posts in. You now have data — which got likes? Which got comments?",
-      source:"<b>SOURCE:</b> Alex Hormozi — Content Review Loop.",
-      steps:["Copy the post below","Post on Facebook","Leave 10 real comments"],
-      type:"posting", badge:null,
-      frameworkHint:"A MYTH vs TRUTH post. Open with 'Myth:' then 'Truth:' on the next line. Use one of the member's learnings to pick the myth. 3-4 lines total. End with 'Which one were you taught?' or similar.",
-      ready:"Myth: You need money to make money.\n\nTruth: You need attention.\n\nGet attention first.\n\nThe money follows.",
-      safetyNote:"✓ Universal truth. Safe to post." },
-    { day:13, title:"Post #6 (PEEL) + 10 comments", time:"⏱ 75 min",
-      why:"One day from Identity Shift. The behavior is becoming who you are.",
-      source:"<b>SOURCE:</b> James Clear, Atomic Habits, Chapter 2.",
-      steps:["Copy the post below","Post on Facebook","Leave 10 real comments"],
-      type:"posting", badge:null,
-      frameworkHint:"A PERSISTENCE / DON'T-GIVE-UP post. Use one of the member's learnings as the anchor. Reframe a 'no' or a 'not yet' into momentum. End with 'Which no are you giving up on too early?' or similar.",
-      ready:"Most 'no' is just 'not yet.'\n\nThe people who win are the ones who keep going one round longer than the rest.\n\nWhich 'no' are you giving up on too early?",
-      safetyNote:"✓ Universal truth + question. Safe to post." },
-    { day:14, title:"Post #7 + Weekly Review", time:"⏱ 75 min",
-      why:"Day 14 is the quitter's cliff. You're across it. You ARE a creator.",
+      frameworkHint:"An HONEST WELCOME pinned post. Style: contrarian opener like Dan Koe ('Most people scroll all day and remember nothing — I'm trying something different'). Mention that the member has been collecting curiosity and making short videos for a week. Promise quietly that future posts will share what they're learning. End with an inviting question.",
+      safetyNote:"✓ Honest welcome — member HAS been showing up daily for 7 days. Safe.",
+      devrantTool:{ route:"/clip-maker", label:"Open Clip Maker" }
+    },
+    { day:8, title:"Reaction Agent video + 10 comments", time:"⏱ 60 min",
+      why:"Today you cross from consumer to creator with a structured reaction script. AI writes the script — you record.",
+      source:"<b>SOURCE:</b> Reaction Agent inside devrant (multi-tone scripts).",
+      steps:["Pick a viral video → Reaction Agent → choose tone (stand-up, expert, contrarian) → get full script","Record yourself reading the script (face or audio-only) → post to Reels","10 Comment Squad comments on big posts"],
+      type:"video", badge:null,
+      devrantTool:{ route:"/laboratory", label:"Open Reaction Agent" }
+    },
+    { day:9, title:"Clip Maker session — 3 clips staggered", time:"⏱ 60 min",
+      why:"One long video = 3 short posts. This is the volume secret of every top creator.",
+      source:"<b>SOURCE:</b> Hormozi's content-repurposing model.",
+      steps:["Pick a 20+ min YouTube video → Clip Maker → 3 short clips","Post clip 1 in the morning, clip 2 at lunch, clip 3 in the evening","10 Comment Squad comments"],
+      type:"video", badge:null,
+      devrantTool:{ route:"/clip-maker", label:"Open Clip Maker" }
+    },
+    { day:10, title:"Viral Script Agent — first ORIGINAL short video", time:"⏱ 75 min",
+      why:"Reactions teach you to talk. Original scripts teach you to lead. Viral Script Agent gives you the structure.",
+      source:"<b>SOURCE:</b> Viral Script Agent inside devrant.",
+      steps:["Open Viral Script Agent → pick angle → get full original short script","Record yourself (or use Audio Rant for audio-only) → 60-90 sec","Post to Reels + 10 Comment Squad comments"],
+      type:"video", badge:null,
+      devrantTool:{ route:"/laboratory", label:"Open Viral Script Agent" }
+    },
+    { day:11, title:"Multi-Clip Audio Rant — batch 3 reactions", time:"⏱ 75 min",
+      why:"Three audio reactions in one session = three days of content posted on schedule.",
+      source:"<b>SOURCE:</b> Multi-Clip Audio Rant inside devrant.",
+      steps:["Pick 3 viral videos in your niche","Open Multi-Clip Audio Rant → batch them → record 3 reactions in one sitting","Schedule them for the next 3 days + 10 Comment Squad comments"],
+      type:"video", badge:null,
+      devrantTool:{ route:"/multifile-webinar", label:"Open Multi-Clip / Webinar" }
+    },
+    { day:12, title:"Multi-File Webinar — turn a long recording into 5+ clips", time:"⏱ 75 min",
+      why:"If you have any long recording (your own, a podcast you love, a YouTube interview), this is where 1 hour becomes a week of content.",
+      source:"<b>SOURCE:</b> Multi-File Webinar inside devrant.",
+      steps:["Pick or upload one long recording","Open Multi-File Webinar → batch process","Post the best 1-2 clips today, schedule the rest + 10 Comment Squad comments"],
+      type:"video", badge:null,
+      devrantTool:{ route:"/multifile-webinar", label:"Open Multi-File Webinar" }
+    },
+    { day:13, title:"REPURPOSE DAY — 1 idea, 4 platforms", time:"⏱ 60 min",
+      why:"This is the volume secret. Top creators don't have more ideas — they squeeze each idea harder.",
+      source:"<b>SOURCE:</b> Gary Vee's content pyramid + your devrant agents.",
+      steps:["Pick your BEST post from this week","Run it through 4 devrant agents: Viral Script (long form) → Audio Rant (audio) → Clip Maker (visual) → Comment Squad (engagement)","Post all 4 outputs across the day"],
+      type:"video", badge:null,
+      devrantTool:{ route:"/laboratory", label:"Open devrant" }
+    },
+    { day:14, title:"⚡ Identity Shift — graduation post + Week 2 plan", time:"⏱ 75 min",
+      why:"Day 14 is the quitter's cliff. You're across it. You have a working content pipeline.",
       source:"<b>SOURCE:</b> Phillippa Lally (UCL, 2009).",
-      steps:["Post #7 (the one below)","Look at all 7 posts — which got the most reactions?","Save to Spark Log: 'Next week I'll do more of ___'"],
+      steps:["Post your honest 14-day reflection (below)","Look at all your posts — which got the most reactions?","Save to Spark Log: 'Next week I'll do more of ___'"],
       type:"posting", badge:"🎉 IDENTITY SHIFT — Day 14", badge_key:"identity_shift",
-      frameworkHint:"A REFLECTION ON SHOWING UP 14 DAYS. Honest tone. Mention the member has been showing up daily for 14 days (this is true). Reference the kind of topics they have been exploring. End with a question about what the reader would commit to.",
-      ready:"Two weeks ago, I started showing up online every day.\n\nNothing huge happened.\nNo viral post. No flood of followers.\n\nJust this:\n\nI know now that I CAN be the person who shows up.\n\nThat is the win.",
-      safetyNote:"✓ Honest reflection. Every UOM member who reaches Day 14 earned this." }
+      frameworkHint:"A REFLECTION ON SHOWING UP 14 DAYS. Honest tone. Mention the member has been showing up daily for 14 days, made first videos using AI tools, found their voice. Reference the kind of topics they have been exploring. End with a question about what the reader would commit to.",
+      safetyNote:"✓ Honest reflection. Every member who reaches Day 14 earned this.",
+      devrantTool:{ route:"/laboratory", label:"Open devrant" }
+    }
   ];
 
 
@@ -134,7 +143,7 @@
     pin:     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20"/><circle cx="12" cy="9" r="6"/></svg>',
     pen:     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/></svg>',
     crown:   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 17h20l-2-9-4 4-4-7-4 7-4-4-2 9z"/></svg>',
-    quill:   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 4L4 20"/><path d="M14 4h6v6"/><path d="M9 11l4 4"/></svg>'
+    quill:   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>'
   };
 
   function phaseForDay(day) {
@@ -149,9 +158,9 @@
     if (!task) return ICONS.save;
     const day = task.day;
     if (day === 14) return ICONS.crown;
-    if (day === 7) return ICONS.pin;
     if (day === 1) return ICONS.save;
-    if (day === 5 || day === 6) return ICONS.profile;
+    if (day === 7) return ICONS.pin;
+    if (task.type === 'video') return ICONS.quill; // film/camera-like
     if (task.type === 'posting') return ICONS.pen;
     return ICONS.comment;
   }
@@ -539,6 +548,44 @@ Here is the Facebook post:
   }
 
 
+
+  // ============================================================
+  // DEVRANT DEEP LINK — opens the right tool in a new tab
+  // ============================================================
+  function renderDevrantButton(task) {
+    // Remove any existing button first
+    const existing = document.getElementById('devrantBtn');
+    if (existing) existing.remove();
+    if (!task || !task.devrantTool) return;
+    const devUrl = (C.devrantUrl || '').replace(/\/+$/, '');
+    const route = task.devrantTool.route || '/laboratory';
+    const label = task.devrantTool.label || 'Open in devrant';
+    const target = devUrl ? (devUrl + route) : null;
+
+    const btn = document.createElement('a');
+    btn.id = 'devrantBtn';
+    btn.target = '_blank';
+    btn.rel = 'noopener noreferrer';
+    btn.className = 'devrant-btn';
+    btn.innerHTML = '<span style="display:flex;align-items:center;justify-content:center;gap:8px;"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>' + escapeHtml(label) + ' &rarr;</span>';
+    if (target) {
+      btn.href = target;
+    } else {
+      btn.removeAttribute('href');
+      btn.style.opacity = '0.55';
+      btn.style.cursor = 'not-allowed';
+      btn.title = 'Admin: set DEVRANT_URL env var to enable this button';
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        alert('Devrant URL not yet configured. Ask your admin to set DEVRANT_URL in Railway env vars.');
+      });
+    }
+    // Insert at top of card, right after the badge banner
+    const card = document.querySelector('#s-task .card');
+    const badge = document.getElementById('badgeBanner');
+    if (card && badge) card.insertBefore(btn, badge.nextSibling);
+  }
+
   // ============================================================
   // PERSONAL POST GENERATION — every member, every time, unique
   // ============================================================
@@ -675,12 +722,13 @@ Here is the Facebook post:
       $('#path-a').style.display = 'block'; $('#path-b').style.display = 'none';
       $('#safeBadge').textContent = t.safetyNote || 'Safe to post — written for you, no fake claim.';
       switchPath('a');
-      // Generate personalized post (or load cached version for today)
       generatePersonalPost(t);
     } else {
       pathTabs.classList.remove('show');
       $('#path-a').style.display = 'none'; $('#path-b').style.display = 'none';
     }
+    // Render devrant deep-link button (applies to ANY task that names a devrant tool)
+    renderDevrantButton(t);
     $('#sparkLine').value = ''; $('#sparkSaved').classList.remove('show');
     const _refl = $('#sparkReflection'); if (_refl) _refl.style.display = 'none';
     const _refLoad = $('#reflectionLoading'); if (_refLoad) _refLoad.style.display = 'none';

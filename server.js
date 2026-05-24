@@ -22,6 +22,7 @@ const RESEND_API_KEY = process.env.RESEND_API_KEY || '';
 const FROM_EMAIL = process.env.FROM_EMAIL || 'UOM AI Coach <uomaicoach@onesign.click>';
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'engrmoshbari@gmail.com';
 const APP_URL = process.env.APP_URL || 'https://uom-ai-coach-production.up.railway.app';
+const DEVRANT_URL = process.env.DEVRANT_URL || '';   // Optional — UOM's devrant creator suite
 
 app.use(express.json({ limit: '32kb' }));
 
@@ -57,6 +58,7 @@ app.get('/config.js', (_, res) => {
     sparkExploreUrl: '/api/spark-explore',
     sparkToPostUrl: '/api/spark-to-post',
     personalPostUrl: '/api/personal-post',
+    devrantUrl: DEVRANT_URL,
     magicLinkUrl: '/api/auth/magic-link',
     signupUrl: '/api/auth/signup',
     resetUrl: '/api/auth/reset'
