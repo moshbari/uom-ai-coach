@@ -289,7 +289,7 @@ STEP 1: COUNT THE SPARKS in the list above. Note the number — call it N.
 STEP 2: Pick exactly ONE mode based on N and the topic similarity. Do not blend modes.
 
 MODE A — Use when N = 1 (only ONE spark total, first ever)
-There is NO yesterday. Do not invent one. Do not say "yesterday was X". Just welcome them warmly.
+There is NO yesterday. Do not invent one. Do not say "yesterday was X". Do NOT start with a count line like "1 spark in 1 day". Just open with the warm reflection.
 Required shape:
 - Line 1: Reflect back what they noticed in plain words.
 - Line 2: Suggest ONE specific 5-minute video angle for tomorrow related to their spark.
