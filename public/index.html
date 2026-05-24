@@ -1,11 +1,12 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 <meta name="theme-color" content="#0B0F14" />
 <title>UOM AI Coach</title>
 <link rel="preconnect" href="https://cdn.jsdelivr.net" />
+<script>(function(){try{var t=localStorage.getItem("uom_theme")||"light";document.documentElement.setAttribute("data-theme",t);}catch(_){}})();</script>
 <script src="/config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <link rel="stylesheet" href="/assets/style.css" />
@@ -100,9 +101,13 @@
     </div>
 
     <div class="card">
-      <div class="day-pill" id="dayPill">DAY 1 OF 14</div>
+      <div class="progress-trail" id="progressTrail"></div>
+      <div class="day-pill phase-foundation" id="dayPill">DAY 1 OF 14</div>
       <div class="badge-banner" id="badgeBanner"></div>
-      <div class="task-title" id="tTitle">Loading...</div>
+      <div class="task-title-row">
+        <span class="task-icon" id="taskIcon"></span>
+        <div class="task-title" id="tTitle">Loading...</div>
+      </div>
       <span class="task-time" id="tTime"></span>
       <div class="task-why" id="tWhy"></div>
       <div class="source" id="tSource"></div>
@@ -276,6 +281,15 @@
       <input id="sNewPasswordConfirm" type="password" placeholder="Type the password again to confirm" autocomplete="new-password" style="width:100%;padding:12px 14px;background:var(--bg-base);border:1px solid var(--border);border-radius:10px;color:var(--ivory);font-size:14px;outline:none;margin-top:8px;" />
       <button type="button" class="save-btn" style="margin-top:10px;" id="passwordSaveBtn" onclick="saveNewPassword()">Save password</button>
       <div class="saved" id="passSaved">&#x2713; Password saved. Next time you can sign in with email + password.</div>
+    </div>
+
+    <div class="qbox">
+      <div class="qlabel">App theme</div>
+      <div class="qhelp">Pick the look you prefer. Warm light is easier on the eyes in daylight. Dark luxury is the original look.</div>
+      <div class="theme-toggle">
+        <button type="button" id="themeLight" onclick="setTheme('light')">Warm light</button>
+        <button type="button" id="themeDark" onclick="setTheme('dark')">Dark luxury</button>
+      </div>
     </div>
 
     <div class="qbox">

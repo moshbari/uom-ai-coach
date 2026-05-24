@@ -115,6 +115,70 @@
       safetyNote:"✓ Honest reflection. Every UOM member who reaches Day 14 earned this." }
   ];
 
+
+  // ============================================================
+  // VISUAL HELPERS — phase colors, day icons, progress trail
+  // ============================================================
+  const ICONS = {
+    save:    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>',
+    comment: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>',
+    profile: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21v-2a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v2"/></svg>',
+    pin:     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20"/><circle cx="12" cy="9" r="6"/></svg>',
+    pen:     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/></svg>',
+    crown:   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 17h20l-2-9-4 4-4-7-4 7-4-4-2 9z"/></svg>',
+    quill:   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 4L4 20"/><path d="M14 4h6v6"/><path d="M9 11l4 4"/></svg>'
+  };
+
+  function phaseForDay(day) {
+    if (!day) return { name: 'foundation', label: 'FOUNDATION' };
+    if ([3, 7, 14].includes(day)) return { name: 'milestone', label: 'MILESTONE' };
+    if (day <= 3) return { name: 'foundation', label: 'FOUNDATION' };
+    if (day <= 7) return { name: 'build',      label: 'BUILD' };
+    return                             { name: 'create',     label: 'CREATE' };
+  }
+
+  function iconForTask(task) {
+    if (!task) return ICONS.save;
+    const day = task.day;
+    if (day === 14) return ICONS.crown;
+    if (day === 7) return ICONS.pin;
+    if (day === 1) return ICONS.save;
+    if (day === 5 || day === 6) return ICONS.profile;
+    if (task.type === 'posting') return ICONS.pen;
+    return ICONS.comment;
+  }
+
+  function renderProgressTrail(currentDay) {
+    const trail = document.getElementById('progressTrail');
+    if (!trail) return;
+    const milestones = [3, 7, 14];
+    let html = '';
+    for (let d = 1; d <= 14; d++) {
+      let cls = 'trail-dot';
+      if (milestones.includes(d)) cls += ' milestone';
+      if (d < currentDay) cls += ' past';
+      else if (d === currentDay) cls += ' current';
+      html += `<div class="${cls}" title="Day ${d}${milestones.includes(d)?' • milestone':''}"></div>`;
+    }
+    trail.innerHTML = html;
+  }
+
+  // ============================================================
+  // THEME — persisted in localStorage
+  // ============================================================
+  window.setTheme = function(theme) {
+    if (theme !== 'light' && theme !== 'dark') theme = 'light';
+    document.documentElement.setAttribute('data-theme', theme);
+    try { localStorage.setItem('uom_theme', theme); } catch(_) {}
+    const lb = document.getElementById('themeLight');
+    const db = document.getElementById('themeDark');
+    if (lb) lb.classList.toggle('on', theme === 'light');
+    if (db) db.classList.toggle('on', theme === 'dark');
+  };
+  function currentTheme() {
+    return document.documentElement.getAttribute('data-theme') || 'light';
+  }
+
   const TASKS = {
     bronze: BRONZE,
     silver: [{ title:"Post a quote image", time:"⏱ 30 min", why:"Image posts reach 3x more people.", source:"<b>SOURCE:</b> Meta's 2024 creator report.", steps:["Open Canva → search 'quote post'","Paste your last winning line into image","Download → post to Facebook"], type:"posting", ready:"[Open Canva, design 1080x1080 with your quote in white on dark background.]", safetyNote:"✓ Your own words. Safe to post." }],
@@ -449,7 +513,22 @@ Here is the Facebook post:
     const t = currentTask();
     const tier = currentTier();
     const pill = $('#dayPill');
-    pill.textContent = (tier.id === 'bronze' && t.day) ? `DAY ${t.day} OF 14 — BRONZE` : tier.name.toUpperCase();
+    // Phase-aware day pill
+    pill.className = 'day-pill';
+    if (tier.id === 'bronze' && t.day) {
+      const phase = phaseForDay(t.day);
+      pill.classList.add('phase-' + phase.name);
+      pill.textContent = `DAY ${t.day}/14 — ${phase.label}`;
+      renderProgressTrail(t.day);
+      document.getElementById('progressTrail').style.display = 'flex';
+    } else {
+      pill.classList.add('phase-create');
+      pill.textContent = tier.name.toUpperCase();
+      document.getElementById('progressTrail').style.display = 'none';
+    }
+    // Task type icon
+    const iconEl = document.getElementById('taskIcon');
+    if (iconEl) iconEl.innerHTML = iconForTask(t);
     const bb = $('#badgeBanner');
     if (t.badge) { bb.textContent = t.badge; bb.classList.add('show'); } else bb.classList.remove('show');
     $('#tTitle').textContent = t.title;
@@ -815,6 +894,7 @@ Here is the Facebook post:
   // SETTINGS
   // ============================================================
   function loadSettings() {
+    setTheme(currentTheme());  // refresh toggle visual state
     $('#sEmail').textContent = state.user.email || '—';
     $('#sDisplayName').value = state.profile.display_name || '';
     $('#sNewPassword').value = '';
