@@ -1012,9 +1012,36 @@ Here is the Facebook post:
     ]);
   }
 
+  // Detect recovery flow from URL hash BEFORE the SDK clears it
+  function isRecoveryFlow() {
+    const h = window.location.hash || '';
+    return h.includes('type=recovery');
+  }
+
   (async function init() {
     try {
       const urlErr = checkUrlError();
+
+      // If user arrived from a password-recovery email, route straight to recovery screen
+      if (isRecoveryFlow()) {
+        inRecoveryFlow = true;
+        // Let the SDK process the URL so we have an authenticated session for updateUser
+        let recovered = null;
+        try {
+          const r = await withTimeout(sb.auth.getSession(), 5000, 'getSession');
+          recovered = r && r.data && r.data.session;
+        } catch(_) {}
+        // Clear hash now that we've consumed it
+        if (window.location.hash) history.replaceState(null, '', window.location.pathname);
+        $('#loading').style.display = 'none';
+        $('#login').style.display = 'none';
+        $('#app').style.display = 'block';
+        const nav = document.querySelector('.nav'); if (nav) nav.style.display = 'none';
+        const header = document.querySelector('.header'); if (header) header.style.display = 'none';
+        _switchScreen('recovery');
+        return;
+      }
+
       let session = null;
       try {
         const r = await withTimeout(sb.auth.getSession(), 5000, 'getSession');
@@ -1026,7 +1053,6 @@ Here is the Facebook post:
         try { await withTimeout(onSignedIn(), 8000, 'onSignedIn'); return; }
         catch (e) {
           console.error('[UOM] onSignedIn failed:', e);
-          // Clear corrupted session and show login with error
           try { await sb.auth.signOut(); } catch(_) {}
         }
       }
