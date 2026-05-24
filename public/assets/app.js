@@ -299,14 +299,32 @@ Here is the Facebook post:
         err.style.color = 'var(--sage)';
         err.textContent = 'Account created. Check your email — click the link to finish signing in.';
         switchAuthTab('login');
-      } else { // login (password)
+      } else { // login (password) — bypass SDK to avoid hangs from stale state
         if (!password) { err.textContent = 'Password required.'; return; }
-        const result = await withTimeout(
-          sb.auth.signInWithPassword({ email, password }),
+        // Clear any stale session first so the SDK doesn't try to refresh broken tokens
+        try { await sb.auth.signOut({ scope: 'local' }); } catch(_) {}
+        // Direct call to Supabase token endpoint
+        const tokenResp = await withTimeout(
+          fetch(C.supabaseUrl + '/auth/v1/token?grant_type=password', {
+            method: 'POST',
+            headers: {
+              'apikey': C.supabaseAnonKey,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ email, password })
+          }),
           10000,
-          'signInWithPassword'
+          'token-endpoint'
         );
-        if (result && result.error) throw result.error;
+        const tokenData = await tokenResp.json();
+        if (!tokenResp.ok) {
+          throw new Error(tokenData.error_description || tokenData.msg || 'Invalid email or password');
+        }
+        // Manually set the session in the SDK so onSignedIn / loadProfile work
+        await sb.auth.setSession({
+          access_token: tokenData.access_token,
+          refresh_token: tokenData.refresh_token
+        });
         await withTimeout(onSignedIn(), 10000, 'onSignedIn-after-password');
       }
     } catch (e) {
