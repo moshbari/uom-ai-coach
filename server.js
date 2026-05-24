@@ -330,10 +330,12 @@ async function classifySparks(sparkLines) {
 
 function pickMode(N, K) {
   if (N === 1) return 'A';
-  if (N >= 2 && N <= 3 && K === 1) return 'B';
-  if (N >= 2 && N <= 3 && K >= 2) return 'C';
-  if (N >= 4 && K === 1) return 'E';
+  if (K === 1) return N >= 4 ? 'E' : 'B';        // all sparks in one niche
+  if (N === 2 && K === 2) return 'C';              // 2 sparks, 2 niches — gentle pick-one
+  if (N === 3 && K === 2) return 'C';              // 3 sparks, 2 niches — still pick-one
+  if (N >= 3 && K === N) return 'D';               // fully scattered (no two share a niche)
   if (N >= 4 && K === 2) return 'B_soft';
+  if (N >= 4 && K >= 3) return 'D';
   return 'D';
 }
 
@@ -442,8 +444,14 @@ app.post('/api/spark-reflect', async (req, res) => {
       return `  [${tag} | industry: ${industry}] ${s.line}`;
     }).join('\n');
 
+    const todaySparkText = sparkObjs[0] ? sparkObjs[0].line : '';
+    const yesterdaySparkText = sparkObjs[1] ? sparkObjs[1].line : '';
     const userPayload = `Member spark history (most recent first):
 ${sparkBlock}
+
+EXPLICIT MAPPING (do not confuse these):
+- TODAY's spark = "${todaySparkText}"
+- YESTERDAY's spark = "${yesterdaySparkText || '(none — this is their first spark)'}"
 
 Stats: N=${N} (total sparks), K=${K} (distinct industries: ${uniqueIndustries.join(', ')})
 
@@ -452,7 +460,7 @@ Mode you must use: ${mode}
 Mode template:
 ${template}
 
-Now write the coach's reply, following the template's required shape exactly.`;
+Now write the coach's reply, following the template's required shape exactly. Use TODAY's spark text and YESTERDAY's spark text from the EXPLICIT MAPPING above — do not swap them.`;
 
     const r = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
