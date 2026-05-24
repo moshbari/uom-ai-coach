@@ -35,8 +35,8 @@
     },
     { day:2, title:"Save 1 + leave 1 strategic comment (using Comment Squad)", time:"⏱ 8 min",
       why:"Real comments on big posts is how unknown people get found in Week 1. Comment Squad writes them for you.",
-      source:"<b>SOURCE:</b> Gary Vee's $1.80 Strategy + your devrant Comment Squad agent.",
-      steps:["Save 1 new post that made you pause","Find one BIG post (1000+ likes) in your interest area","Open Comment Squad in devrant → paste post → get a strategic comment → post it"],
+      source:"<b>SOURCE:</b> Gary Vee's $1.80 Strategy + your RANT Squad: Comment Squad agent.",
+      steps:["Save 1 new post that made you pause","Find one BIG post (1000+ likes) in your interest area","Open Comment Squad in RANT Squad → paste post → get a strategic comment → post it"],
       type:"action", badge:null,
       devrantTool:{ route:"/laboratory", label:"Open Comment Squad" }
     },
@@ -58,8 +58,8 @@
     },
     { day:5, title:"⚡ FIRST VIDEO DAY — Audio Rant reaction (60 sec)", time:"⏱ 45 min",
       why:"You don't need to show your face. A 60-sec audio reaction to a viral video in your niche = a video win by end of Week 1.",
-      source:"<b>SOURCE:</b> Mel Robbins's early Instagram method + your devrant Audio Rant tool.",
-      steps:["Find ONE viral video in your interest area (TikTok, Reels, YouTube Short)","Open Audio Rant in devrant → paste the video URL → record your 60-sec audio reaction","Download → post to Facebook Reels"],
+      source:"<b>SOURCE:</b> Mel Robbins's early Instagram method + your RANT Squad: Audio Rant tool.",
+      steps:["Find ONE viral video in your interest area (TikTok, Reels, YouTube Short)","Open Audio Rant in RANT Squad → paste the video URL → record your 60-sec audio reaction","Download → post to Facebook Reels"],
       type:"video", badge:null,
       devrantTool:{ route:"/audio-rant", label:"Open Audio Rant" }
     },
@@ -72,7 +72,7 @@
     },
     { day:7, title:"⚡ FIRST CLIP DAY + pinned welcome post", time:"⏱ 60 min",
       why:"End of Week 1. You now know how to turn ONE long video into multiple short clips.",
-      source:"<b>SOURCE:</b> Phillippa Lally, UCL (2009) + your devrant Clip Maker.",
+      source:"<b>SOURCE:</b> Phillippa Lally, UCL (2009) + your RANT Squad: Clip Maker.",
       steps:["Pick a long YouTube video in your niche (10+ min)","Open Clip Maker → paste URL → AI cuts 3 viral-ready short clips","Post the BEST clip + copy the welcome post below → pin to top of your profile"],
       type:"posting", badge:"🎉 Week 1 Done — Day 7", badge_key:"week_1_done",
       frameworkHint:"An HONEST WELCOME pinned post. Style: contrarian opener like Dan Koe ('Most people scroll all day and remember nothing — I'm trying something different'). Mention that the member has been collecting curiosity and making short videos for a week. Promise quietly that future posts will share what they're learning. End with an inviting question.",
@@ -81,7 +81,7 @@
     },
     { day:8, title:"Reaction Agent video + 10 comments", time:"⏱ 60 min",
       why:"Today you cross from consumer to creator with a structured reaction script. AI writes the script — you record.",
-      source:"<b>SOURCE:</b> Reaction Agent inside devrant (multi-tone scripts).",
+      source:"<b>SOURCE:</b> Reaction Agent inside RANT Squad (multi-tone scripts).",
       steps:["Pick a viral video → Reaction Agent → choose tone (stand-up, expert, contrarian) → get full script","Record yourself reading the script (face or audio-only) → post to Reels","10 Comment Squad comments on big posts"],
       type:"video", badge:null,
       devrantTool:{ route:"/laboratory", label:"Open Reaction Agent" }
@@ -95,31 +95,31 @@
     },
     { day:10, title:"Viral Script Agent — first ORIGINAL short video", time:"⏱ 75 min",
       why:"Reactions teach you to talk. Original scripts teach you to lead. Viral Script Agent gives you the structure.",
-      source:"<b>SOURCE:</b> Viral Script Agent inside devrant.",
+      source:"<b>SOURCE:</b> Viral Script Agent inside RANT Squad.",
       steps:["Open Viral Script Agent → pick angle → get full original short script","Record yourself (or use Audio Rant for audio-only) → 60-90 sec","Post to Reels + 10 Comment Squad comments"],
       type:"video", badge:null,
       devrantTool:{ route:"/laboratory", label:"Open Viral Script Agent" }
     },
     { day:11, title:"Multi-Clip Audio Rant — batch 3 reactions", time:"⏱ 75 min",
       why:"Three audio reactions in one session = three days of content posted on schedule.",
-      source:"<b>SOURCE:</b> Multi-Clip Audio Rant inside devrant.",
+      source:"<b>SOURCE:</b> Multi-Clip Audio Rant inside RANT Squad.",
       steps:["Pick 3 viral videos in your niche","Open Multi-Clip Audio Rant → batch them → record 3 reactions in one sitting","Schedule them for the next 3 days + 10 Comment Squad comments"],
       type:"video", badge:null,
       devrantTool:{ route:"/multifile-webinar", label:"Open Multi-Clip / Webinar" }
     },
     { day:12, title:"Multi-File Webinar — turn a long recording into 5+ clips", time:"⏱ 75 min",
       why:"If you have any long recording (your own, a podcast you love, a YouTube interview), this is where 1 hour becomes a week of content.",
-      source:"<b>SOURCE:</b> Multi-File Webinar inside devrant.",
+      source:"<b>SOURCE:</b> Multi-File Webinar inside RANT Squad.",
       steps:["Pick or upload one long recording","Open Multi-File Webinar → batch process","Post the best 1-2 clips today, schedule the rest + 10 Comment Squad comments"],
       type:"video", badge:null,
       devrantTool:{ route:"/multifile-webinar", label:"Open Multi-File Webinar" }
     },
     { day:13, title:"REPURPOSE DAY — 1 idea, 4 platforms", time:"⏱ 60 min",
       why:"This is the volume secret. Top creators don't have more ideas — they squeeze each idea harder.",
-      source:"<b>SOURCE:</b> Gary Vee's content pyramid + your devrant agents.",
-      steps:["Pick your BEST post from this week","Run it through 4 devrant agents: Viral Script (long form) → Audio Rant (audio) → Clip Maker (visual) → Comment Squad (engagement)","Post all 4 outputs across the day"],
+      source:"<b>SOURCE:</b> Gary Vee's content pyramid + your RANT Squad agents.",
+      steps:["Pick your BEST post from this week","Run it through 4 RANT Squad agents: Viral Script (long form) → Audio Rant (audio) → Clip Maker (visual) → Comment Squad (engagement)","Post all 4 outputs across the day"],
       type:"video", badge:null,
-      devrantTool:{ route:"/laboratory", label:"Open devrant" }
+      devrantTool:{ route:"/laboratory", label:"Open RANT Squad" }
     },
     { day:14, title:"⚡ Identity Shift — graduation post + Week 2 plan", time:"⏱ 75 min",
       why:"Day 14 is the quitter's cliff. You're across it. You have a working content pipeline.",
@@ -128,7 +128,7 @@
       type:"posting", badge:"🎉 IDENTITY SHIFT — Day 14", badge_key:"identity_shift",
       frameworkHint:"A REFLECTION ON SHOWING UP 14 DAYS. Honest tone. Mention the member has been showing up daily for 14 days, made first videos using AI tools, found their voice. Reference the kind of topics they have been exploring. End with a question about what the reader would commit to.",
       safetyNote:"✓ Honest reflection. Every member who reaches Day 14 earned this.",
-      devrantTool:{ route:"/laboratory", label:"Open devrant" }
+      devrantTool:{ route:"/laboratory", label:"Open RANT Squad" }
     }
   ];
 
@@ -559,7 +559,7 @@ Here is the Facebook post:
     if (!task || !task.devrantTool) return;
     const devUrl = (C.devrantUrl || '').replace(/\/+$/, '');
     const route = task.devrantTool.route || '/laboratory';
-    const label = task.devrantTool.label || 'Open in devrant';
+    const label = task.devrantTool.label || 'Open in RANT Squad';
     const target = devUrl ? (devUrl + route) : null;
 
     const btn = document.createElement('a');
@@ -577,7 +577,7 @@ Here is the Facebook post:
       btn.title = 'Admin: set DEVRANT_URL env var to enable this button';
       btn.addEventListener('click', (e) => {
         e.preventDefault();
-        alert('Devrant URL not yet configured. Ask your admin to set DEVRANT_URL in Railway env vars.');
+        alert('RANT Squad URL not configured. Ask your admin to set DEVRANT_URL in Railway env vars.');
       });
     }
     // Insert at top of card, right after the badge banner
