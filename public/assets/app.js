@@ -31,7 +31,8 @@
       why:"This is the seed for tomorrow. One tiny action your brain cannot refuse.",
       source:"<b>SOURCE:</b> BJ Fogg, Tiny Habits (Stanford, 2019).",
       steps:["Open Facebook on your phone","Scroll until ONE post stops you","Tap Save"],
-      type:"action", badge:null
+      type:"action", badge:null,
+      subtasks: [ { id:"save", label:"Save 1 viral post", goal:1 } ],
     },
     { day:2, title:"First viral thread + 3 Comment Squad comments", time:"⏱ 20 min",
       why:"By tonight you have content live + a strategic comment on a big post. Both ship same day.",
@@ -42,6 +43,7 @@
         "Activate Comment Squad on 3 big posts (1000+ likes) in your niche → post each comment"
       ],
       type:"action", badge:null,
+      subtasks: [ { id:"thread", label:"Viral thread shipped", goal:1 }, { id:"comments", label:"Comment Squad comments", goal:3 } ],
       devrantTool:{ route:"/laboratory", label:"Open RANT Squad" }
     },
     { day:3, title:"First viral post + 7 Comment Squad comments", time:"⏱ 28 min",
@@ -53,6 +55,7 @@
         "Activate Comment Squad on 7 big posts in your niche → post each comment"
       ],
       type:"action", badge:null,
+      subtasks: [ { id:"thread", label:"Viral thread shipped", goal:1 }, { id:"post", label:"Viral post shipped", goal:1 }, { id:"comments", label:"Comment Squad comments", goal:7 } ],
       devrantTool:{ route:"/laboratory", label:"Open Viral Post Creator" }
     },
     { day:4, title:"Full flow + 8 Comment Squad comments (18 total — 🎉 First Wave)", time:"⏱ 35 min",
@@ -64,6 +67,7 @@
         "Activate Comment Squad on each → post each comment"
       ],
       type:"action", badge:"🎉 First Wave — Day 4", badge_key:"first_wave",
+      subtasks: [ { id:"thread", label:"Viral thread shipped", goal:1 }, { id:"post", label:"Viral post shipped", goal:1 }, { id:"comments", label:"Comment Squad comments", goal:8 } ],
       devrantTool:{ route:"/laboratory", label:"Open Comment Squad" }
     },
     { day:5, title:"Full flow + 8 comments + first thinking task", time:"⏱ 40 min",
@@ -75,6 +79,7 @@
         "THINKING TASK: open the top 10 viral posts in your niche today. Write 1 line in Daily Spark about what they have in common."
       ],
       type:"action", badge:null,
+      subtasks: [ { id:"thread", label:"Viral thread shipped", goal:1 }, { id:"post", label:"Viral post shipped", goal:1 }, { id:"comments", label:"Comment Squad comments", goal:8 }, { id:"thinking", label:"Thinking task: study top 10 viral posts", goal:1 } ],
       devrantTool:{ route:"/laboratory", label:"Open RANT Squad" }
     },
     { day:6, title:"Clip Maker — 3 clips + 10 Comment Squad comments", time:"⏱ 45 min",
@@ -86,6 +91,7 @@
         "10 Comment Squad comments + update profile photo + 1-line bio"
       ],
       type:"video", badge:null,
+      subtasks: [ { id:"clip", label:"Clip Maker session", goal:1 }, { id:"profile", label:"Profile photo + 1-line bio", goal:1 }, { id:"comments", label:"Comment Squad comments", goal:10 } ],
       devrantTool:{ route:"/clip-maker", label:"Open Clip Maker" }
     },
     { day:7, title:"Pinned welcome + Clip Maker #2 + 14 comments (50 total — 🎉 Week 1 Done)", time:"⏱ 55 min",
@@ -97,6 +103,7 @@
         "14 Comment Squad comments on big posts (this push puts you at 50 cumulative)"
       ],
       type:"posting", badge:"🎉 Week 1 Done — Day 7", badge_key:"week_1_done",
+      subtasks: [ { id:"welcome", label:"Pin the welcome post", goal:1 }, { id:"clip", label:"Clip Maker session #2", goal:1 }, { id:"comments", label:"Comment Squad comments", goal:14 } ],
       frameworkHint:"An HONEST WELCOME pinned post. Style: Dan Koe contrarian opener ('Most people scroll all day and remember nothing — I am trying something different'). Mention the member has been shipping content with AI agents for a week. End with an inviting question.",
       safetyNote:"✓ Honest — every Day 7 member has actually shipped 15+ pieces. Safe.",
       devrantTool:{ route:"/clip-maker", label:"Open Clip Maker" }
@@ -110,6 +117,7 @@
         "THINKING TASK: write 1 line in Daily Spark — which hook style worked best for YOUR clips this week?"
       ],
       type:"video", badge:null,
+      subtasks: [ { id:"clip1", label:"Morning Clip Maker session", goal:1 }, { id:"clip2", label:"Evening Clip Maker session", goal:1 }, { id:"comments", label:"Comment Squad comments", goal:10 }, { id:"thinking", label:"Thinking task: best hook style", goal:1 } ],
       devrantTool:{ route:"/clip-maker", label:"Open Clip Maker" }
     },
     { day:9, title:"FIRST Audio Rant + 8 Comment Squad comments", time:"⏱ 65 min",
@@ -121,6 +129,7 @@
         "8 Comment Squad comments on big posts"
       ],
       type:"video", badge:null,
+      subtasks: [ { id:"audio", label:"Audio Rant recorded + posted", goal:1 }, { id:"comments", label:"Comment Squad comments", goal:8 } ],
       devrantTool:{ route:"/audio-rant", label:"Open Audio Rant" }
     },
     { day:10, title:"Batch 2 Audio Rants + 8 comments + thinking", time:"⏱ 70 min",
@@ -132,6 +141,7 @@
         "THINKING TASK: what ONE niche pattern have you spotted this week? Write in Daily Spark."
       ],
       type:"video", badge:null,
+      subtasks: [ { id:"audio1", label:"Audio Rant #1", goal:1 }, { id:"audio2", label:"Audio Rant #2", goal:1 }, { id:"comments", label:"Comment Squad comments", goal:8 }, { id:"thinking", label:"Thinking task: niche pattern this week", goal:1 } ],
       devrantTool:{ route:"/audio-rant", label:"Open Audio Rant" }
     },
     { day:11, title:"Editor → Single Reaction + 8 comments", time:"⏱ 80 min",
@@ -143,6 +153,7 @@
         "8 Comment Squad comments on big posts"
       ],
       type:"video", badge:null,
+      subtasks: [ { id:"video", label:"Single Reaction video", goal:1 }, { id:"comments", label:"Comment Squad comments", goal:8 } ],
       devrantTool:{ route:"/video-editor", label:"Open Editor (Single Reaction)" }
     },
     { day:12, title:"Editor → Split React + 8 comments", time:"⏱ 80 min",
@@ -154,6 +165,7 @@
         "8 Comment Squad comments on big posts"
       ],
       type:"video", badge:null,
+      subtasks: [ { id:"video", label:"Split React video", goal:1 }, { id:"comments", label:"Comment Squad comments", goal:8 } ],
       devrantTool:{ route:"/video-editor", label:"Open Editor (Split React)" }
     },
     { day:13, title:"Editor → Multi-clip + 10 comments (🎉 100 crossed!) + thinking", time:"⏱ 85 min",
@@ -165,6 +177,7 @@
         "10 Comment Squad comments (🎉 you crossed 100 total!) + THINKING TASK in Daily Spark: of everything you posted this week, what got the best response? Why?"
       ],
       type:"video", badge:null,
+      subtasks: [ { id:"video", label:"Multi-clip reaction video", goal:1 }, { id:"comments", label:"Comment Squad comments", goal:10 }, { id:"thinking", label:"Thinking task: best response this week", goal:1 } ],
       devrantTool:{ route:"/video-editor", label:"Open Editor (Multi-clip)" }
     },
     { day:14, title:"⚡ Identity Shift — graduation post + 10 comments + Week 2 plan", time:"⏱ 80 min",
@@ -176,6 +189,7 @@
         "Look at your 14-day output — pick top 3 winners → write 1 line in Daily Spark: 'Week 2 I will do more of ___'"
       ],
       type:"posting", badge:"🎉 IDENTITY SHIFT — Day 14", badge_key:"identity_shift",
+      subtasks: [ { id:"reflection", label:"Graduation reflection post", goal:1 }, { id:"comments", label:"Comment Squad comments", goal:10 }, { id:"week2", label:"Week 2 plan in Spark Log", goal:1 } ],
       frameworkHint:"AN HONEST 14-DAY REFLECTION. Member has shipped 50+ pieces of content using AI agents (RANT Squad, Comment Squad, Clip Maker, Audio Rant, Editor) and left 110+ strategic comments. The real win is the consistency. End with a question about what the reader would commit to.",
       safetyNote:"✓ Honest — every Day 14 member earned this.",
       devrantTool:{ route:"/laboratory", label:"Open RANT Squad" }
@@ -786,6 +800,7 @@ Here is the Facebook post:
     $('#tSource').innerHTML = t.source;
     const ol = $('#tSteps'); ol.innerHTML = '';
     t.steps.forEach(s => { const li = document.createElement('li'); li.textContent = s; ol.appendChild(li); });
+    renderSubtasks(t);
     const pathTabs = $('#pathTabs');
     if (t.type === 'posting') {
       pathTabs.classList.add('show');
