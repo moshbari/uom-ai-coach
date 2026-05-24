@@ -623,3 +623,15 @@ textarea::placeholder { color: var(--muted-soft); }
   background: linear-gradient(135deg, #5a4aa0 0%, #7A6BC8 100%);
   border-color: #5a4aa0;
 }
+
+/* === New AUDIO phase pill (Days 9-10) === */
+.day-pill.phase-audio {
+  background: rgba(184,129,76,0.12);
+  color: var(--bronze);
+  border: 1px solid var(--bronze);
+}
+[data-theme="dark"] .day-pill.phase-audio {
+  background: rgba(184,129,76,0.18);
+  color: #D49A6E;
+  border-color: #B8814C;
+}
