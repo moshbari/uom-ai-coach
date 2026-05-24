@@ -324,21 +324,22 @@ Here is the Facebook post:
   let inRecoveryFlow = false;
   sb.auth.onAuthStateChange(async (event, session) => {
     if (event === 'PASSWORD_RECOVERY') {
-      // User clicked a recovery email link — show set-new-password screen, not normal app
       inRecoveryFlow = true;
-      if (window.location.hash) history.replaceState(null, '', window.location.pathname);
+      // DO NOT clear hash — SDK needs it
       $('#loading').style.display = 'none';
       $('#login').style.display = 'none';
       $('#app').style.display = 'block';
-      // Make sure user can't navigate away accidentally — hide nav until password is set
       const nav = document.querySelector('.nav'); if (nav) nav.style.display = 'none';
       const header = document.querySelector('.header'); if (header) header.style.display = 'none';
       _switchScreen('recovery');
       return;
     }
-    if (event === 'SIGNED_IN' && session && !state.user && !inRecoveryFlow) {
+    // Catch any sign-in style event with a real session
+    const signInEvents = ['SIGNED_IN', 'INITIAL_SESSION', 'TOKEN_REFRESHED', 'USER_UPDATED'];
+    if (signInEvents.includes(event) && session && session.user && !state.user && !inRecoveryFlow) {
       if (window.location.hash) history.replaceState(null, '', window.location.pathname);
-      await onSignedIn();
+      try { await onSignedIn(); }
+      catch (e) { console.error('[UOM] onSignedIn (via event):', e); }
     }
   });
 
@@ -1087,12 +1088,22 @@ Here is the Facebook post:
         return;
       }
 
+      // Poll for session up to 6 sec — SDK processes URL hash async, so getSession()
+      // can return null on first try even when a valid magic-link token is in the hash.
       let session = null;
-      try {
-        const r = await withTimeout(sb.auth.getSession(), 5000, 'getSession');
-        session = r && r.data && r.data.session;
-      } catch (e) {
-        console.error('[UOM] getSession failed:', e);
+      const start = Date.now();
+      while (Date.now() - start < 6000) {
+        try {
+          const r = await sb.auth.getSession();
+          if (r && r.data && r.data.session && r.data.session.user) {
+            session = r.data.session;
+            break;
+          }
+        } catch (e) { console.error('[UOM] getSession failed:', e); }
+        // No session yet — wait 200ms and retry (SDK may still be parsing hash)
+        await new Promise(res => setTimeout(res, 200));
+        // If there's no hash AND we already polled twice, we're definitely logged out
+        if (!window.location.hash && Date.now() - start > 400) break;
       }
       if (session) {
         try { await withTimeout(onSignedIn(), 8000, 'onSignedIn'); return; }
