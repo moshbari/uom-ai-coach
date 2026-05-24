@@ -814,6 +814,7 @@ Here is the Facebook post:
             p[sub.id] = target;
             saveSubtaskProgress(task.day, p);
             renderSubtasks(task);
+            updateWinButtonState(task);
           });
           dots.appendChild(dot);
         }
@@ -826,6 +827,36 @@ Here is the Facebook post:
       }
       list.appendChild(row);
     });
+  }
+
+
+  // Win button is gated on subtask completion. No fudging.
+  function allSubtasksComplete(task) {
+    if (!task || !Array.isArray(task.subtasks) || task.subtasks.length === 0) return true;
+    const progress = loadSubtaskProgress(task.day);
+    return task.subtasks.every(s => (progress[s.id] || 0) >= s.goal);
+  }
+  function updateWinButtonState(task) {
+    const btn = document.getElementById('winBtn');
+    const note = document.getElementById('winNote');
+    if (!btn) return;
+    if (allSubtasksComplete(task)) {
+      btn.disabled = false;
+      btn.textContent = 'Another win for a creator';
+      if (note) { note.textContent = ''; note.style.display = 'none'; }
+    } else {
+      btn.disabled = true;
+      const subs = task.subtasks || [];
+      const progress = loadSubtaskProgress(task.day);
+      const remaining = subs.filter(s => (progress[s.id] || 0) < s.goal).length;
+      const total = subs.length;
+      const done = total - remaining;
+      btn.textContent = 'Check the list above first (' + done + '/' + total + ' done)';
+      if (note) {
+        note.style.display = 'block';
+        note.innerHTML = 'You still have <b>' + remaining + '</b> task' + (remaining===1?'':'s') + ' to mark off above before you can claim today as a win. No skipping.';
+      }
+    }
   }
 
   function _switchScreen(name) {
@@ -866,6 +897,7 @@ Here is the Facebook post:
     const ol = $('#tSteps'); ol.innerHTML = '';
     t.steps.forEach(s => { const li = document.createElement('li'); li.textContent = s; ol.appendChild(li); });
     renderSubtasks(t);
+    updateWinButtonState(t);
     const pathTabs = $('#pathTabs');
     if (t.type === 'posting') {
       pathTabs.classList.add('show');
@@ -1146,6 +1178,12 @@ Here is the Facebook post:
     const tier = currentTier();
     const t = currentTask();
     const today = todayStr();
+    // Safety net: if subtasks are not complete, refuse
+    if (!allSubtasksComplete(t)) {
+      alert('Finish all checklist items above before claiming your win. No skipping ahead.');
+      updateWinButtonState(t);
+      return;
+    }
     $('#winBtn').disabled = true;
     $('#winBtn').textContent = 'Saving...';
     try {
