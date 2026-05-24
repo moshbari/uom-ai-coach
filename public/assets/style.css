@@ -731,3 +731,21 @@ textarea::placeholder { color: var(--muted-soft); }
 [data-theme="dark"] .win-note {
   background: rgba(201,123,92,0.12);
 }
+
+/* === Mind Reader bonus styling === */
+.comment-helper .big-name {
+  font-size: 22px;
+  font-weight: 500;
+  color: var(--ivory);
+  letter-spacing: -0.3px;
+  margin: 8px 0 10px 0;
+  line-height: 1.2;
+}
+.comment-helper .pitch {
+  font-size: 13px;
+  color: var(--ivory-soft);
+  line-height: 1.6;
+  margin-bottom: 14px;
+  font-style: italic;
+  font-family: Georgia, Cambria, serif;
+}
