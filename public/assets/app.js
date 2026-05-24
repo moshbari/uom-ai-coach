@@ -351,16 +351,41 @@ Here is the Facebook post:
     if (pwd !== pwd2) { err.textContent = 'The two passwords do not match.'; return; }
     const btn = $('#recoverySaveBtn');
     btn.disabled = true; btn.textContent = 'Saving...';
+
+    // Make sure we actually have a session before trying to update password
+    let session = null;
     try {
-      const { error } = await sb.auth.updateUser({ password: pwd });
-      if (error) throw error;
-      // Password set — now load the app normally
+      const r = await withTimeout(sb.auth.getSession(), 4000, 'session-check');
+      session = r && r.data && r.data.session;
+    } catch (e) {
+      console.error('[UOM] session check failed:', e);
+    }
+    if (!session) {
+      err.textContent = 'Your reset session expired. Click the reset link in your email again (or request a fresh one).';
+      btn.disabled = false; btn.textContent = 'Set new password and sign in';
+      return;
+    }
+
+    try {
+      const result = await withTimeout(
+        sb.auth.updateUser({ password: pwd }),
+        8000,
+        'updateUser'
+      );
+      if (result && result.error) throw result.error;
+      // Password set — load the app
       inRecoveryFlow = false;
       const nav = document.querySelector('.nav'); if (nav) nav.style.display = '';
       const header = document.querySelector('.header'); if (header) header.style.display = '';
-      await onSignedIn();
+      try { await onSignedIn(); }
+      catch (e) {
+        // If app load fails, at least show success
+        alert('Password saved. Please sign in.');
+        location.reload();
+      }
     } catch (e) {
-      err.textContent = e.message || 'Could not save password.';
+      console.error('[UOM] updateUser failed:', e);
+      err.textContent = (e && e.message) ? ('Could not save: ' + e.message) : 'Could not save password. Try again.';
       btn.disabled = false; btn.textContent = 'Set new password and sign in';
     }
   };
