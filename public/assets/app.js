@@ -62,6 +62,7 @@
       source:"<b>SOURCE:</b> Phillippa Lally, UCL (2009). Seven days = behavior starts to feel familiar.",
       steps:["Leave 10 real comments","Copy the welcome post → post to Facebook","Tap the 3 dots → 'Pin to top of profile'"],
       type:"posting", badge:"🎉 Week 1 Done — Day 7", badge_key:"week_1_done",
+      frameworkHint:"An HONEST WELCOME pinned post. Style: contrarian opener like Dan Koe ('Most people scroll all day and remember nothing — I'm trying something different'). Mention that the member has been collecting one curiosity a day. Promise quietly that future posts will share what they're learning. End with an inviting question.",
       ready:"Most people scroll all day and remember nothing.\n\nI'm trying something different.\n\nEvery day I'm saving ONE thing I learned. After a month I'll have a map of what actually matters to me.\n\nMaybe it'll be useful to you too.\n\nWhat's ONE thing you wish someone had told you about earlier?",
       safetyNote:"✓ Honest welcome — no fake claim. Safe to post." },
     { day:8, title:"Your FIRST post (PEEL) + 10 comments", time:"⏱ 60 min",
@@ -69,6 +70,7 @@
       source:"<b>SOURCE:</b> Justin Welsh's PEEL framework (Point, Evidence, Explain, Link).",
       steps:["Copy the post below","Facebook → 'What's on your mind?' → paste → Post","Leave 10 real comments"],
       type:"posting", badge:null,
+      frameworkHint:"A FIRST PEEL post. Style: Point + Evidence + Explain + Link question. Use ONE of their actual recent learnings as the Point. Make the Evidence a quick observation (no fake stats). Explain why it matters to the reader. End with a forward-looking question.",
       ready:"Most people are one skill away from doubling their income.\n\nThey just don't know which skill.\n\nThe internet has the map.\n\nFew read it.\n\nWhat skill would YOU bet on for the next 12 months?",
       safetyNote:"✓ Universal truth + question. Safe to post." },
     { day:9, title:"Post #2 (PEEL) + 10 comments", time:"⏱ 60 min",
@@ -76,6 +78,7 @@
       source:"<b>SOURCE:</b> Alex Hormozi — 5 Hook Types for daily content.",
       steps:["Copy the post below (different style than Day 8)","Post on Facebook","Leave 10 real comments"],
       type:"posting", badge:null,
+      frameworkHint:"A QUESTION-LED post (Justin Welsh hook style). Start with a quick question that makes the reader stop. Then provide a short 'here is what nobody tells you' twist. Keep it under 5 lines. End with another invite-comment question.",
       ready:"Quick question for you:\n\nIf money wasn't a worry today, what would you do?\n\nNow ask yourself:\n\nWhy aren't you doing it?",
       safetyNote:"✓ Pure question. Safe to post." },
     { day:10, title:"Post #3 (PEEL) + 10 comments", time:"⏱ 60 min",
@@ -83,6 +86,7 @@
       source:"<b>SOURCE:</b> Dickie Bush + Nicolas Cole (Ship 30 for 30).",
       steps:["Copy the post below","Post on Facebook","Leave 10 real comments"],
       type:"posting", badge:null,
+      frameworkHint:"A HARD-TRUTH post (Alex Hormozi style). Open with 'Hard truth:' or 'Real talk:' then deliver a 3-line uncomfortable observation tied to one of the member's learnings. End with a reflective question.",
       ready:"Hard truth:\n\nYour job will replace you in 2 weeks if you quit.\n\nYour family won't.\n\nChoose where your time goes.",
       safetyNote:"✓ Universal truth. Safe to post." },
     { day:11, title:"Post #4 (PEEL) + 10 comments", time:"⏱ 75 min",
@@ -90,6 +94,7 @@
       source:"<b>SOURCE:</b> Gary Vee — borrowed audience builds your own audience.",
       steps:["Copy the post below","Post on Facebook","Leave 10 real comments"],
       type:"posting", badge:null,
+      frameworkHint:"A PERMISSION-TO-START post. Style: name a common fear/excuse, then dismantle it in 2 short lines. Tie the angle to whatever the member has been exploring. End with a question that nudges action.",
       ready:"The biggest reason people don't start:\n\nThey wait to feel ready.\n\nHere's what nobody tells you:\n\nYou never feel ready.\n\nStart anyway.",
       safetyNote:"✓ Universal observation. Safe to post." },
     { day:12, title:"Post #5 (PEEL) + 10 comments", time:"⏱ 75 min",
@@ -97,6 +102,7 @@
       source:"<b>SOURCE:</b> Alex Hormozi — Content Review Loop.",
       steps:["Copy the post below","Post on Facebook","Leave 10 real comments"],
       type:"posting", badge:null,
+      frameworkHint:"A MYTH vs TRUTH post. Open with 'Myth:' then 'Truth:' on the next line. Use one of the member's learnings to pick the myth. 3-4 lines total. End with 'Which one were you taught?' or similar.",
       ready:"Myth: You need money to make money.\n\nTruth: You need attention.\n\nGet attention first.\n\nThe money follows.",
       safetyNote:"✓ Universal truth. Safe to post." },
     { day:13, title:"Post #6 (PEEL) + 10 comments", time:"⏱ 75 min",
@@ -104,6 +110,7 @@
       source:"<b>SOURCE:</b> James Clear, Atomic Habits, Chapter 2.",
       steps:["Copy the post below","Post on Facebook","Leave 10 real comments"],
       type:"posting", badge:null,
+      frameworkHint:"A PERSISTENCE / DON'T-GIVE-UP post. Use one of the member's learnings as the anchor. Reframe a 'no' or a 'not yet' into momentum. End with 'Which no are you giving up on too early?' or similar.",
       ready:"Most 'no' is just 'not yet.'\n\nThe people who win are the ones who keep going one round longer than the rest.\n\nWhich 'no' are you giving up on too early?",
       safetyNote:"✓ Universal truth + question. Safe to post." },
     { day:14, title:"Post #7 + Weekly Review", time:"⏱ 75 min",
@@ -111,6 +118,7 @@
       source:"<b>SOURCE:</b> Phillippa Lally (UCL, 2009).",
       steps:["Post #7 (the one below)","Look at all 7 posts — which got the most reactions?","Save to Spark Log: 'Next week I'll do more of ___'"],
       type:"posting", badge:"🎉 IDENTITY SHIFT — Day 14", badge_key:"identity_shift",
+      frameworkHint:"A REFLECTION ON SHOWING UP 14 DAYS. Honest tone. Mention the member has been showing up daily for 14 days (this is true). Reference the kind of topics they have been exploring. End with a question about what the reader would commit to.",
       ready:"Two weeks ago, I started showing up online every day.\n\nNothing huge happened.\nNo viral post. No flood of followers.\n\nJust this:\n\nI know now that I CAN be the person who shows up.\n\nThat is the win.",
       safetyNote:"✓ Honest reflection. Every UOM member who reaches Day 14 earned this." }
   ];
@@ -526,6 +534,100 @@ Here is the Facebook post:
     return pool[0];
   }
 
+
+  // ============================================================
+  // PERSONAL POST GENERATION — every member, every time, unique
+  // ============================================================
+  let _genInFlight = false;
+  async function generatePersonalPost(task, opts) {
+    const readyEl = $('#readyPost');
+    if (!readyEl) return;
+    opts = opts || {};
+    const force = !!opts.force;
+
+    // Cache key: per-user, per-day, per-day-of-year (so it varies daily)
+    const today = todayStr();
+    const cacheKey = 'uom_post_' + (state.user && state.user.id) + '_d' + (task.day || 'x') + '_' + today;
+    if (!force) {
+      try {
+        const cached = localStorage.getItem(cacheKey);
+        if (cached) {
+          renderGeneratedPost(cached, task);
+          return;
+        }
+      } catch(_) {}
+    }
+
+    if (_genInFlight) return;
+    _genInFlight = true;
+    readyEl.innerHTML = '<div style="text-align:center;color:var(--muted);padding:24px 12px;"><div class="spinner" style="margin-bottom:12px;"></div><div style="font-size:13px;letter-spacing:0.3px;">Writing your unique post from your sparks...</div></div>';
+    const wrap = readyEl.parentElement;
+    // Hide the copy button while generating
+    const copyBtn = wrap && wrap.querySelector('.big-copy'); if (copyBtn) copyBtn.style.display = 'none';
+
+    const recentSparks = (state.sparks || []).slice(0, 10).map(s => s.line);
+
+    try {
+      const r = await fetch(C.personalPostUrl || '/api/personal-post', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          day: task.day,
+          frameworkHint: task.frameworkHint,
+          sparks: recentSparks,
+          displayName: state.profile && state.profile.display_name,
+          seed: Math.floor(Math.random() * 1000000)
+        })
+      });
+      const data = await r.json();
+      if (!r.ok || !data.post) {
+        readyEl.textContent = 'Could not write your post. ' + (data.error || '') + ' Tap "Try another angle" below.';
+        if (copyBtn) copyBtn.style.display = '';
+        _ensureRegenBtn(task);
+        return;
+      }
+      try { localStorage.setItem(cacheKey, data.post); } catch(_) {}
+      renderGeneratedPost(data.post, task);
+    } catch (e) {
+      readyEl.textContent = 'Network error writing post. Tap "Try another angle" to retry.';
+      if (copyBtn) copyBtn.style.display = '';
+      _ensureRegenBtn(task);
+    } finally {
+      _genInFlight = false;
+    }
+  }
+
+  function renderGeneratedPost(text, task) {
+    const readyEl = $('#readyPost');
+    readyEl.textContent = text;
+    const wrap = readyEl.parentElement;
+    const copyBtn = wrap && wrap.querySelector('.big-copy');
+    if (copyBtn) copyBtn.style.display = '';
+    _ensureRegenBtn(task);
+  }
+
+  function _ensureRegenBtn(task) {
+    let btn = document.getElementById('regenBtn');
+    if (!btn) {
+      btn = document.createElement('button');
+      btn.id = 'regenBtn';
+      btn.type = 'button';
+      btn.textContent = '↻ Try another angle';
+      btn.style.cssText = 'width:100%;padding:11px;background:transparent;color:var(--gold);border:1px solid var(--gold-deep);border-radius:10px;font-size:12px;font-weight:600;cursor:pointer;letter-spacing:0.3px;margin-bottom:12px;';
+      const copyBtn = document.querySelector('#path-a .big-copy');
+      if (copyBtn && copyBtn.parentNode) copyBtn.parentNode.insertBefore(btn, copyBtn.nextSibling);
+    }
+    btn.onclick = async () => {
+      btn.disabled = true; btn.textContent = '...';
+      // Clear cache so we get a fresh generation
+      const today = todayStr();
+      const cacheKey = 'uom_post_' + (state.user && state.user.id) + '_d' + (task.day || 'x') + '_' + today;
+      try { localStorage.removeItem(cacheKey); } catch(_) {}
+      await generatePersonalPost(task, { force: true });
+      btn.disabled = false; btn.textContent = '↻ Try another angle';
+    };
+  }
+
   function _switchScreen(name) {
     ['checkin','task','done','sparks','tiers','lib','settings','explorer','recovery'].forEach(n => {
       const el = document.getElementById('s-' + n);
@@ -567,9 +669,10 @@ Here is the Facebook post:
     if (t.type === 'posting') {
       pathTabs.classList.add('show');
       $('#path-a').style.display = 'block'; $('#path-b').style.display = 'none';
-      $('#readyPost').textContent = t.ready || '';
-      $('#safeBadge').textContent = t.safetyNote || 'Safe to post — no personal claim.';
+      $('#safeBadge').textContent = t.safetyNote || 'Safe to post — written for you, no fake claim.';
       switchPath('a');
+      // Generate personalized post (or load cached version for today)
+      generatePersonalPost(t);
     } else {
       pathTabs.classList.remove('show');
       $('#path-a').style.display = 'none'; $('#path-b').style.display = 'none';

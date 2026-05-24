@@ -56,6 +56,7 @@ app.get('/config.js', (_, res) => {
     sparkReflectUrl: '/api/spark-reflect',
     sparkExploreUrl: '/api/spark-explore',
     sparkToPostUrl: '/api/spark-to-post',
+    personalPostUrl: '/api/personal-post',
     magicLinkUrl: '/api/auth/magic-link',
     signupUrl: '/api/auth/signup',
     resetUrl: '/api/auth/reset'
@@ -446,6 +447,79 @@ app.post('/api/spark-to-post', async (req, res) => {
     if (!r.ok) return res.status(502).json({ error: (data.error && data.error.message) || 'AI busy' });
     res.json({ post: ((data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) || '').trim() });
   } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+
+// ============================================================
+// PERSONAL POST GENERATOR — every member gets a unique post,
+// drawn from their sparks + the day's framework hint.
+// ============================================================
+const PERSONAL_POST_PROMPT = `You are a Facebook post writer for a member of the Ultimate Online Mastery program.
+
+You will be given:
+1. The member's recent learnings (their Daily Sparks — what they have been curious about)
+2. The day's FRAMEWORK HINT — the style/angle of post they should publish today
+3. A random variation seed so every member gets a different post
+
+Write ONE Facebook post that:
+- Uses the framework hint as the structure/angle
+- Pulls from the member's actual recent learnings (use their words when possible — do NOT invent topics they have not mentioned)
+- If they have no sparks yet, write a universal-truth post that hints at the framework angle but mentions no specific topic
+- Is 4 to 6 short lines, one blank line between each
+- 5th-grade reading level — no jargon
+- Never fabricates a personal claim (no "I quit my job", no "Last year I made $X") unless it is supported by their sparks
+- Ends with ONE question that invites a comment
+- No emojis, no hashtags, no links
+
+Output ONLY the finished post. No preamble. No quotation marks. No labels.`;
+
+app.post('/api/personal-post', async (req, res) => {
+  try {
+    const { day, frameworkHint, sparks, displayName, seed } = req.body || {};
+    if (!OPENAI_API_KEY) return res.status(500).json({ error: 'AI not configured.' });
+    if (!frameworkHint) return res.status(400).json({ error: 'frameworkHint required' });
+
+    const sparkLines = Array.isArray(sparks) ? sparks.slice(0, 10) : [];
+    const sparkBlock = sparkLines.length
+      ? sparkLines.map((s, i) => `  ${i + 1}. ${s}`).join('\n')
+      : '  (none yet — this is an early-day member)';
+
+    const userMessage = `Day in journey: ${day || 'Bronze'}
+Member name: ${displayName || 'a UOM member'}
+Variation seed: ${seed || Math.floor(Math.random() * 100000)}
+
+FRAMEWORK HINT for today:
+${frameworkHint}
+
+MEMBER'S RECENT LEARNINGS (most recent first):
+${sparkBlock}
+
+Write the post now. Make it unique to this member based on their learnings above. If they have no learnings yet, write a universal-truth version that matches the framework hint but mentions no specific topic.`;
+
+    const r = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${OPENAI_API_KEY}` },
+      body: JSON.stringify({
+        model: 'gpt-4o-mini',
+        messages: [
+          { role: 'system', content: PERSONAL_POST_PROMPT },
+          { role: 'user', content: userMessage }
+        ],
+        max_tokens: 350,
+        temperature: 0.95,
+        top_p: 0.95,
+        frequency_penalty: 0.4,
+        presence_penalty: 0.3
+      })
+    });
+    const data = await r.json();
+    if (!r.ok) return res.status(502).json({ error: (data.error && data.error.message) || 'AI busy. Try again.' });
+    const post = ((data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) || '').trim();
+    res.json({ post });
+  } catch (e) {
+    console.error('personal-post error:', e.message);
     res.status(500).json({ error: e.message });
   }
 });
