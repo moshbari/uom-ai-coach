@@ -673,8 +673,12 @@ Here is the Facebook post:
   async function loadTodayState() {
     const today = todayStr();
     const userId = state.user.id;
+    const cycleStart = (state.profile && state.profile.cycle_started_at) || '1970-01-01T00:00:00Z';
+    // Today done: only count completions IN the current cycle AND from today
     const completions = await restFetch('uom_completions?user_id=eq.' + encodeURIComponent(userId) +
-      '&completed_at=gte.' + today + 'T00:00:00&select=id,completed_at&limit=1');
+      '&completed_at=gte.' + today + 'T00:00:00' +
+      '&completed_at=gte.' + encodeURIComponent(cycleStart) +
+      '&select=id,completed_at&limit=1');
     state.todayDone = !!(completions && completions.length);
     const checkins = await restFetch('uom_checkins?user_id=eq.' + encodeURIComponent(userId) +
       '&date=eq.' + today + '&select=time_avail,energy,mood&limit=1');
@@ -688,7 +692,10 @@ Here is the Facebook post:
 
   async function loadSparks() {
     const userId = state.user.id;
+    const cycleStart = (state.profile && state.profile.cycle_started_at) || '1970-01-01T00:00:00Z';
+    // Only show sparks from current cycle (data still preserved server-side for admin)
     const rows = await restFetch('uom_sparks?user_id=eq.' + encodeURIComponent(userId) +
+      '&created_at=gte.' + encodeURIComponent(cycleStart) +
       '&select=id,day,line,created_at&order=created_at.desc&limit=60');
     state.sparks = Array.isArray(rows) ? rows : [];
   }
@@ -1427,6 +1434,47 @@ Here is the Facebook post:
       box.appendChild(row);
     });
   }
+
+
+
+  // ============================================================
+  // RESTART JOURNEY — visible reset, admin still sees full history
+  // ============================================================
+  window.restartJourney = async function() {
+    const confirmInput = document.getElementById('restartConfirm');
+    const note = document.getElementById('restartNote');
+    if (!confirmInput) return;
+    const typed = (confirmInput.value || '').trim();
+    if (typed !== 'ERASE') {
+      if (note) { note.style.display = 'block'; note.textContent = 'You must type ERASE in capital letters to confirm.'; }
+      return;
+    }
+    const btn = document.getElementById('restartBtn');
+    if (btn) { btn.disabled = true; btn.textContent = 'Resetting...'; }
+    try {
+      const sess = readLocalSession();
+      const r = await fetch(C.restartUrl || '/api/restart-journey', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + (sess && sess.access_token) }
+      });
+      const data = await r.json();
+      if (!r.ok) throw new Error(data.error || 'Reset failed');
+      // Clear all client-side subtask progress + cached personal-post drafts
+      try {
+        const toRemove = [];
+        for (let i = 0; i < localStorage.length; i++) {
+          const k = localStorage.key(i);
+          if (k && (k.startsWith('uom_sub_') || k.startsWith('uom_post_'))) toRemove.push(k);
+        }
+        toRemove.forEach(k => localStorage.removeItem(k));
+      } catch(_) {}
+      // Reload — fresh state from DB
+      location.reload();
+    } catch (e) {
+      if (note) { note.style.display = 'block'; note.textContent = 'Could not reset: ' + (e.message || 'unknown'); }
+      if (btn) { btn.disabled = false; btn.textContent = 'Restart journey now'; }
+    }
+  };
 
   // ============================================================
   // SETTINGS

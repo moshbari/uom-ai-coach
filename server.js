@@ -58,6 +58,7 @@ app.get('/config.js', (_, res) => {
     sparkExploreUrl: '/api/spark-explore',
     sparkToPostUrl: '/api/spark-to-post',
     personalPostUrl: '/api/personal-post',
+    restartUrl: '/api/restart-journey',
     devrantUrl: DEVRANT_URL,
     magicLinkUrl: '/api/auth/magic-link',
     signupUrl: '/api/auth/signup',
@@ -672,6 +673,60 @@ Write the post now. Make it unique to this member based on their learnings above
     res.json({ post });
   } catch (e) {
     console.error('personal-post error:', e.message);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+
+// ============================================================
+// RESTART JOURNEY — visible reset, data preserved for admin
+// ============================================================
+app.post('/api/restart-journey', async (req, res) => {
+  try {
+    const auth = req.headers.authorization || '';
+    if (!auth.startsWith('Bearer ')) return res.status(401).json({ error: 'Not authenticated' });
+    const accessToken = auth.slice(7);
+    // Decode JWT to get user_id
+    let userId = null;
+    try {
+      const parts = accessToken.split('.');
+      const payload = JSON.parse(Buffer.from(parts[1], 'base64').toString('utf8'));
+      userId = payload.sub;
+    } catch (_) {}
+    if (!userId) return res.status(401).json({ error: 'Invalid token' });
+
+    // Fetch current restart_count via service role
+    const profileResp = await fetch(SUPABASE_URL + '/rest/v1/uom_profiles?id=eq.' + encodeURIComponent(userId) + '&select=restart_count', {
+      headers: { 'apikey': SUPABASE_SERVICE_ROLE_KEY, 'Authorization': 'Bearer ' + SUPABASE_SERVICE_ROLE_KEY }
+    });
+    const profileRows = await profileResp.json();
+    const currentCount = (profileRows && profileRows[0] && profileRows[0].restart_count) || 0;
+
+    // Reset profile + bump cycle + increment restart_count
+    const patchResp = await fetch(SUPABASE_URL + '/rest/v1/uom_profiles?id=eq.' + encodeURIComponent(userId), {
+      method: 'PATCH',
+      headers: {
+        'apikey': SUPABASE_SERVICE_ROLE_KEY,
+        'Authorization': 'Bearer ' + SUPABASE_SERVICE_ROLE_KEY,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify({
+        bronze_day: 1,
+        current_tier: 'bronze',
+        streak: 0,
+        last_win_date: null,
+        cycle_started_at: new Date().toISOString(),
+        restart_count: currentCount + 1
+      })
+    });
+    if (!patchResp.ok) {
+      const txt = await patchResp.text();
+      return res.status(500).json({ error: 'Reset failed: ' + txt.slice(0, 200) });
+    }
+    res.json({ ok: true, restart_count: currentCount + 1 });
+  } catch (e) {
+    console.error('restart-journey error:', e.message);
     res.status(500).json({ error: e.message });
   }
 });
