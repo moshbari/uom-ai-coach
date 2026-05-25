@@ -1549,84 +1549,101 @@ Here is the Facebook post:
     if (!list) return;
     list.innerHTML = '<div class="empty-state">Loading your journey...</div>';
 
-    const tier = currentTier();
-    const pool = TASKS[tier.id] || [];
-    const totalDays = pool.length || 14;
-    const currentDay = state.profile.bronze_day || 1;
-    const tierLabel = tier.name.toUpperCase();
-
-    // Load completions for current cycle
+    const currentTierObj = currentTier();
+    const currentTierIdx = TIERS.findIndex(t => t.id === currentTierObj.id);
+    const currentDayInTier = state.profile.bronze_day || 1;
     const userId = state.user.id;
     const cycleStart = (state.profile && state.profile.cycle_started_at) || '1970-01-01T00:00:00Z';
+
+    // Pull ALL completions in current cycle (across all tiers)
     let completions = [];
     try {
       completions = await restFetch('uom_completions?user_id=eq.' + encodeURIComponent(userId) +
         '&completed_at=gte.' + encodeURIComponent(cycleStart) +
-        '&tier=eq.' + tier.id +
-        '&select=day,completed_at&order=day.asc');
+        '&select=tier,day,completed_at&order=completed_at.asc');
     } catch (e) {
       console.error('[UOM] history completions error:', e);
-      completions = [];
     }
-    const doneByDay = {};
-    (completions || []).forEach(c => { if (c.day) doneByDay[c.day] = c.completed_at; });
+    const doneMap = {}; // key = tier:day, value = completed_at
+    (completions || []).forEach(c => { if (c.tier && c.day) doneMap[c.tier + ':' + c.day] = c.completed_at; });
 
-    // Load sparks for current cycle (already in state.sparks but limited to 60)
-    // Map by day
+    // Map sparks by tier:day. Sparks only have 'day' field, not tier — infer tier from completed_at proximity
+    // Simpler approach: bucket sparks by day number and try to attribute to most-recent matching tier
     const sparksByDay = {};
     (state.sparks || []).forEach(s => {
       if (s.day) {
-        if (!sparksByDay[s.day]) sparksByDay[s.day] = [];
-        sparksByDay[s.day].push(s);
+        const k = s.day; // we will attempt to attribute later
+        if (!sparksByDay[k]) sparksByDay[k] = [];
+        sparksByDay[k].push(s);
       }
     });
 
     list.innerHTML = '';
-    for (let d = 1; d <= totalDays; d++) {
-      const task = pool[d - 1] || {};
-      const isDone = !!doneByDay[d];
-      const isToday = d === currentDay;
-      const isFuture = d > currentDay && !isDone;
-      let cls = 'journey-day';
-      if (isDone) cls += ' completed';
-      if (isToday) cls += ' today';
-      if (isFuture) cls += ' future';
 
-      let status, statusCls;
-      if (isDone) { status = '✓ Done'; statusCls = 'done'; }
-      else if (isToday) { status = 'Today'; statusCls = 'now'; }
-      else { status = 'Locked'; statusCls = 'next'; }
+    // Loop through tiers up to (and including) current tier — skip later tiers
+    for (let ti = 0; ti <= currentTierIdx; ti++) {
+      const tier = TIERS[ti];
+      const pool = TASKS[tier.id] || [];
+      if (pool.length === 0) continue;
 
-      const sparks = sparksByDay[d] || [];
-      const sparkPreview = sparks.length ? sparks[0].line : null;
-      const completedAt = doneByDay[d];
-      const detailsId = 'journey-d-' + d;
+      // Tier header
+      const header = document.createElement('div');
+      header.className = 'journey-tier-header';
+      const tierStatus = ti < currentTierIdx ? 'COMPLETE' : 'IN PROGRESS';
+      header.innerHTML = '<span class="journey-tier-icon">' + (tier.icon || '') + '</span>' +
+        '<span class="journey-tier-name">' + tier.name.toUpperCase() + '</span>' +
+        '<span class="journey-tier-status">' + tierStatus + '</span>';
+      list.appendChild(header);
 
-      const row = document.createElement('div');
-      row.className = cls;
-      row.innerHTML =
-        '<div class="journey-day-head">' +
-          '<div>' +
-            '<div class="journey-day-num">DAY ' + d + ' / ' + totalDays + ' &middot; ' + tierLabel + '</div>' +
-            '<div class="journey-day-title">' + escapeHtml(task.title || 'Day ' + d) + '</div>' +
+      // Each day
+      for (let d = 1; d <= pool.length; d++) {
+        const task = pool[d - 1] || {};
+        let status, statusCls, isFuture = false;
+
+        if (ti < currentTierIdx) {
+          // Past tier — every day is done (they tiered up past it)
+          status = '✓ Done';
+          statusCls = 'done';
+        } else if (ti === currentTierIdx) {
+          if (d < currentDayInTier) { status = '✓ Done'; statusCls = 'done'; }
+          else if (d === currentDayInTier) { status = 'Today'; statusCls = 'now'; }
+          else { status = 'Locked'; statusCls = 'next'; isFuture = true; }
+        }
+
+        const completedAt = doneMap[tier.id + ':' + d];
+        const sparks = sparksByDay[d] || [];
+        const detailsId = 'journey-' + tier.id + '-d' + d;
+
+        let cls = 'journey-day';
+        if (statusCls === 'done') cls += ' completed';
+        else if (statusCls === 'now') cls += ' today';
+        if (isFuture) cls += ' future';
+
+        const row = document.createElement('div');
+        row.className = cls;
+        row.innerHTML =
+          '<div class="journey-day-head">' +
+            '<div>' +
+              '<div class="journey-day-num">DAY ' + d + ' / ' + pool.length + ' &middot; ' + tier.name.toUpperCase() + '</div>' +
+              '<div class="journey-day-title">' + escapeHtml(task.title || 'Day ' + d) + '</div>' +
+            '</div>' +
+            '<div class="journey-day-status ' + statusCls + '">' + status + '</div>' +
           '</div>' +
-          '<div class="journey-day-status ' + statusCls + '">' + status + '</div>' +
-        '</div>' +
-        '<div class="journey-day-details" id="' + detailsId + '">' +
-          (completedAt ? '<div class="journey-meta">Completed: ' + new Date(completedAt).toLocaleString() + '</div>' : '') +
-          (task.why ? '<div style="margin-top:6px;">' + escapeHtml(task.why) + '</div>' : '') +
-          (sparks.length ? sparks.map(s => '<div class="journey-spark-quote">' + escapeHtml(s.line) + '</div>').join('') :
-            (isDone ? '<div class="journey-meta" style="margin-top:6px;">No spark saved this day.</div>' : '')) +
-        '</div>';
+          '<div class="journey-day-details" id="' + detailsId + '">' +
+            (completedAt ? '<div class="journey-meta">Completed: ' + new Date(completedAt).toLocaleString() + '</div>' : '') +
+            (task.why ? '<div style="margin-top:6px;">' + escapeHtml(task.why) + '</div>' : '') +
+            (sparks.length ? sparks.map(s => '<div class="journey-spark-quote">' + escapeHtml(s.line) + '</div>').join('') :
+              ((statusCls === 'done') ? '<div class="journey-meta" style="margin-top:6px;">No spark saved this day.</div>' : '')) +
+          '</div>';
 
-      // Toggle details on click (unless future)
-      if (!isFuture) {
-        row.addEventListener('click', () => {
-          const d2 = document.getElementById(detailsId);
-          if (d2) d2.classList.toggle('show');
-        });
+        if (!isFuture) {
+          row.addEventListener('click', () => {
+            const d2 = document.getElementById(detailsId);
+            if (d2) d2.classList.toggle('show');
+          });
+        }
+        list.appendChild(row);
       }
-      list.appendChild(row);
     }
   }
 

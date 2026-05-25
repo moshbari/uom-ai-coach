@@ -818,3 +818,23 @@ textarea::placeholder { color: var(--muted-soft); }
   font-style: italic; font-family: Georgia, serif; color: var(--ivory);
 }
 .journey-meta { font-size: 11px; color: var(--muted); margin-top: 4px; letter-spacing: 0.3px; }
+
+/* === Journey tier section header === */
+.journey-tier-header {
+  display: flex; align-items: center; gap: 10px;
+  margin: 22px 0 12px 0;
+  padding: 10px 14px;
+  background: linear-gradient(135deg, rgba(163,132,68,0.08), rgba(11,15,20,0.4));
+  border: 1px solid var(--gold-deep);
+  border-radius: 10px;
+}
+.journey-tier-header:first-child { margin-top: 0; }
+.journey-tier-icon { font-size: 18px; }
+.journey-tier-name {
+  flex: 1; font-size: 13px; font-weight: 700;
+  color: var(--gold); letter-spacing: 1.5px;
+}
+.journey-tier-status {
+  font-size: 10px; font-weight: 700; letter-spacing: 1px;
+  color: var(--muted-soft); text-transform: uppercase;
+}
