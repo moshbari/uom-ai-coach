@@ -864,3 +864,29 @@ textarea::placeholder { color: var(--muted-soft); }
   border-top: 1px solid var(--border-soft);
   font-style: italic;
 }
+
+/* === Journey tier — collapsible === */
+.journey-tier-header.collapsible {
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.2s;
+}
+.journey-tier-header.collapsible:hover {
+  background: linear-gradient(135deg, rgba(163,132,68,0.14), rgba(11,15,20,0.4));
+}
+.journey-tier-chevron {
+  font-size: 10px;
+  color: var(--gold);
+  margin-left: 8px;
+  transition: transform 0.25s ease;
+  display: inline-block;
+  transform: rotate(-90deg); /* default: collapsed (chevron points right) */
+}
+.journey-tier-header.expanded .journey-tier-chevron {
+  transform: rotate(0deg); /* expanded: chevron points down */
+}
+.journey-tier-days {
+  display: none;
+  margin-bottom: 8px;
+}
+.journey-tier-days.open { display: block; }

@@ -1586,14 +1586,29 @@ Here is the Facebook post:
       const pool = TASKS[tier.id] || [];
       if (pool.length === 0) continue;
 
-      // Tier header
+      // Tier header — clickable bar that toggles the days container
+      const isCurrentTier = (ti === currentTierIdx);
       const header = document.createElement('div');
-      header.className = 'journey-tier-header';
+      header.className = 'journey-tier-header collapsible' + (isCurrentTier ? ' expanded' : '');
       const tierStatus = ti < currentTierIdx ? 'COMPLETE' : 'IN PROGRESS';
-      header.innerHTML = '<span class="journey-tier-icon">' + (tier.icon || '') + '</span>' +
+      const containerId = 'journey-tier-' + tier.id;
+      header.innerHTML =
+        '<span class="journey-tier-icon">' + (tier.icon || '') + '</span>' +
         '<span class="journey-tier-name">' + tier.name.toUpperCase() + '</span>' +
-        '<span class="journey-tier-status">' + tierStatus + '</span>';
+        '<span class="journey-tier-status">' + tierStatus + '</span>' +
+        '<span class="journey-tier-chevron">&#x25BC;</span>';
+      header.addEventListener('click', () => {
+        header.classList.toggle('expanded');
+        const cont = document.getElementById(containerId);
+        if (cont) cont.classList.toggle('open');
+      });
       list.appendChild(header);
+
+      // Container for all days in this tier
+      const daysContainer = document.createElement('div');
+      daysContainer.id = containerId;
+      daysContainer.className = 'journey-tier-days' + (isCurrentTier ? ' open' : '');
+      list.appendChild(daysContainer);
 
       // Each day
       for (let d = 1; d <= pool.length; d++) {
@@ -1662,7 +1677,7 @@ Here is the Facebook post:
             if (d2) d2.classList.toggle('show');
           });
         }
-        list.appendChild(row);
+        daysContainer.appendChild(row);
       }
     }
   }
