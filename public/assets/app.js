@@ -1691,6 +1691,14 @@ Here is the Facebook post:
                 if (s.coach_reflection) {
                   h += '<div class="journey-coach-label">YOUR COACH REPLIED</div>' +
                        '<div class="journey-coach-reply">' + escapeHtml(s.coach_reflection) + '</div>';
+                } else {
+                  // Honest record: AI Coach save-to-DB shipped 2026-05-25T07:00Z.
+                  // Sparks created before that have no saved reply. We never invent one.
+                  const SAVE_LAUNCH = new Date('2026-05-25T07:00:00Z').getTime();
+                  const sparkTime = s.created_at ? new Date(s.created_at).getTime() : 0;
+                  if (sparkTime && sparkTime < SAVE_LAUNCH) {
+                    h += '<div class="journey-coach-missing">(No Coach reply was saved for this spark \u2014 the save feature was added later.)</div>';
+                  }
                 }
                 return h;
               }).join('') :
