@@ -365,18 +365,17 @@ Here is the Facebook post:
         err.style.color = 'var(--sage)';
         err.textContent = 'Account created. Check your email — click the link to finish signing in.';
         switchAuthTab('login');
-      } else { // login (password) — bypass SDK to avoid hangs from stale state
+      } else { // login (password) — bulletproof: fetch tokens, write localStorage, reload
         if (!password) { err.textContent = 'Password required.'; return; }
-        // Clear any stale session first so the SDK doesn't try to refresh broken tokens
+
+        // Clear stale state aggressively (any old broken token)
         try { await sb.auth.signOut({ scope: 'local' }); } catch(_) {}
-        // Direct call to Supabase token endpoint
+
+        // Direct call to Supabase token endpoint (350ms typical)
         const tokenResp = await withTimeout(
           fetch(C.supabaseUrl + '/auth/v1/token?grant_type=password', {
             method: 'POST',
-            headers: {
-              'apikey': C.supabaseAnonKey,
-              'Content-Type': 'application/json'
-            },
+            headers: { 'apikey': C.supabaseAnonKey, 'Content-Type': 'application/json' },
             body: JSON.stringify({ email, password })
           }),
           10000,
@@ -386,12 +385,27 @@ Here is the Facebook post:
         if (!tokenResp.ok) {
           throw new Error(tokenData.error_description || tokenData.msg || 'Invalid email or password');
         }
-        // Manually set the session in the SDK so onSignedIn / loadProfile work
-        await sb.auth.setSession({
+
+        // Write session directly to localStorage in the format Supabase SDK reads on load.
+        // This bypasses setSession() and onAuthStateChange entirely — no race conditions possible.
+        const projectRefMatch = (C.supabaseUrl || '').match(/https?:\/\/([^.]+)\./);
+        const projectRef = projectRefMatch ? projectRefMatch[1] : '';
+        const storageKey = 'sb-' + projectRef + '-auth-token';
+        const session = {
           access_token: tokenData.access_token,
-          refresh_token: tokenData.refresh_token
-        });
-        await withTimeout(onSignedIn(), 10000, 'onSignedIn-after-password');
+          refresh_token: tokenData.refresh_token,
+          expires_at: Math.floor(Date.now() / 1000) + (tokenData.expires_in || 3600),
+          expires_in: tokenData.expires_in || 3600,
+          token_type: 'bearer',
+          user: tokenData.user
+        };
+        try { localStorage.setItem(storageKey, JSON.stringify(session)); } catch(_) {}
+
+        // Show success, then reload so the SDK reads the fresh session cleanly
+        err.style.color = 'var(--sage)';
+        err.textContent = 'Signed in. Loading your app...';
+        setTimeout(() => location.reload(), 400);
+        return;
       }
     } catch (e) {
       err.textContent = e.message || 'Sign-in failed.';
