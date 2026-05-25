@@ -693,10 +693,20 @@ Here is the Facebook post:
   async function loadSparks() {
     const userId = state.user.id;
     const cycleStart = (state.profile && state.profile.cycle_started_at) || '1970-01-01T00:00:00Z';
-    // Only show sparks from current cycle (data still preserved server-side for admin)
-    const rows = await restFetch('uom_sparks?user_id=eq.' + encodeURIComponent(userId) +
-      '&created_at=gte.' + encodeURIComponent(cycleStart) +
-      '&select=id,day,line,coach_reflection,coach_mode,created_at&order=created_at.desc&limit=60');
+    // Only show sparks from current cycle. Try the rich select first; fall back to
+    // the legacy column set if the coach_reflection/coach_mode columns are not yet
+    // present in the DB (i.e. admin has not run the SQL migration).
+    let rows;
+    try {
+      rows = await restFetch('uom_sparks?user_id=eq.' + encodeURIComponent(userId) +
+        '&created_at=gte.' + encodeURIComponent(cycleStart) +
+        '&select=id,day,line,coach_reflection,coach_mode,created_at&order=created_at.desc&limit=60');
+    } catch (e) {
+      console.warn('[UOM] new spark columns not present — falling back to legacy select');
+      rows = await restFetch('uom_sparks?user_id=eq.' + encodeURIComponent(userId) +
+        '&created_at=gte.' + encodeURIComponent(cycleStart) +
+        '&select=id,day,line,created_at&order=created_at.desc&limit=60');
+    }
     state.sparks = Array.isArray(rows) ? rows : [];
   }
 
