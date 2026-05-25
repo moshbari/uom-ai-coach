@@ -890,3 +890,21 @@ textarea::placeholder { color: var(--muted-soft); }
   margin-bottom: 8px;
 }
 .journey-tier-days.open { display: block; }
+
+/* === Coach reply blocks (in Sparks log + Journey detail) === */
+.spark-coach-label, .journey-coach-label {
+  font-size: 9px; color: var(--gold); font-weight: 700;
+  letter-spacing: 1.5px; text-transform: uppercase;
+  margin: 12px 0 6px 0;
+}
+.spark-coach-reply, .journey-coach-reply {
+  background: rgba(163,132,68,0.05);
+  border: 1px solid var(--gold-deep);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 12.5px; line-height: 1.65;
+  color: var(--ivory-soft);
+  white-space: pre-wrap;
+  font-family: Georgia, Cambria, serif;
+  font-style: italic;
+}

@@ -696,7 +696,7 @@ Here is the Facebook post:
     // Only show sparks from current cycle (data still preserved server-side for admin)
     const rows = await restFetch('uom_sparks?user_id=eq.' + encodeURIComponent(userId) +
       '&created_at=gte.' + encodeURIComponent(cycleStart) +
-      '&select=id,day,line,created_at&order=created_at.desc&limit=60');
+      '&select=id,day,line,coach_reflection,coach_mode,created_at&order=created_at.desc&limit=60');
     state.sparks = Array.isArray(rows) ? rows : [];
   }
 
@@ -1174,12 +1174,20 @@ Here is the Facebook post:
         }));
         const r = await fetch(C.sparkReflectUrl || '/api/spark-reflect', {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ sparks: history, line })
+          body: JSON.stringify({ sparks: history, line, spark_id: data && data.id })
         });
         const out = await r.json();
         if (r.ok && out.reflection) {
           reflBody.textContent = out.reflection;
           reflEl.style.display = 'block';
+          // Cache reflection on the local spark so it shows in Journey + Sparks log without reload
+          if (data && state.sparks && state.sparks.length) {
+            const inState = state.sparks.find(s => s.id === data.id);
+            if (inState) {
+              inState.coach_reflection = out.reflection;
+              inState.coach_mode = (out.debug && out.debug.mode) || null;
+            }
+          }
         }
       } catch (_) {}
       reflLoading.style.display = 'none';
@@ -1666,7 +1674,14 @@ Here is the Facebook post:
             summaryHtml +
             (sparks.length ?
               '<div class="journey-summary-label" style="margin-top:14px;">YOUR SPARK</div>' +
-              sparks.map(s => '<div class="journey-spark-quote">' + escapeHtml(s.line) + '</div>').join('') :
+              sparks.map(function(s) {
+                let h = '<div class="journey-spark-quote">' + escapeHtml(s.line) + '</div>';
+                if (s.coach_reflection) {
+                  h += '<div class="journey-coach-label">YOUR COACH REPLIED</div>' +
+                       '<div class="journey-coach-reply">' + escapeHtml(s.coach_reflection) + '</div>';
+                }
+                return h;
+              }).join('') :
               (isDoneRow ? '<div class="journey-meta" style="margin-top:6px;">No spark saved this day.</div>' : '')) +
             (task.why ? '<div class="journey-why">' + escapeHtml(task.why) + '</div>' : '') +
           '</div>';

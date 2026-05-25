@@ -490,6 +490,27 @@ Now write the coach's reply, following the template's required shape exactly. Us
     if (!r.ok) return res.status(502).json({ error: (data.error && data.error.message) || 'AI busy' });
 
     const reflection = ((data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) || '').trim();
+
+    // Persist reflection + mode back to the spark row (if client passed spark_id)
+    const sparkId = (req.body && req.body.spark_id) || null;
+    if (sparkId && reflection) {
+      try {
+        await fetch(SUPABASE_URL + '/rest/v1/uom_sparks?id=eq.' + encodeURIComponent(sparkId), {
+          method: 'PATCH',
+          headers: {
+            'apikey': SUPABASE_SERVICE_ROLE_KEY,
+            'Authorization': 'Bearer ' + SUPABASE_SERVICE_ROLE_KEY,
+            'Content-Type': 'application/json',
+            'Prefer': 'return=minimal'
+          },
+          body: JSON.stringify({ coach_reflection: reflection, coach_mode: mode })
+        });
+      } catch (e) {
+        console.error('Could not save reflection to spark row:', e.message);
+        // Don't fail the request — reflection still returned to client
+      }
+    }
+
     res.json({ reflection, debug: { mode, N, K, industries: uniqueIndustries } });
   } catch (e) {
     console.error('spark-reflect error:', e.message);
