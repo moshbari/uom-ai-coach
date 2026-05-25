@@ -1717,9 +1717,38 @@ Here is the Facebook post:
     }
   }
 
+  async function renderCoach() {
+    const list = document.getElementById('coachList');
+    if (!list) return;
+    list.innerHTML = '<div class="empty-state" style="opacity:0.6;">Loading\u2026</div>';
+    const all = (state.sparks || []).slice();
+    const withReply = all.filter(s => s.coach_reflection);
+    if (withReply.length === 0) {
+      list.innerHTML = '<div class="empty-state">Your Coach has not replied yet.<br/><br/>Save your first spark on the Today tab and the Coach will speak. Every reply will appear here.</div>';
+      return;
+    }
+    // Most recent first (sparks are already returned that way from REST)
+    const html = withReply.map(s => {
+      const dayLabel = s.day ? ('Day ' + s.day) : 'Spark';
+      const dateStr = s.created_at ? new Date(s.created_at).toLocaleString() : '';
+      return '<div class="coach-card">' +
+        '<div class="coach-card-head">' +
+          '<span class="coach-card-day">' + escapeHtml(dayLabel) + '</span>' +
+          '<span class="coach-card-date">' + escapeHtml(dateStr) + '</span>' +
+        '</div>' +
+        '<div class="coach-card-spark-label">YOUR SPARK</div>' +
+        '<div class="coach-card-spark">' + escapeHtml(s.line || '') + '</div>' +
+        '<div class="coach-card-reply-label">COACH REPLIED</div>' +
+        '<div class="coach-card-reply">' + escapeHtml(s.coach_reflection) + '</div>' +
+      '</div>';
+    }).join('');
+    list.innerHTML = html;
+  }
+
   window.nav = function(name) {
     if (name === 'settings') { loadSettings(); _switchScreen('settings'); return; }
     if (name === 'history') { renderJourney(); _switchScreen('history'); return; }
+    if (name === 'coach') { renderCoach(); _switchScreen('coach'); return; }
     if (name === 'task') {
       if (!(state.checkin.time && state.checkin.energy && state.checkin.mood)) {
         alert('Finish your 3-tap check-in first.');
