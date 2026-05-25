@@ -1008,7 +1008,7 @@ Here is the Facebook post:
   }
 
   function _switchScreen(name) {
-    ['checkin','task','done','sparks','tiers','lib','settings','explorer','recovery'].forEach(n => {
+    ['checkin','task','done','sparks','tiers','lib','settings','explorer','recovery','history'].forEach(n => {
       const el = document.getElementById('s-' + n);
       if (el) el.classList.toggle('active', n === name);
     });
@@ -1540,8 +1540,99 @@ Here is the Facebook post:
     }
   }
 
+
+  // ============================================================
+  // JOURNEY — browse all past days + their sparks
+  // ============================================================
+  async function renderJourney() {
+    const list = document.getElementById('historyList');
+    if (!list) return;
+    list.innerHTML = '<div class="empty-state">Loading your journey...</div>';
+
+    const tier = currentTier();
+    const pool = TASKS[tier.id] || [];
+    const totalDays = pool.length || 14;
+    const currentDay = state.profile.bronze_day || 1;
+    const tierLabel = tier.name.toUpperCase();
+
+    // Load completions for current cycle
+    const userId = state.user.id;
+    const cycleStart = (state.profile && state.profile.cycle_started_at) || '1970-01-01T00:00:00Z';
+    let completions = [];
+    try {
+      completions = await restFetch('uom_completions?user_id=eq.' + encodeURIComponent(userId) +
+        '&completed_at=gte.' + encodeURIComponent(cycleStart) +
+        '&tier=eq.' + tier.id +
+        '&select=day,completed_at&order=day.asc');
+    } catch (e) {
+      console.error('[UOM] history completions error:', e);
+      completions = [];
+    }
+    const doneByDay = {};
+    (completions || []).forEach(c => { if (c.day) doneByDay[c.day] = c.completed_at; });
+
+    // Load sparks for current cycle (already in state.sparks but limited to 60)
+    // Map by day
+    const sparksByDay = {};
+    (state.sparks || []).forEach(s => {
+      if (s.day) {
+        if (!sparksByDay[s.day]) sparksByDay[s.day] = [];
+        sparksByDay[s.day].push(s);
+      }
+    });
+
+    list.innerHTML = '';
+    for (let d = 1; d <= totalDays; d++) {
+      const task = pool[d - 1] || {};
+      const isDone = !!doneByDay[d];
+      const isToday = d === currentDay;
+      const isFuture = d > currentDay && !isDone;
+      let cls = 'journey-day';
+      if (isDone) cls += ' completed';
+      if (isToday) cls += ' today';
+      if (isFuture) cls += ' future';
+
+      let status, statusCls;
+      if (isDone) { status = '✓ Done'; statusCls = 'done'; }
+      else if (isToday) { status = 'Today'; statusCls = 'now'; }
+      else { status = 'Locked'; statusCls = 'next'; }
+
+      const sparks = sparksByDay[d] || [];
+      const sparkPreview = sparks.length ? sparks[0].line : null;
+      const completedAt = doneByDay[d];
+      const detailsId = 'journey-d-' + d;
+
+      const row = document.createElement('div');
+      row.className = cls;
+      row.innerHTML =
+        '<div class="journey-day-head">' +
+          '<div>' +
+            '<div class="journey-day-num">DAY ' + d + ' / ' + totalDays + ' &middot; ' + tierLabel + '</div>' +
+            '<div class="journey-day-title">' + escapeHtml(task.title || 'Day ' + d) + '</div>' +
+          '</div>' +
+          '<div class="journey-day-status ' + statusCls + '">' + status + '</div>' +
+        '</div>' +
+        '<div class="journey-day-details" id="' + detailsId + '">' +
+          (completedAt ? '<div class="journey-meta">Completed: ' + new Date(completedAt).toLocaleString() + '</div>' : '') +
+          (task.why ? '<div style="margin-top:6px;">' + escapeHtml(task.why) + '</div>' : '') +
+          (sparks.length ? sparks.map(s => '<div class="journey-spark-quote">' + escapeHtml(s.line) + '</div>').join('') :
+            (isDone ? '<div class="journey-meta" style="margin-top:6px;">No spark saved this day.</div>' : '')) +
+        '</div>';
+
+      // Toggle details on click (unless future)
+      if (!isFuture) {
+        row.addEventListener('click', () => {
+          const d2 = document.getElementById(detailsId);
+          if (d2) d2.classList.toggle('show');
+        });
+      }
+      list.appendChild(row);
+    }
+  }
+
   window.nav = function(name) {
     if (name === 'settings') { loadSettings(); _switchScreen('settings'); return; }
+    if (name === 'history') { renderJourney(); _switchScreen('history'); return; }
     if (name === 'task') {
       if (!(state.checkin.time && state.checkin.energy && state.checkin.mood)) {
         alert('Finish your 3-tap check-in first.');

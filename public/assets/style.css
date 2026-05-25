@@ -769,3 +769,52 @@ textarea::placeholder { color: var(--muted-soft); }
   color: #D4C4A8;
   border-color: #A89770;
 }
+
+/* === Journey screen (past-day browse) === */
+.journey-day {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 10px;
+  box-shadow: var(--shadow-soft);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.journey-day:hover { border-color: var(--gold-deep); transform: translateY(-1px); }
+.journey-day.completed { border-left: 3px solid var(--sage); }
+.journey-day.today { border-left: 3px solid var(--gold); box-shadow: 0 0 18px rgba(163,132,68,0.15); }
+.journey-day.future { opacity: 0.5; cursor: default; }
+.journey-day.future:hover { transform: none; border-color: var(--border); }
+.journey-day-head {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 10px;
+}
+.journey-day-num {
+  font-size: 10px; color: var(--gold); font-weight: 700;
+  letter-spacing: 1.5px; text-transform: uppercase;
+}
+.journey-day-title {
+  font-size: 14px; color: var(--ivory); font-weight: 500;
+  flex: 1; margin-top: 2px;
+}
+.journey-day-status {
+  font-size: 10px; padding: 3px 10px; border-radius: 10px;
+  font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase;
+}
+.journey-day-status.done { background: rgba(123,168,143,0.15); color: var(--sage); border: 1px solid var(--sage); }
+.journey-day-status.now  { background: rgba(163,132,68,0.18); color: var(--gold); border: 1px solid var(--gold-deep); }
+.journey-day-status.next { background: var(--bg-base); color: var(--muted); border: 1px solid var(--border-soft); }
+.journey-day-details {
+  display: none;
+  margin-top: 12px; padding-top: 12px;
+  border-top: 1px solid var(--border-soft);
+  font-size: 13px; color: var(--ivory-soft); line-height: 1.6;
+}
+.journey-day-details.show { display: block; }
+.journey-spark-quote {
+  background: rgba(163,132,68,0.05); border-left: 2px solid var(--gold);
+  padding: 8px 12px; margin: 6px 0;
+  font-style: italic; font-family: Georgia, serif; color: var(--ivory);
+}
+.journey-meta { font-size: 11px; color: var(--muted); margin-top: 4px; letter-spacing: 0.3px; }
