@@ -472,8 +472,10 @@ Now write the coach's reply, following the template's required shape exactly. Us
           { role: 'system', content: REPLY_SYSTEM },
           { role: 'user', content: userPayload }
         ],
-        max_tokens: 280,
-        temperature: 0.5
+        max_tokens: 320,
+        temperature: 0.9,
+        frequency_penalty: 0.5,
+        presence_penalty: 0.4
       })
     });
     const data = await r.json();
