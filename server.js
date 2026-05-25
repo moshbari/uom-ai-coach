@@ -341,51 +341,59 @@ function pickMode(N, K) {
 }
 
 function modeTemplate(mode) {
+  // INTENT-based instructions. The AI writes fresh language each call.
+  // The only literal text required is "Spark #N saved." and exact quotes of the member's own sparks.
   const templates = {
-    A: `Member just wrote their FIRST EVER spark. There is NO yesterday spark — do not invent one.
-Required shape (3 lines, blank line between each):
-- Reflect back what they noticed in plain warm words.
-- Suggest ONE specific 5-minute video angle for tomorrow related to their spark.
-- "Spark #1 saved. See you tomorrow."`,
+    A: `Member just wrote their FIRST EVER spark. There is NO yesterday spark.
+INTENT (rephrase fresh — do not use templated phrasing):
+- Open with a warm, specific reflection of what they noticed today (in your own words).
+- Suggest ONE concrete 5-minute video angle for tomorrow that fits their spark topic.
+- End with: "Spark #1 saved." plus a short warm sign-off.
+RULES: 3-4 short sentences. Warm but not over-the-top. No corporate cheer. Never invent a yesterday.`,
 
     B: `All sparks share ONE niche. Praise the focus.
-Required shape (4 lines):
-- "Your sparks are calling it — [niche name in 2-4 words]. That is your niche showing up. Not picked, discovered."
-- "From tomorrow every spark should serve this lane. Depth before breadth. This is how experts are built."
-- ONE specific 5-minute video suggestion that goes deeper in the lane.
-- "Spark #[N] saved."
-FORBIDDEN words: "scattered", "spreading thin", "different topics", "open Sparks tab to choose".`,
+INTENT (rephrase fresh — do not reuse stock phrases):
+- Tell them the lane you see (name the niche specifically in your own words).
+- Affirm what going deep does for them (faster expert, faster first sale — phrase it differently than examples you have seen).
+- Suggest ONE concrete 5-minute video that goes deeper in that lane.
+- End with: "Spark #[N] saved."
+RULES: 3-5 short sentences. Confident. Vary your verbs and openers each call.
+FORBIDDEN: words "scattered", "spreading thin", "different topics".`,
 
-    B_soft: `Sparks lean toward ONE main lane with a side-theme. Praise the main lane, gently flag the side-theme.
-Required shape (4 lines):
-- "Most of your sparks point to [main niche]. That is your lane forming."
-- "One spark touched [side niche] — fine to explore, but next 7 days, stay in [main niche] to go deeper."
-- ONE specific 5-minute video suggestion in the main lane.
-- "Spark #[N] saved."`,
+    B_soft: `Sparks lean toward ONE main lane with one side-theme.
+INTENT (rephrase fresh):
+- Name the main lane clearly. Acknowledge the side-theme as fine to explore.
+- Gently suggest staying in the main lane for the next 7 days to go deeper.
+- ONE concrete 5-minute video suggestion in the main lane.
+- End with: "Spark #[N] saved."
+RULES: 3-5 sentences. Warm. Vary phrasing every time.`,
 
     C: `Sparks are in DIFFERENT niches with only 2-3 total. Gentle redirect.
-Required shape (4 lines):
-- "Yesterday was [yesterday's spark in plain words]. Today is [today's spark in plain words]. Both are great, but they live in different niches."
-- "We have 45 to 90 minutes a day to chase one thing. The fastest path to your first sale is ONE lane, not two."
-- "Open your Sparks tab. Read both. Which one made you feel more alive? Come back to that one tomorrow."
-- "Spark #[N] saved."
-FORBIDDEN: combining the two topics into one niche. They are different lanes — say so.`,
+INTENT (rephrase fresh — do not reuse the exact phrasing of any example):
+- Quote (in their own words from the EXPLICIT MAPPING) what yesterday's spark was and what today's spark is. Name the two niches.
+- Make the point that focusing on ONE topic in their limited daily time gets them to their first sale faster. Phrase it freshly each call.
+- Invite them to revisit their Sparks tab and choose the one that felt more alive. Vary the wording.
+- End with: "Spark #[N] saved."
+RULES: 4-5 short sentences. Polite. Never combine the two topics into a single niche.`,
 
     D: `Sparks are SCATTERED across 3+ different industries. Honest call-out, soft framing.
-Required shape (5 lines):
-- "In [N] sparks you have written about [K] different niches: [list each industry separated by commas]."
-- Quote 3 of the actual spark lines as evidence.
-- "Spreading thin keeps you a beginner in each one. Experts are built by going deep in ONE lane."
-- "Open your Sparks tab. Read every spark again. Which one still excites you most? Tomorrow, come back to that one."
-- "Spark #[N] saved."`,
+INTENT (rephrase fresh — do not repeat verbatim phrases like "spreading thin" or "beginner in each" across responses):
+- Open by naming the scatter softly. Mention how many sparks and how many distinct niches.
+- Quote 3 of the actual spark lines as EXACT evidence (these quotes must be exact — wrap in quotation marks).
+- Make the case that going deep in ONE lane builds the expert reputation and the first sale faster. Use your own fresh metaphor or phrasing each call (gardening, training, hunting, mastery, athletes, etc — vary).
+- Invite them to re-read their Sparks tab and pick the one that still excites them most.
+- End with: "Spark #[N] saved."
+RULES: 5-7 short sentences max. Polite, never punishes. Vary metaphors and opening verbs every time. Avoid stock phrases.`,
 
-    E: `Sparks are CONVERGING on ONE niche over 4+ days. Member is winning. Confident energizing tone.
-Required shape (4 lines):
-- "Your sparks are calling it — [niche name in 2-4 words]. That is your niche showing up. Not picked, discovered."
-- "From tomorrow every spark should serve this lane. Depth before breadth."
-- ONE specific 5-minute video suggestion that goes deeper in that lane.
-- "Spark #[N] saved."
-FORBIDDEN: "scattered", "spreading thin", "different topics", "open Sparks tab to choose".`
+    E: `Sparks are CONVERGING on ONE lane over 4+ days. Member is winning.
+INTENT (rephrase fresh):
+- Confidently name the niche the sparks are pointing to (3-6 words, specific).
+- Tell them this niche was discovered (by their data), not picked.
+- Push them to make every future spark serve this lane. Phrase the push differently each call.
+- Suggest ONE specific 5-minute video that goes DEEPER in this niche.
+- End with: "Spark #[N] saved."
+RULES: 3-5 sentences. Energizing, never warning.
+FORBIDDEN: "scattered", "spreading thin", "different topics", "beginner in each", "open Sparks tab to choose".`
   };
   return templates[mode] || templates.A;
 }
