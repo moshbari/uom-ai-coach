@@ -524,12 +524,29 @@ Here is the Facebook post:
     }
   };
 
+  // Read the Supabase session straight from localStorage. NO SDK call.
+  // We can do this because we wrote it ourselves at sign-in time and the SDK
+  // also reads from this exact key on page load.
+  function readLocalSession() {
+    try {
+      const projectRefMatch = (window.UOM_CONFIG && window.UOM_CONFIG.supabaseUrl || '').match(/https?:\/\/([^.]+)\./);
+      const projectRef = projectRefMatch ? projectRefMatch[1] : '';
+      const storageKey = 'sb-' + projectRef + '-auth-token';
+      const raw = localStorage.getItem(storageKey);
+      if (!raw) return null;
+      return JSON.parse(raw);
+    } catch (_) { return null; }
+  }
+
   async function onSignedIn() {
     try {
-      console.log('[UOM] onSignedIn step 1: getUser');
-      const { data: { user } } = await sb.auth.getUser();
-      if (!user) {
-        console.warn('[UOM] onSignedIn: getUser returned no user');
+      console.log('[UOM] onSignedIn step 1: read user from localStorage');
+      // BYPASS sb.auth.getUser() — that SDK call has been hanging.
+      // The session is in localStorage (we wrote it; SDK also reads from there).
+      const localSession = readLocalSession();
+      const user = localSession && localSession.user;
+      if (!user || !user.id) {
+        console.warn('[UOM] onSignedIn: no user in localStorage');
         showLogin();
         return;
       }
