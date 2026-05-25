@@ -365,32 +365,38 @@ Here is the Facebook post:
         err.style.color = 'var(--sage)';
         err.textContent = 'Account created. Check your email — click the link to finish signing in.';
         switchAuthTab('login');
-      } else { // login (password) — bulletproof: fetch tokens, write localStorage, reload
+      } else { // login (password) — ZERO SDK calls. Pure fetch + pure localStorage + reload.
         if (!password) { err.textContent = 'Password required.'; return; }
 
-        // Clear stale state aggressively (any old broken token)
-        try { await sb.auth.signOut({ scope: 'local' }); } catch(_) {}
+        // Compute Supabase localStorage key (the one the SDK reads on page load)
+        const projectRefMatch = (C.supabaseUrl || '').match(/https?:\/\/([^.]+)\./);
+        const projectRef = projectRefMatch ? projectRefMatch[1] : '';
+        const storageKey = 'sb-' + projectRef + '-auth-token';
 
-        // Direct call to Supabase token endpoint (350ms typical)
-        const tokenResp = await withTimeout(
-          fetch(C.supabaseUrl + '/auth/v1/token?grant_type=password', {
-            method: 'POST',
-            headers: { 'apikey': C.supabaseAnonKey, 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, password })
-          }),
-          10000,
-          'token-endpoint'
-        );
-        const tokenData = await tokenResp.json();
+        // Clear stale token MANUALLY — no SDK call to avoid hangs
+        try { localStorage.removeItem(storageKey); } catch(_) {}
+
+        // Direct fetch to Supabase token endpoint (verified ~350ms via curl)
+        let tokenResp, tokenData;
+        try {
+          tokenResp = await withTimeout(
+            fetch(C.supabaseUrl + '/auth/v1/token?grant_type=password', {
+              method: 'POST',
+              headers: { 'apikey': C.supabaseAnonKey, 'Content-Type': 'application/json' },
+              body: JSON.stringify({ email, password })
+            }),
+            8000,
+            'token-fetch'
+          );
+        } catch (e) {
+          throw new Error('Network problem — please try again. (' + (e.message || 'timeout') + ')');
+        }
+        tokenData = await tokenResp.json();
         if (!tokenResp.ok) {
           throw new Error(tokenData.error_description || tokenData.msg || 'Invalid email or password');
         }
 
-        // Write session directly to localStorage in the format Supabase SDK reads on load.
-        // This bypasses setSession() and onAuthStateChange entirely — no race conditions possible.
-        const projectRefMatch = (C.supabaseUrl || '').match(/https?:\/\/([^.]+)\./);
-        const projectRef = projectRefMatch ? projectRefMatch[1] : '';
-        const storageKey = 'sb-' + projectRef + '-auth-token';
+        // Write session directly to localStorage (no SDK)
         const session = {
           access_token: tokenData.access_token,
           refresh_token: tokenData.refresh_token,
@@ -401,10 +407,10 @@ Here is the Facebook post:
         };
         try { localStorage.setItem(storageKey, JSON.stringify(session)); } catch(_) {}
 
-        // Show success, then reload so the SDK reads the fresh session cleanly
         err.style.color = 'var(--sage)';
         err.textContent = 'Signed in. Loading your app...';
-        setTimeout(() => location.reload(), 400);
+        // Reload — SDK reads the fresh token from localStorage and we land in the app
+        setTimeout(() => location.reload(), 300);
         return;
       }
     } catch (e) {
