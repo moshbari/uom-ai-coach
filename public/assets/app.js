@@ -1619,6 +1619,23 @@ Here is the Facebook post:
         else if (statusCls === 'now') cls += ' today';
         if (isFuture) cls += ' future';
 
+        // Build accomplishment summary
+        const isDoneRow = statusCls === 'done';
+        const subtaskList = task.subtasks || [];
+        let summaryHtml = '';
+        if (isDoneRow && subtaskList.length > 0) {
+          summaryHtml = '<div class="journey-summary-label">WHAT YOU ACCOMPLISHED</div>' +
+            '<ul class="journey-summary-list">' +
+            subtaskList.map(s => '<li>&#x2713; ' + escapeHtml(s.label) + ' <span class="journey-sub-count">(' + s.goal + ')</span></li>').join('') +
+            '</ul>';
+        } else if (statusCls === 'now' && subtaskList.length > 0) {
+          // For today's row, show the GOALS so member sees what is asked
+          summaryHtml = '<div class="journey-summary-label">YOUR GOALS TODAY</div>' +
+            '<ul class="journey-summary-list" style="opacity:0.85;">' +
+            subtaskList.map(s => '<li>&#x25CB; ' + escapeHtml(s.label) + ' <span class="journey-sub-count">(' + s.goal + ')</span></li>').join('') +
+            '</ul>';
+        }
+
         const row = document.createElement('div');
         row.className = cls;
         row.innerHTML =
@@ -1631,9 +1648,12 @@ Here is the Facebook post:
           '</div>' +
           '<div class="journey-day-details" id="' + detailsId + '">' +
             (completedAt ? '<div class="journey-meta">Completed: ' + new Date(completedAt).toLocaleString() + '</div>' : '') +
-            (task.why ? '<div style="margin-top:6px;">' + escapeHtml(task.why) + '</div>' : '') +
-            (sparks.length ? sparks.map(s => '<div class="journey-spark-quote">' + escapeHtml(s.line) + '</div>').join('') :
-              ((statusCls === 'done') ? '<div class="journey-meta" style="margin-top:6px;">No spark saved this day.</div>' : '')) +
+            summaryHtml +
+            (sparks.length ?
+              '<div class="journey-summary-label" style="margin-top:14px;">YOUR SPARK</div>' +
+              sparks.map(s => '<div class="journey-spark-quote">' + escapeHtml(s.line) + '</div>').join('') :
+              (isDoneRow ? '<div class="journey-meta" style="margin-top:6px;">No spark saved this day.</div>' : '')) +
+            (task.why ? '<div class="journey-why">' + escapeHtml(task.why) + '</div>' : '') +
           '</div>';
 
         if (!isFuture) {

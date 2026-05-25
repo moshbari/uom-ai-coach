@@ -838,3 +838,29 @@ textarea::placeholder { color: var(--muted-soft); }
   font-size: 10px; font-weight: 700; letter-spacing: 1px;
   color: var(--muted-soft); text-transform: uppercase;
 }
+
+/* === Journey accomplishment summary === */
+.journey-summary-label {
+  font-size: 10px; color: var(--gold); font-weight: 700;
+  letter-spacing: 1.5px; text-transform: uppercase;
+  margin: 10px 0 6px;
+}
+.journey-summary-list {
+  list-style: none; padding: 0; margin: 0 0 6px 0;
+}
+.journey-summary-list li {
+  font-size: 13px; line-height: 1.7; color: var(--ivory);
+  padding: 4px 0;
+  border-bottom: 1px dashed var(--border-soft);
+}
+.journey-summary-list li:last-child { border-bottom: none; }
+.journey-sub-count {
+  font-size: 11px; color: var(--muted-soft);
+  font-weight: 600; margin-left: 4px;
+}
+.journey-why {
+  font-size: 12px; color: var(--muted); line-height: 1.6;
+  margin-top: 12px; padding-top: 10px;
+  border-top: 1px solid var(--border-soft);
+  font-style: italic;
+}
