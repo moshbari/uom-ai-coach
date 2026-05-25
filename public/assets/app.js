@@ -210,7 +210,8 @@
     quill:   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>'
   };
 
-  function phaseForDay(day) {
+  function phaseForDay(day, tierId) {
+    if (tierId === 'silver') return { name: 'depth', label: 'DEPTH' };
     if (!day) return { name: 'foundation', label: 'TEXT' };
     if ([4, 7, 14].includes(day)) return { name: 'milestone', label: 'MILESTONE' };
     if (day <= 5)  return { name: 'foundation', label: 'TEXT' };
@@ -231,12 +232,15 @@
     return ICONS.profile; // text-output Days 2-5
   }
 
-  function renderProgressTrail(currentDay) {
+  function renderProgressTrail(currentDay, totalDays, tierId) {
     const trail = document.getElementById('progressTrail');
     if (!trail) return;
-    const milestones = [4, 7, 14];
+    totalDays = totalDays || 14;
+    // Bronze milestones at 4/7/14; Silver milestones (when built fully) might be different
+    const milestonesByTier = { bronze: [4, 7, 14], silver: [3, 7, 14] };
+    const milestones = milestonesByTier[tierId] || [];
     let html = '';
-    for (let d = 1; d <= 14; d++) {
+    for (let d = 1; d <= totalDays; d++) {
       let cls = 'trail-dot';
       if (milestones.includes(d)) cls += ' milestone';
       if (d < currentDay) cls += ' past';
@@ -264,7 +268,56 @@
 
   const TASKS = {
     bronze: BRONZE,
-    silver: [{ title:"Post a quote image", time:"⏱ 30 min", why:"Image posts reach 3x more people.", source:"<b>SOURCE:</b> Meta's 2024 creator report.", steps:["Open Canva → search 'quote post'","Paste your last winning line into image","Download → post to Facebook"], type:"posting", ready:"[Open Canva, design 1080x1080 with your quote in white on dark background.]", safetyNote:"✓ Your own words. Safe to post." }],
+    silver: [
+      { day:1, title:"Same playbook, ONE niche only", time:"⏱ 40 min",
+        why:"Bronze taught you to ship. Silver teaches you to stay in ONE lane. Same daily moves — but everything serves your niche from now on. That is how an expert is built.",
+        source:"<b>SOURCE:</b> Dan Koe (One-Person Business) + BJ Fogg — depth before breadth.",
+        steps:[
+          "Pick a viral video FROM YOUR LOCKED NICHE → RANT Squad → rant script → Viral Thread Publisher → post",
+          "Open Viral Post Creator → 5 agents → viral post → post",
+          "Activate Comment Squad on 8 BIG posts IN YOUR NICHE"
+        ],
+        type:"action", badge:null,
+        subtasks: [
+          { id:"thread", label:"Viral thread shipped (in niche)", goal:1 },
+          { id:"post", label:"Viral post shipped (in niche)", goal:1 },
+          { id:"comments", label:"Comment Squad comments (in niche)", goal:8 }
+        ],
+        devrantTool:{ route:"/laboratory", label:"Open RANT Squad" }
+      },
+      { day:2, title:"Your voice enters your niche", time:"⏱ 50 min",
+        why:"Comments warmed them. Posts informed them. Today your VOICE reaches them — but only inside your locked niche.",
+        source:"<b>SOURCE:</b> Mel Robbins early audio method + Justin Welsh consistency principle.",
+        steps:[
+          "Pick a viral video FROM YOUR NICHE → Audio Rant → record 60-sec reaction → post to Reels",
+          "1 RANT Squad text post (in niche) → post to Facebook",
+          "Activate Comment Squad on 10 big posts in your niche"
+        ],
+        type:"video", badge:null,
+        subtasks: [
+          { id:"audio", label:"Audio Rant in niche", goal:1 },
+          { id:"post", label:"RANT Squad post (in niche)", goal:1 },
+          { id:"comments", label:"Comment Squad comments", goal:10 }
+        ],
+        devrantTool:{ route:"/audio-rant", label:"Open Audio Rant" }
+      },
+      { day:3, title:"Visual proof + first depth thinking", time:"⏱ 60 min",
+        why:"Three days deep in one lane. Time to think like an analyst: what is working in YOUR niche, what is not?",
+        source:"<b>SOURCE:</b> Teresa Amabile, The Progress Principle (HBR Press).",
+        steps:[
+          "Clip Maker on a long niche video → 3 viral clips → post the best one, schedule the others",
+          "Activate Comment Squad on 10 big posts in your niche",
+          "THINKING TASK: look at your top 3 posts from the past 17 days. What did they have in common? Write 1 line in Daily Spark."
+        ],
+        type:"video", badge:null,
+        subtasks: [
+          { id:"clips", label:"Clip Maker session (3 clips)", goal:1 },
+          { id:"comments", label:"Comment Squad comments", goal:10 },
+          { id:"thinking", label:"Thinking task in Daily Spark", goal:1 }
+        ],
+        devrantTool:{ route:"/clip-maker", label:"Open Clip Maker" }
+      }
+    ],
     gold: [{ title:"Post a 5-line thread", time:"⏱ 45 min", why:"Threads keep people in your post longer.", source:"<b>SOURCE:</b> Format from Naval Ravikant on Twitter.", steps:["Write 1 hook + 4 lessons + 1 question","Post as one Facebook post","Pin to top of profile"], type:"posting", ready:"Hook: Most beginners quit at Day 14.\n\n1. They wait to feel ready.\n2. They compare to creators 5 years ahead.\n3. They post once, hear nothing, quit.\n4. They forget — early posts are reps, not rockets.\n\nWhat would YOU do differently?", safetyNote:"✓ Universal observations." }],
     platinum: [{ title:"Record a 60-sec voice video", time:"⏱ 60 min", why:"Voice videos let you practice talking. No face = no fear.", source:"<b>SOURCE:</b> Mel Robbins's early Instagram method.", steps:["Pick your most popular post","CapCut → record audio with emotion","White text on black background → export → Reels"], type:"posting", ready:"[Use your last winning post as the script.]", safetyNote:"✓ Your own voice. Safe to post." }],
     diamond: [{ title:"Record a 60-sec face or AI-avatar video", time:"⏱ 60 min", why:"Face videos build trust fastest. AI avatars work if camera-shy.", source:"<b>SOURCE:</b> Ali Abdaal's early YouTube. HeyGen for avatar.", steps:["Use your Platinum script","Record self or HeyGen avatar","Post to Reels + YouTube Shorts"], type:"posting", ready:"[Use your Platinum script.]", safetyNote:"✓ Your own script." }],
@@ -681,8 +734,9 @@ Here is the Facebook post:
     const tier = TIERS.find(t => t.id === state.profile.current_tier) || TIERS[0];
     $('#tierChip').textContent = tier.name;
     const dayChip = $('#dayChip');
-    if (tier.id === 'bronze') {
-      dayChip.textContent = `Day ${state.profile.bronze_day}/14`;
+    if (tier.id === 'bronze' || tier.id === 'silver') {
+      const totalDays = (TASKS[tier.id] || []).length || 14;
+      dayChip.textContent = `Day ${state.profile.bronze_day}/${totalDays}`;
       dayChip.style.display = 'flex';
     } else dayChip.style.display = 'none';
     renderTiers();
@@ -962,7 +1016,7 @@ Here is the Facebook post:
     // Phase-aware day pill
     pill.className = 'day-pill';
     if (tier.id === 'bronze' && t.day) {
-      const phase = phaseForDay(t.day);
+      const phase = phaseForDay(t.day, tier.id);
       pill.classList.add('phase-' + phase.name);
       pill.textContent = `DAY ${t.day}/14 — ${phase.label}`;
       renderProgressTrail(t.day);
@@ -1285,9 +1339,22 @@ Here is the Facebook post:
       });
       let newProfile = { ...state.profile };
       let leveledUp = false;
+      // Tier-aware day increment. bronze_day field is reused as "day within current tier".
+      // When a member tiers up, reset to 1 so the new tier starts at Day 1.
+      const TIER_LADDER_SIZE = 14; // every tier currently has its own 14-day ladder
       if (tier.id === 'bronze') {
-        if (newProfile.bronze_day >= 14) { newProfile.current_tier = 'silver'; leveledUp = true; }
-        else newProfile.bronze_day = (newProfile.bronze_day || 1) + 1;
+        if (newProfile.bronze_day >= TIER_LADDER_SIZE) {
+          newProfile.current_tier = 'silver';
+          newProfile.bronze_day = 1;
+          leveledUp = true;
+        } else newProfile.bronze_day = (newProfile.bronze_day || 1) + 1;
+      } else if (tier.id === 'silver') {
+        const silverPool = TASKS.silver || [];
+        if (newProfile.bronze_day >= silverPool.length) {
+          // Reached end of currently-built Silver content
+          // Don't tier up yet — Mosh still building Gold. Just hold at last Silver day.
+          newProfile.bronze_day = silverPool.length;
+        } else newProfile.bronze_day = (newProfile.bronze_day || 1) + 1;
       }
       if (newProfile.last_win_date === yesterdayStr() || !newProfile.last_win_date) {
         newProfile.streak = (newProfile.streak || 0) + 1;

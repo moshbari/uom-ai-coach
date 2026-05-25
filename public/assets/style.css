@@ -757,3 +757,15 @@ textarea::placeholder { color: var(--muted-soft); }
   margin-top: 10px; text-align: center; letter-spacing: 0.3px;
 }
 .comment-helper .saved.show { display: block; }
+
+/* === Silver DEPTH phase pill === */
+.day-pill.phase-depth {
+  background: linear-gradient(135deg, rgba(192,192,192,0.18), rgba(163,132,68,0.12));
+  color: #8A7B4F;
+  border: 1px solid #B0A487;
+}
+[data-theme="dark"] .day-pill.phase-depth {
+  background: linear-gradient(135deg, rgba(212,196,168,0.18), rgba(201,169,97,0.12));
+  color: #D4C4A8;
+  border-color: #A89770;
+}
