@@ -373,8 +373,16 @@ Here is the Facebook post:
         const projectRef = projectRefMatch ? projectRefMatch[1] : '';
         const storageKey = 'sb-' + projectRef + '-auth-token';
 
-        // Clear stale token MANUALLY — no SDK call to avoid hangs
-        try { localStorage.removeItem(storageKey); } catch(_) {}
+        // Clear ALL stale Supabase keys MANUALLY — no SDK call. Catches orphans from
+        // previous broken attempts (different ref, code-verifier leftovers, etc).
+        try {
+          const toRemove = [];
+          for (let i = 0; i < localStorage.length; i++) {
+            const k = localStorage.key(i);
+            if (k && k.startsWith('sb-')) toRemove.push(k);
+          }
+          toRemove.forEach(k => localStorage.removeItem(k));
+        } catch(_) {}
 
         // Direct fetch to Supabase token endpoint (verified ~350ms via curl)
         let tokenResp, tokenData;
@@ -518,12 +526,21 @@ Here is the Facebook post:
 
   async function onSignedIn() {
     try {
+      console.log('[UOM] onSignedIn step 1: getUser');
       const { data: { user } } = await sb.auth.getUser();
-      if (!user) { showLogin(); return; }
+      if (!user) {
+        console.warn('[UOM] onSignedIn: getUser returned no user');
+        showLogin();
+        return;
+      }
       state.user = user;
+      console.log('[UOM] onSignedIn step 2: loadProfile for', user.email);
       await loadProfile();
+      console.log('[UOM] onSignedIn step 3: loadTodayState');
       await loadTodayState();
+      console.log('[UOM] onSignedIn step 4: loadSparks');
       await loadSparks();
+      console.log('[UOM] onSignedIn step 5: enterApp');
       enterApp();
     } catch (e) {
       console.error('[UOM] onSignedIn failed:', e);
@@ -531,8 +548,9 @@ Here is the Facebook post:
       $('#login').style.display = 'flex';
       const err = $('#err');
       err.style.color = 'var(--error)';
-      err.textContent = 'Sign-in error: ' + (e.message || 'unknown') + ' — open console for details.';
-      try { await sb.auth.signOut(); } catch(_) {}
+      err.textContent = 'Sign-in error: ' + (e.message || 'unknown');
+      // Do NOT call signOut here — that triggers SDK calls that may hang.
+      // Just leave the user on the login screen with the error visible.
     }
   }
 
@@ -1487,7 +1505,15 @@ Here is the Facebook post:
         try { await withTimeout(onSignedIn(), 8000, 'onSignedIn'); return; }
         catch (e) {
           console.error('[UOM] onSignedIn failed:', e);
-          try { await sb.auth.signOut(); } catch(_) {}
+          // Show the actual error on the login screen instead of silently signing out.
+          // This way we can SEE what's wrong instead of getting a mysterious bounce.
+          showLogin();
+          const err = $('#err');
+          if (err) {
+            err.style.color = 'var(--error)';
+            err.textContent = 'Could not load your app: ' + (e.message || 'unknown') + ' — open browser console for details.';
+          }
+          return;
         }
       }
       showLogin();
