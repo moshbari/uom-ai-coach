@@ -571,41 +571,73 @@ Here is the Facebook post:
     }
   }
 
+  // ===== Direct REST fetch (no SDK) — used during load path to avoid SDK hangs
+  async function restFetch(path, options) {
+    options = options || {};
+    const sess = readLocalSession();
+    const accessToken = sess && sess.access_token;
+    if (!accessToken) throw new Error('No access token in localStorage');
+    const r = await withTimeout(
+      fetch(C.supabaseUrl + '/rest/v1/' + path, Object.assign({}, options, {
+        headers: Object.assign({
+          'apikey': C.supabaseAnonKey,
+          'Authorization': 'Bearer ' + accessToken,
+          'Content-Type': 'application/json'
+        }, options.headers || {})
+      })),
+      6000,
+      'restFetch ' + path
+    );
+    if (!r.ok) {
+      const text = await r.text().catch(() => '');
+      throw new Error('REST ' + r.status + ': ' + text.slice(0, 200));
+    }
+    if (r.status === 204) return null;
+    return r.json();
+  }
+
   async function loadProfile() {
-    const { data, error } = await sb.from('uom_profiles').select('*').eq('id', state.user.id).maybeSingle();
-    if (error) console.error('[UOM] profile select error:', error);
-    if (data) { state.profile = data; return; }
-    // Fallback: profile row missing (trigger may not have fired). Create via UPSERT.
+    const userId = state.user.id;
+    const rows = await restFetch('uom_profiles?id=eq.' + encodeURIComponent(userId) + '&select=*');
+    if (Array.isArray(rows) && rows.length > 0) {
+      state.profile = rows[0];
+      return;
+    }
+    // Profile missing — create it via direct POST
     const seed = {
       id: state.user.id,
       email: state.user.email,
       display_name: (state.user.user_metadata && state.user.user_metadata.display_name) || (state.user.email || 'friend').split('@')[0]
     };
-    const { data: up, error: upErr } = await sb.from('uom_profiles').upsert(seed, { onConflict: 'id' }).select().single();
-    if (upErr) {
-      console.error('[UOM] profile upsert error:', upErr);
-      throw new Error('Could not create profile: ' + upErr.message);
-    }
-    state.profile = up;
+    const created = await restFetch('uom_profiles', {
+      method: 'POST',
+      headers: { 'Prefer': 'return=representation' },
+      body: JSON.stringify(seed)
+    });
+    state.profile = Array.isArray(created) ? created[0] : created;
   }
 
   async function loadTodayState() {
     const today = todayStr();
-    const { data } = await sb.from('uom_completions')
-      .select('id, completed_at').eq('user_id', state.user.id)
-      .gte('completed_at', today + 'T00:00:00').limit(1);
-    state.todayDone = !!(data && data.length);
-    const { data: ci } = await sb.from('uom_checkins')
-      .select('time_avail, energy, mood').eq('user_id', state.user.id).eq('date', today).maybeSingle();
-    state.checkin = ci ? { time: ci.time_avail || '', energy: ci.energy || '', mood: ci.mood || '' }
-                       : { time:'', energy:'', mood:'' };
+    const userId = state.user.id;
+    const completions = await restFetch('uom_completions?user_id=eq.' + encodeURIComponent(userId) +
+      '&completed_at=gte.' + today + 'T00:00:00&select=id,completed_at&limit=1');
+    state.todayDone = !!(completions && completions.length);
+    const checkins = await restFetch('uom_checkins?user_id=eq.' + encodeURIComponent(userId) +
+      '&date=eq.' + today + '&select=time_avail,energy,mood&limit=1');
+    if (Array.isArray(checkins) && checkins.length > 0) {
+      const ci = checkins[0];
+      state.checkin = { time: ci.time_avail || '', energy: ci.energy || '', mood: ci.mood || '' };
+    } else {
+      state.checkin = { time: '', energy: '', mood: '' };
+    }
   }
 
   async function loadSparks() {
-    const { data } = await sb.from('uom_sparks')
-      .select('id, day, line, created_at').eq('user_id', state.user.id)
-      .order('created_at', { ascending: false }).limit(60);
-    state.sparks = data || [];
+    const userId = state.user.id;
+    const rows = await restFetch('uom_sparks?user_id=eq.' + encodeURIComponent(userId) +
+      '&select=id,day,line,created_at&order=created_at.desc&limit=60');
+    state.sparks = Array.isArray(rows) ? rows : [];
   }
 
   // ============================================================
