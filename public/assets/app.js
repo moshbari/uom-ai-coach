@@ -1159,7 +1159,9 @@ Here is the Facebook post:
     const line = $('#sparkLine').value.trim();
     if (!line) { alert('Write ONE line first.'); return; }
     const t = currentTask();
-    const day = currentTier().id === 'bronze' && t.day ? t.day : null;
+    const tier = currentTier();
+    // Record day for ANY tier that has a day field (Bronze + Silver + future tiers)
+    const day = (t && t.day) ? t.day : null;
     const { data, error } = await sb.from('uom_sparks').insert({
       user_id: state.user.id, day, line
     }).select().single();
