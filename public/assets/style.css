@@ -954,12 +954,22 @@ textarea::placeholder { color: var(--muted-soft); }
 /* ===== ZONE 0: TOP STICKY LOG-IN BAR ===== */
 .auth-topbar {
   position: sticky; top: 0; z-index: 50;
-  display: flex; justify-content: space-between; align-items: center;
-  padding: 10px 18px;
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
+  padding: 0;
   background: rgba(26,22,17,0.95);
   backdrop-filter: blur(6px);
   border-bottom: 1px solid rgba(201,169,97,0.25);
   box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+}
+.auth-topbar-inner {
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 10px 22px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 .auth-topbar-left { display: flex; align-items: center; gap: 8px; }
 .auth-topbar-crown { font-size: 14px; }
@@ -1356,4 +1366,62 @@ textarea::placeholder { color: var(--muted-soft); }
   .auth-pain-new h2 { font-size: 17px; }
   .auth-promise-h { font-size: 20px; }
   .auth-closer-line-2 { font-size: 19px; }
+}
+
+/* Ranking ladder inside promise zone */
+.auth-ranks {
+  margin-top: 18px;
+  padding: 16px 14px 14px 14px;
+  background: linear-gradient(135deg, rgba(26,22,17,0.04), rgba(201,169,97,0.08));
+  border: 1px solid #d4b896;
+  border-radius: 10px;
+  text-align: center;
+}
+.auth-ranks-tag {
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #8a6a18;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+.auth-ranks-ladder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+.auth-ranks-ladder .rk {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.4px;
+  padding: 4px 9px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.rk-1 { background: linear-gradient(135deg, #cd7f32, #8a5520); color: #fff; }
+.rk-2 { background: linear-gradient(135deg, #c0c0c0, #8a8a8a); color: #2a2118; }
+.rk-3 { background: linear-gradient(135deg, #ffd700, #d4a017); color: #2a2118; }
+.rk-4 { background: linear-gradient(135deg, #e5e4e2, #a8a8a8); color: #2a2118; }
+.rk-5 { background: linear-gradient(135deg, #b9f2ff, #4ec5e0); color: #1a2a3a; }
+.rk-6 { background: linear-gradient(135deg, #ffe478, #d4a017); color: #2a2118; box-shadow: 0 2px 6px rgba(212,160,23,0.4); }
+.auth-ranks-ladder .rk-arrow {
+  color: #8a6a18;
+  font-weight: 800;
+  font-size: 12px;
+}
+.auth-ranks-note {
+  font-size: 12px;
+  color: #6b5a32;
+  font-style: italic;
+  line-height: 1.4;
+}
+
+@media (max-width: 420px) {
+  .auth-ranks-ladder .rk { font-size: 10px; padding: 3px 7px; }
+  .auth-ranks-ladder .rk-arrow { font-size: 10px; }
 }
