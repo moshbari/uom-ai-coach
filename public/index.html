@@ -22,28 +22,45 @@
 
 <div id="login" class="login" style="display:none;">
 
-  <!-- ============ ZONE 1: HERO (deep dark with gold) ============ -->
+  <!-- ZONE 0: TOP STICKY LOG-IN BAR (returning members) -->
+  <div class="auth-topbar">
+    <div class="auth-topbar-left">
+      <span class="auth-topbar-crown">&#x1F451;</span>
+      <span class="auth-topbar-label">Returning member?</span>
+    </div>
+    <a href="#auth-form" class="auth-topbar-cta">Log in &darr;</a>
+  </div>
+
+  <!-- ZONE 1: HERO -->
   <section class="auth-zone auth-hero-dark">
     <div class="auth-hero-inner">
       <div class="auth-crest">&#x1F451;</div>
       <div class="auth-brand-line">UOM&nbsp;&middot;&nbsp;AI&nbsp;&middot;&nbsp;Coach</div>
       <h1 class="auth-hook-new">
-        <span class="dim">They got a course.</span><br/>
-        <span class="bright">You got a Coach.</span>
+        <span class="dim">They bought hope.</span><br/>
+        <span class="bright">You bought help.</span>
       </h1>
-      <div class="auth-subhook-new">Log in. Your Coach is ready.</div>
+      <div class="auth-subhook-new">A real Coach. Every day. In your pocket.</div>
+
+      <!-- Signed note from Mosh -->
+      <div class="auth-signed">
+        <div class="auth-signed-avatar"><span>M</span></div>
+        <div class="auth-signed-body">
+          <p class="auth-signed-text">I built this so you would never feel stuck again. Open the app. Take one small action. I will be right there with you.</p>
+          <p class="auth-signed-name">&mdash; Mosh, UOM Founder</p>
+        </div>
+      </div>
+
       <a href="#auth-form" class="auth-scroll-cue">Sign in below &darr;</a>
     </div>
   </section>
 
-  <!-- ============ ZONE 2: COURSE vs COACH comparison ============ -->
+  <!-- ZONE 2: COURSE vs COACH -->
   <section class="auth-zone auth-compare-zone">
-    <div class="auth-compare-title">See the difference.</div>
+    <div class="auth-compare-title">See the difference</div>
     <div class="auth-compare-grid">
       <div class="auth-compare-col auth-compare-bad">
-        <div class="auth-compare-head">
-          <span class="auth-compare-tag">A course</span>
-        </div>
+        <div class="auth-compare-head"><span class="auth-compare-tag">A course</span></div>
         <ul>
           <li><span class="x">&#x2715;</span>Watch modules</li>
           <li><span class="x">&#x2715;</span>Take notes</li>
@@ -52,44 +69,56 @@
         </ul>
       </div>
       <div class="auth-compare-col auth-compare-good">
-        <div class="auth-compare-head">
-          <span class="auth-compare-tag good">A Coach</span>
-        </div>
+        <div class="auth-compare-head"><span class="auth-compare-tag good">A Coach</span></div>
         <ul>
           <li><span class="ok">&#x2713;</span>One task today</li>
           <li><span class="ok">&#x2713;</span>Real guidance</li>
           <li><span class="ok">&#x2713;</span>A small win every day</li>
-          <li><span class="ok">&#x2713;</span>Your first sale by Day 14</li>
+          <li><span class="ok">&#x2713;</span>Ready to sell by Day 14</li>
         </ul>
       </div>
     </div>
   </section>
 
-  <!-- ============ ZONE 3: PAIN (soft red warning, no chargeback bait) ============ -->
+  <!-- ZONE 3: PAIN (rewritten in YOU voice) -->
   <section class="auth-zone auth-pain-new">
     <div class="auth-pain-icon">&#x26A0;</div>
-    <h2>Why most people never make a sale</h2>
+    <h2>Why your last course did not work</h2>
     <ul>
-      <li>They got a course, not a Coach.</li>
-      <li>They got stuck on Day 4.</li>
-      <li>They opened a new module instead of asking for help.</li>
-      <li>They drifted. They quit. They blamed themselves.</li>
+      <li>You bought it with real hope.</li>
+      <li>You watched two or three modules.</li>
+      <li>Life got busy. You missed a day.</li>
+      <li>The hope faded. You blamed yourself.</li>
     </ul>
+    <p class="auth-pain-footer">It was not your fault. You had a course. You did not have a Coach.</p>
   </section>
 
-  <!-- ============ ZONE 4: PROMISE (warm gold win) ============ -->
+  <!-- ZONE 4: PROMISE -->
   <section class="auth-zone auth-promise-new">
-    <h2 class="auth-promise-h">This time is different.</h2>
+    <h2 class="auth-promise-h">Here is what changed</h2>
     <ul class="auth-promise-list">
-      <li><span class="num">1</span><div>Your Coach tells you what to do today.</div></li>
+      <li><span class="num">1</span><div>Your Coach picks your one task today.</div></li>
       <li><span class="num">2</span><div>You give it 45 minutes.</div></li>
       <li><span class="num">3</span><div>You win. You sleep proud.</div></li>
-      <li><span class="num">4</span><div><strong>Day 14 — your first sale.</strong></div></li>
-      <li><span class="num">5</span><div>Then you do it again.</div></li>
+      <li><span class="num">4</span><div><strong>By Day 14, you are ready for your first sale.</strong></div></li>
+      <li><span class="num">5</span><div>Then you do it again. And again.</div></li>
     </ul>
+
+    <div class="auth-bonus">
+      <div class="auth-bonus-tag">Plus your full agent stack</div>
+      <div class="auth-bonus-pills">
+        <span>Comment Squad</span>
+        <span>Audio Rant</span>
+        <span>Clip Maker</span>
+        <span>Reaction Agent</span>
+        <span>Viral Script Agent</span>
+        <span>The Editor</span>
+      </div>
+      <div class="auth-bonus-note">Every agent is built into your account. No extra fee.</div>
+    </div>
   </section>
 
-  <!-- ============ ZONE 5: SIGN-IN FORM (clean white card) ============ -->
+  <!-- ZONE 5: SIGN-IN FORM -->
   <section class="auth-zone auth-form-zone" id="auth-form">
     <div class="auth-form-label">Sign in to start</div>
 
@@ -105,9 +134,14 @@
     <button type="button" class="btn-primary" id="authBtn" onclick="doAuth()">Send magic link</button>
     <div id="forgotRow" style="margin-top:14px;"><a onclick="forgotPassword()" style="font-size:13px;color:var(--gold);cursor:pointer;letter-spacing:0.3px;font-weight:600;border-bottom:1px solid var(--gold-deep);padding-bottom:1px;">Forgot or never set a password? Reset it &rarr;</a></div>
     <div id="err" class="err"></div>
+
+    <!-- Risk reversal -->
+    <div class="auth-risk-reverse">
+      <span>&#x2713;</span> No setup. No download. Sign in once. You are in.
+    </div>
   </section>
 
-  <!-- ============ ZONE 6: PROOF (parchment quote cards) ============ -->
+  <!-- ZONE 6: PROOF -->
   <section class="auth-zone auth-proof-new">
     <div class="auth-proof-title-new">The path that works</div>
     <div class="auth-quote-card">
@@ -122,14 +156,20 @@
       <div class="auth-quote-text">&ldquo;You do not need an audience. You need a system that ships every day.&rdquo;</div>
       <div class="auth-quote-author">Justin Welsh &middot; The One-Person Business</div>
     </div>
+    <div class="auth-proof-note">Real member stories coming soon &mdash; collected from your first 14-day winners.</div>
   </section>
 
-  <!-- ============ ZONE 7: CLOSER (dark again with gold CTA) ============ -->
+  <!-- ZONE 7: CLOSER -->
   <section class="auth-zone auth-closer-dark">
-    <div class="auth-closer-line-1">You already paid.</div>
+    <div class="auth-closer-eyebrow">Here is your first 30 seconds inside</div>
+    <ul class="auth-closer-preview">
+      <li>Three taps. Time + energy + mood.</li>
+      <li>Your Coach picks your one task today.</li>
+      <li>You do it. You save your first small win.</li>
+    </ul>
     <div class="auth-closer-line-2">The Coach is waiting.</div>
     <a href="#auth-form" class="auth-closer-cta">Sign in. Start. &uarr;</a>
-    <div class="auth-bottom-line-new">Members only &middot; contact your UOM admin for access</div>
+    <div class="auth-bottom-line-new">Members only &middot; you earned this</div>
   </section>
 
 </div>
