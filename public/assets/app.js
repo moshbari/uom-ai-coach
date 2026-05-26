@@ -1,4 +1,4 @@
-// UOM AI Coach — frontend logic with Supabase backend (v2.1: magic link + settings)
+// UOM AI Coach — frontend logic with Supabase backend (v3: Google OAuth + email/password)
 (function(){
   'use strict';
 
@@ -367,21 +367,49 @@ Here is the Facebook post:
   const yesterdayStr = () => { const d = new Date(); d.setDate(d.getDate()-1); return d.toISOString().slice(0,10); };
 
   // ============================================================
-  // AUTH — magic link + password + signup
+  // AUTH — Google OAuth + email/password (sign in or create)
   // ============================================================
-  let authMode = 'magic'; // 'magic' | 'login' | 'signup'
+  let authMode = 'login'; // 'login' | 'signup' — magic link removed; Google OAuth is separate path
 
   window.switchAuthTab = function(mode) {
+    if (mode !== 'login' && mode !== 'signup') mode = 'login';
     authMode = mode;
-    $('#tabMagic').classList.toggle('on', mode==='magic');
-    $('#tabLogin').classList.toggle('on', mode==='login');
-    $('#tabSignup').classList.toggle('on', mode==='signup');
+    const tl = document.getElementById('tabLogin');
+    const ts = document.getElementById('tabSignup');
+    if (tl) tl.classList.toggle('on', mode==='login');
+    if (ts) ts.classList.toggle('on', mode==='signup');
     $('#nameInput').style.display     = mode==='signup' ? 'block' : 'none';
-    $('#passwordInput').style.display = (mode==='login' || mode==='signup') ? 'block' : 'none';
-    const labels = { magic:'Send magic link', login:'Sign In', signup:'Create Account' };
+    $('#passwordInput').style.display = 'block';
+    const labels = { login:'Sign in', signup:'Create account' };
     $('#authBtn').textContent = labels[mode];
-    const fr = $('#forgotRow'); if (fr) fr.style.display = 'block';
+    const fr = $('#forgotRow'); if (fr) fr.style.display = mode==='login' ? 'block' : 'none';
     const err = $('#err'); err.textContent = ''; err.style.color = 'var(--error)';
+  };
+
+  // Continue with Google — Supabase OAuth flow
+  window.signInWithGoogle = async function() {
+    const err = $('#err');
+    err.textContent = ''; err.style.color = 'var(--error)';
+    const btn = document.getElementById('googleBtn');
+    if (btn) { btn.disabled = true; btn.classList.add('loading'); }
+    try {
+      if (!sb || !sb.auth || !sb.auth.signInWithOAuth) {
+        throw new Error('Auth not ready. Refresh and try again.');
+      }
+      const { data, error } = await sb.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: window.location.origin + '/',
+          queryParams: { prompt: 'select_account' }
+        }
+      });
+      if (error) throw error;
+      // Supabase returns a redirect URL — go to it. (SDK usually auto-redirects.)
+      if (data && data.url) { window.location.href = data.url; }
+    } catch (e) {
+      err.textContent = e.message || 'Could not start Google sign in.';
+      if (btn) { btn.disabled = false; btn.classList.remove('loading'); }
+    }
   };
 
   window.doAuth = async function() {
@@ -396,17 +424,7 @@ Here is the Facebook post:
     const orig = $('#authBtn').textContent;
     $('#authBtn').textContent = '...';
     try {
-      if (authMode === 'magic') {
-        // Use our custom endpoint (Resend + UOM branding)
-        const r = await fetch(C.magicLinkUrl || '/api/auth/magic-link', {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email })
-        });
-        const data = await r.json();
-        if (!r.ok) throw new Error(data.error || 'Could not send magic link');
-        err.style.color = 'var(--sage)';
-        err.textContent = 'Magic link sent. Check your email — click the link to sign in.';
-      } else if (authMode === 'signup') {
+      if (authMode === 'signup') {
         if (!name) { err.textContent = 'First name required.'; return; }
         if (!password || password.length < 6) { err.textContent = 'Password must be 6+ characters.'; return; }
         const r = await fetch(C.signupUrl || '/api/auth/signup', {
@@ -506,7 +524,7 @@ Here is the Facebook post:
     location.reload();
   };
 
-  // Handle magic link redirect — Supabase SDK auto-detects token in URL
+  // Handle OAuth / recovery redirect — Supabase SDK auto-detects token in URL
   let inRecoveryFlow = false;
   sb.auth.onAuthStateChange(async (event, session) => {
     if (event === 'PASSWORD_RECOVERY') {
@@ -717,7 +735,7 @@ Here is the Facebook post:
     $('#loading').style.display = 'none';
     $('#app').style.display = 'none';
     $('#login').style.display = 'flex';
-    switchAuthTab('magic');
+    switchAuthTab('login');
   }
   function enterApp() {
     $('#loading').style.display = 'none';
@@ -1551,11 +1569,11 @@ Here is the Facebook post:
                   (u.identities && u.identities.some(i => i.provider === 'email' && i.identity_data && i.identity_data.email));
     if (hasPw) {
       title.textContent = 'Change your password';
-      help.textContent  = 'Type your new password twice. You will still be able to sign in with magic link as well.';
+      help.textContent  = 'Type your new password twice. Use it next time to sign in.';
       if (btn) btn.textContent = 'Save new password';
     } else {
       title.textContent = 'Create a password';
-      help.textContent  = 'Set a password so you can sign in without waiting for a magic link email. Magic link will still work too.';
+      help.textContent  = 'Set a password so you can sign in with email and password.';
       if (btn) btn.textContent = 'Save password';
     }
   }
@@ -1827,7 +1845,7 @@ Here is the Facebook post:
       }
 
       // Poll for session up to 6 sec — SDK processes URL hash async, so getSession()
-      // can return null on first try even when a valid magic-link token is in the hash.
+      // can return null on first try even when a valid OAuth token is in the hash.
       let session = null;
       const start = Date.now();
       while (Date.now() - start < 6000) {
@@ -1864,7 +1882,7 @@ Here is the Facebook post:
         if (err) {
           err.style.color = 'var(--error)';
           err.textContent = urlErr.code === 'otp_expired'
-            ? 'That magic link expired or was already used. Tap Send magic link again.'
+            ? 'That sign-in link expired or was already used. Try signing in again.'
             : urlErr.desc;
         }
       }
