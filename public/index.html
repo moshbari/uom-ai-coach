@@ -21,24 +21,72 @@
 </div>
 
 <div id="login" class="login" style="display:none;">
-  <div class="crest">&#x1F451;</div>
-  <h1>UOM <span class="accent">AI</span> Coach</h1>
-  <p class="tagline">One small win every day.<br/>Climb from Bronze to Crown.</p>
-  <div class="divider"></div>
 
-  <div class="auth-tabs">
-    <button type="button" class="on" id="tabMagic"    onclick="switchAuthTab('magic')">Magic link</button>
-    <button type="button"           id="tabLogin"    onclick="switchAuthTab('login')">Password</button>
-    <button type="button"           id="tabSignup"   onclick="switchAuthTab('signup')">Create</button>
+  <div class="auth-hero">
+    <div class="crest">&#x1F451;</div>
+    <h1 class="auth-brand">UOM AI Coach</h1>
+    <div class="auth-hook">
+      You did not buy a course.<br/>
+      You bought a way out.
+    </div>
+    <div class="auth-subhook">Sign in. Your Coach is ready.</div>
   </div>
 
-  <input id="nameInput"     type="text"     placeholder="Your first name"          autocomplete="given-name" style="display:none;" />
-  <input id="emailInput"    type="email"    placeholder="Email address"            autocomplete="email" />
-  <input id="passwordInput" type="password" placeholder="Password (6+ characters)" autocomplete="current-password" style="display:none;" />
-  <button type="button" class="btn-primary" id="authBtn" onclick="doAuth()">Send magic link</button>
-  <div id="forgotRow" style="margin-top:14px;"><a onclick="forgotPassword()" style="font-size:13px;color:var(--gold);cursor:pointer;letter-spacing:0.3px;font-weight:600;border-bottom:1px solid var(--gold-deep);padding-bottom:1px;">Forgot or never set a password? Reset it &rarr;</a></div>
-  <div id="err" class="err"></div>
-  <div class="small">Members only &middot; contact your UOM admin for access</div>
+  <div class="auth-pain">
+    <p>Most people who buy a program never make a sale.</p>
+    <p>Not because the program was bad.</p>
+    <p>They got stuck on Day 4.</p>
+    <p>They opened a module instead of posting.</p>
+  </div>
+
+  <div class="auth-promise">
+    <p class="auth-promise-lead">This time is different.</p>
+    <p>You open one app.</p>
+    <p>Your Coach picks the one task for today.</p>
+    <p>You do it in 45 minutes.</p>
+    <p>You save a small win. You sleep proud.</p>
+    <p class="auth-promise-close"><span>Day 14</span> = your first sale.<br/>Then you do it again.</p>
+  </div>
+
+  <div class="auth-form-wrap">
+    <div class="auth-form-label">Sign in</div>
+
+    <div class="auth-tabs">
+      <button type="button" class="on" id="tabMagic"  onclick="switchAuthTab('magic')">Magic link</button>
+      <button type="button"           id="tabLogin"  onclick="switchAuthTab('login')">Password</button>
+      <button type="button"           id="tabSignup" onclick="switchAuthTab('signup')">Create</button>
+    </div>
+
+    <input id="nameInput"     type="text"     placeholder="Your first name"          autocomplete="given-name" style="display:none;" />
+    <input id="emailInput"    type="email"    placeholder="Email address"            autocomplete="email" />
+    <input id="passwordInput" type="password" placeholder="Password (6+ characters)" autocomplete="current-password" style="display:none;" />
+    <button type="button" class="btn-primary" id="authBtn" onclick="doAuth()">Send magic link</button>
+    <div id="forgotRow" style="margin-top:14px;"><a onclick="forgotPassword()" style="font-size:13px;color:var(--gold);cursor:pointer;letter-spacing:0.3px;font-weight:600;border-bottom:1px solid var(--gold-deep);padding-bottom:1px;">Forgot or never set a password? Reset it &rarr;</a></div>
+    <div id="err" class="err"></div>
+  </div>
+
+  <div class="auth-proof">
+    <div class="auth-proof-title">This is the path. It is not a trick. It is what works.</div>
+    <blockquote>
+      <p>&ldquo;The number one predictor of finishing a 30-day writing cohort was completing Day 1.&rdquo;</p>
+      <cite>&mdash; Dickie Bush, Ship 30 for 30</cite>
+    </blockquote>
+    <blockquote>
+      <p>&ldquo;Make the new action so small you cannot say no. Then do it every day.&rdquo;</p>
+      <cite>&mdash; BJ Fogg, Stanford Behavior Design Lab (Tiny Habits)</cite>
+    </blockquote>
+    <blockquote>
+      <p>You do not need an audience. You need a system that ships every day.</p>
+      <cite>&mdash; Justin Welsh, the one-person business playbook</cite>
+    </blockquote>
+  </div>
+
+  <div class="auth-closer">
+    You already paid. The key is in your inbox.<br/>
+    <strong>Sign in. Start.</strong>
+  </div>
+
+  <div class="small auth-bottom-line">Members only &middot; contact your UOM admin for access</div>
 </div>
 
 <div id="app" style="display:none;">
