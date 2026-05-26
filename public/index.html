@@ -22,34 +22,76 @@
 
 <div id="login" class="login" style="display:none;">
 
-  <div class="auth-hero">
-    <div class="crest">&#x1F451;</div>
-    <h1 class="auth-brand">UOM AI Coach</h1>
-    <div class="auth-hook">
-      You did not buy a course.<br/>
-      You bought a way out.
+  <!-- ============ ZONE 1: HERO (deep dark with gold) ============ -->
+  <section class="auth-zone auth-hero-dark">
+    <div class="auth-hero-inner">
+      <div class="auth-crest">&#x1F451;</div>
+      <div class="auth-brand-line">UOM&nbsp;&middot;&nbsp;AI&nbsp;&middot;&nbsp;Coach</div>
+      <h1 class="auth-hook-new">
+        <span class="dim">They got a course.</span><br/>
+        <span class="bright">You got a Coach.</span>
+      </h1>
+      <div class="auth-subhook-new">Log in. Your Coach is ready.</div>
+      <a href="#auth-form" class="auth-scroll-cue">Sign in below &darr;</a>
     </div>
-    <div class="auth-subhook">Sign in. Your Coach is ready.</div>
-  </div>
+  </section>
 
-  <div class="auth-pain">
-    <p>Most people who buy a program never make a sale.</p>
-    <p>Not because the program was bad.</p>
-    <p>They got stuck on Day 4.</p>
-    <p>They opened a module instead of posting.</p>
-  </div>
+  <!-- ============ ZONE 2: COURSE vs COACH comparison ============ -->
+  <section class="auth-zone auth-compare-zone">
+    <div class="auth-compare-title">See the difference.</div>
+    <div class="auth-compare-grid">
+      <div class="auth-compare-col auth-compare-bad">
+        <div class="auth-compare-head">
+          <span class="auth-compare-tag">A course</span>
+        </div>
+        <ul>
+          <li><span class="x">&#x2715;</span>Watch modules</li>
+          <li><span class="x">&#x2715;</span>Take notes</li>
+          <li><span class="x">&#x2715;</span>Hope it works</li>
+          <li><span class="x">&#x2715;</span>Quit on Day 4</li>
+        </ul>
+      </div>
+      <div class="auth-compare-col auth-compare-good">
+        <div class="auth-compare-head">
+          <span class="auth-compare-tag good">A Coach</span>
+        </div>
+        <ul>
+          <li><span class="ok">&#x2713;</span>One task today</li>
+          <li><span class="ok">&#x2713;</span>Real guidance</li>
+          <li><span class="ok">&#x2713;</span>A small win every day</li>
+          <li><span class="ok">&#x2713;</span>Your first sale by Day 14</li>
+        </ul>
+      </div>
+    </div>
+  </section>
 
-  <div class="auth-promise">
-    <p class="auth-promise-lead">This time is different.</p>
-    <p>You open one app.</p>
-    <p>Your Coach picks the one task for today.</p>
-    <p>You do it in 45 minutes.</p>
-    <p>You save a small win. You sleep proud.</p>
-    <p class="auth-promise-close"><span>Day 14</span> = your first sale.<br/>Then you do it again.</p>
-  </div>
+  <!-- ============ ZONE 3: PAIN (soft red warning, no chargeback bait) ============ -->
+  <section class="auth-zone auth-pain-new">
+    <div class="auth-pain-icon">&#x26A0;</div>
+    <h2>Why most people never make a sale</h2>
+    <ul>
+      <li>They got a course, not a Coach.</li>
+      <li>They got stuck on Day 4.</li>
+      <li>They opened a new module instead of asking for help.</li>
+      <li>They drifted. They quit. They blamed themselves.</li>
+    </ul>
+  </section>
 
-  <div class="auth-form-wrap">
-    <div class="auth-form-label">Sign in</div>
+  <!-- ============ ZONE 4: PROMISE (warm gold win) ============ -->
+  <section class="auth-zone auth-promise-new">
+    <h2 class="auth-promise-h">This time is different.</h2>
+    <ul class="auth-promise-list">
+      <li><span class="num">1</span><div>Your Coach tells you what to do today.</div></li>
+      <li><span class="num">2</span><div>You give it 45 minutes.</div></li>
+      <li><span class="num">3</span><div>You win. You sleep proud.</div></li>
+      <li><span class="num">4</span><div><strong>Day 14 — your first sale.</strong></div></li>
+      <li><span class="num">5</span><div>Then you do it again.</div></li>
+    </ul>
+  </section>
+
+  <!-- ============ ZONE 5: SIGN-IN FORM (clean white card) ============ -->
+  <section class="auth-zone auth-form-zone" id="auth-form">
+    <div class="auth-form-label">Sign in to start</div>
 
     <div class="auth-tabs">
       <button type="button" class="on" id="tabMagic"  onclick="switchAuthTab('magic')">Magic link</button>
@@ -63,30 +105,33 @@
     <button type="button" class="btn-primary" id="authBtn" onclick="doAuth()">Send magic link</button>
     <div id="forgotRow" style="margin-top:14px;"><a onclick="forgotPassword()" style="font-size:13px;color:var(--gold);cursor:pointer;letter-spacing:0.3px;font-weight:600;border-bottom:1px solid var(--gold-deep);padding-bottom:1px;">Forgot or never set a password? Reset it &rarr;</a></div>
     <div id="err" class="err"></div>
-  </div>
+  </section>
 
-  <div class="auth-proof">
-    <div class="auth-proof-title">This is the path. It is not a trick. It is what works.</div>
-    <blockquote>
-      <p>&ldquo;The number one predictor of finishing a 30-day writing cohort was completing Day 1.&rdquo;</p>
-      <cite>&mdash; Dickie Bush, Ship 30 for 30</cite>
-    </blockquote>
-    <blockquote>
-      <p>&ldquo;Make the new action so small you cannot say no. Then do it every day.&rdquo;</p>
-      <cite>&mdash; BJ Fogg, Stanford Behavior Design Lab (Tiny Habits)</cite>
-    </blockquote>
-    <blockquote>
-      <p>You do not need an audience. You need a system that ships every day.</p>
-      <cite>&mdash; Justin Welsh, the one-person business playbook</cite>
-    </blockquote>
-  </div>
+  <!-- ============ ZONE 6: PROOF (parchment quote cards) ============ -->
+  <section class="auth-zone auth-proof-new">
+    <div class="auth-proof-title-new">The path that works</div>
+    <div class="auth-quote-card">
+      <div class="auth-quote-text">&ldquo;The number one predictor of finishing a 30-day writing cohort was completing Day 1.&rdquo;</div>
+      <div class="auth-quote-author">Dickie Bush &middot; Ship 30 for 30</div>
+    </div>
+    <div class="auth-quote-card">
+      <div class="auth-quote-text">&ldquo;Make the new action so small you cannot say no. Then do it every day.&rdquo;</div>
+      <div class="auth-quote-author">BJ Fogg &middot; Stanford Behavior Design Lab</div>
+    </div>
+    <div class="auth-quote-card">
+      <div class="auth-quote-text">&ldquo;You do not need an audience. You need a system that ships every day.&rdquo;</div>
+      <div class="auth-quote-author">Justin Welsh &middot; The One-Person Business</div>
+    </div>
+  </section>
 
-  <div class="auth-closer">
-    You already paid. The key is in your inbox.<br/>
-    <strong>Sign in. Start.</strong>
-  </div>
+  <!-- ============ ZONE 7: CLOSER (dark again with gold CTA) ============ -->
+  <section class="auth-zone auth-closer-dark">
+    <div class="auth-closer-line-1">You already paid.</div>
+    <div class="auth-closer-line-2">The Coach is waiting.</div>
+    <a href="#auth-form" class="auth-closer-cta">Sign in. Start. &uarr;</a>
+    <div class="auth-bottom-line-new">Members only &middot; contact your UOM admin for access</div>
+  </section>
 
-  <div class="small auth-bottom-line">Members only &middot; contact your UOM admin for access</div>
 </div>
 
 <div id="app" style="display:none;">
