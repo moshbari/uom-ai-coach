@@ -1675,3 +1675,19 @@ textarea::placeholder { color: var(--muted-soft); }
 .auth-divider span { padding: 0 12px; white-space: nowrap; }
 
 .auth-tabs-2 { display: grid; grid-template-columns: 1fr 1fr; }
+
+/* Header theme toggle chip — matches chip-gear */
+.chip-theme {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  color: var(--gold);
+  width: 28px; height: 28px;
+  font-size: 14px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  padding: 0;
+}
+.chip-theme:hover { border-color: var(--gold-deep); }
+.chip-theme:active { transform: scale(0.95); }

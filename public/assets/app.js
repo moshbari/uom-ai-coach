@@ -261,7 +261,23 @@
     const db = document.getElementById('themeDark');
     if (lb) lb.classList.toggle('on', theme === 'light');
     if (db) db.classList.toggle('on', theme === 'dark');
+    // Update the header icon — sun shown in dark mode (so you tap to go light), moon in light mode
+    const ti = document.getElementById('themeIcon');
+    if (ti) ti.innerHTML = (theme === 'dark') ? '&#x2600;' : '&#x263E;';
   };
+
+  // Quick toggle for the header chip
+  window.toggleTheme = function() {
+    const next = (currentTheme() === 'dark') ? 'light' : 'dark';
+    setTheme(next);
+  };
+
+  // Sync icon on first paint
+  try {
+    const _t = document.documentElement.getAttribute('data-theme') || 'light';
+    const _ti = document.getElementById('themeIcon');
+    if (_ti) _ti.innerHTML = (_t === 'dark') ? '&#x2600;' : '&#x263E;';
+  } catch(_) {}
   function currentTheme() {
     return document.documentElement.getAttribute('data-theme') || 'light';
   }
