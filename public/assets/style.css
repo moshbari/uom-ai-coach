@@ -1692,43 +1692,138 @@ textarea::placeholder { color: var(--muted-soft); }
 .chip-theme:hover { border-color: var(--gold-deep); }
 .chip-theme:active { transform: scale(0.95); }
 
-/* Header tutorial button — matches chip-gear / chip-theme */
-.chip-tutorial {
-  background: var(--bg-surface);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  color: var(--gold);
-  width: 28px; height: 28px;
-  display: flex; align-items: center; justify-content: center;
-  text-decoration: none;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-.chip-tutorial:hover { border-color: var(--gold-deep); background: rgba(201,169,97,0.08); }
-.chip-tutorial:active { transform: scale(0.95); }
-.chip-tutorial svg { display: block; }
-
 /* Auth page top-bar tutorial pill */
 .auth-topbar-tutorial {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  padding: 5px 11px;
+  gap: 6px;
+  padding: 6px 12px;
   margin-right: 10px;
-  background: rgba(201,169,97,0.10);
-  border: 1px solid rgba(201,169,97,0.35);
+  background: linear-gradient(135deg, rgba(212,184,150,0.22), rgba(201,169,97,0.18));
+  border: 1px solid rgba(201,169,97,0.5);
   border-radius: 999px;
-  color: #C9A961;
+  color: #FFE478;
   font-size: 11px;
-  font-weight: 700;
+  font-weight: 800;
   letter-spacing: 0.6px;
   text-decoration: none;
   text-transform: uppercase;
-  transition: background 0.15s, border-color 0.15s;
+  transition: background 0.15s, border-color 0.15s, transform 0.05s;
 }
+.auth-topbar-tutorial-arrow {
+  display: inline-block;
+  margin-left: 1px;
+  transition: transform 0.15s;
+}
+.auth-topbar-tutorial:hover .auth-topbar-tutorial-arrow { transform: translateX(2px); }
 .auth-topbar-tutorial:hover { background: rgba(201,169,97,0.18); border-color: rgba(201,169,97,0.6); }
 .auth-topbar-tutorial svg { display: block; }
 @media (max-width: 380px) {
   .auth-topbar-tutorial span { display: none; }
   .auth-topbar-tutorial { padding: 5px 8px; }
+}
+
+/* ===================================================================
+   BIG TUTORIAL BANNER (in-app, shown on every screen)
+   Sits between the header chips and the active screen.
+   =================================================================== */
+.tutorial-banner {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  max-width: 540px;
+  margin: 8px auto 0 auto;
+  padding: 12px 16px 12px 14px;
+  background: linear-gradient(135deg, #4a3818 0%, #6b5018 50%, #8a6a18 100%);
+  border: 1px solid rgba(255,215,0,0.45);
+  border-radius: 14px;
+  text-decoration: none;
+  box-shadow:
+    0 4px 14px rgba(0,0,0,0.22),
+    0 0 0 1px rgba(255,215,0,0.18),
+    inset 0 1px 0 rgba(255,255,255,0.06);
+  transition: transform 0.08s, box-shadow 0.15s;
+  position: relative;
+  overflow: hidden;
+}
+.tutorial-banner::before {
+  content: "";
+  position: absolute;
+  top: 0; left: -100%;
+  width: 60%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,228,120,0.18), transparent);
+  animation: tut-shine 4s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes tut-shine {
+  0% { left: -60%; }
+  60% { left: 100%; }
+  100% { left: 100%; }
+}
+.tutorial-banner:hover {
+  box-shadow:
+    0 6px 18px rgba(0,0,0,0.32),
+    0 0 0 1px rgba(255,215,0,0.45),
+    0 0 22px rgba(255,215,0,0.32);
+}
+.tutorial-banner:active { transform: translateY(1px); }
+
+.tutorial-banner-icon {
+  flex: 0 0 44px; height: 44px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  background: linear-gradient(135deg, #ffe478, #d4a017);
+  box-shadow:
+    inset 0 2px 4px rgba(255,255,255,0.4),
+    inset 0 -2px 4px rgba(0,0,0,0.2),
+    0 2px 6px rgba(255,215,0,0.45);
+  position: relative;
+  z-index: 1;
+}
+.tutorial-banner-icon svg { display: block; }
+
+.tutorial-banner-body {
+  flex: 1 1 auto;
+  min-width: 0;
+  position: relative;
+  z-index: 1;
+}
+.tutorial-banner-title {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 16px;
+  font-weight: 800;
+  color: #FFE478;
+  line-height: 1.2;
+  letter-spacing: 0.2px;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.35);
+  margin-bottom: 3px;
+}
+.tutorial-banner-sub {
+  font-size: 12.5px;
+  color: rgba(255,242,200,0.85);
+  line-height: 1.35;
+  letter-spacing: 0.2px;
+}
+.tutorial-banner-arrow {
+  flex: 0 0 auto;
+  font-size: 22px;
+  font-weight: 800;
+  color: #FFE478;
+  padding: 0 4px 0 6px;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.35);
+  animation: tut-arrow 1.6s ease-in-out infinite;
+  position: relative;
+  z-index: 1;
+}
+@keyframes tut-arrow {
+  0%, 100% { transform: translateX(0); }
+  50%      { transform: translateX(4px); }
+}
+
+@media (max-width: 480px) {
+  .tutorial-banner { margin: 8px 12px 0 12px; padding: 11px 12px 11px 12px; gap: 11px; }
+  .tutorial-banner-icon { flex: 0 0 38px; height: 38px; }
+  .tutorial-banner-title { font-size: 14.5px; }
+  .tutorial-banner-sub { font-size: 11.5px; }
+  .tutorial-banner-arrow { font-size: 20px; }
 }
