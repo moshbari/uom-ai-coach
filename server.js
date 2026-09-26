@@ -23,6 +23,10 @@ const FROM_EMAIL = process.env.FROM_EMAIL || 'UOM AI Coach <uomaicoach@onesign.c
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'engrmoshbari@gmail.com';
 const APP_URL = process.env.APP_URL || 'https://uom-ai-coach-production.up.railway.app';
 const DEVRANT_URL = process.env.DEVRANT_URL || '';   // Optional — UOM's devrant creator suite
+const POCKET_URL = process.env.POCKET_URL || 'https://pocket.99dfy.com';   // Get Transcript (iPhone Share button)
+// Each member's Get Transcript code is derived from their user id, so there's
+// nothing to store and it never changes. The secret keeps it unguessable.
+const POCKET_SECRET = process.env.POCKET_SECRET || SUPABASE_SERVICE_ROLE_KEY;
 
 app.use(express.json({ limit: '32kb' }));
 
@@ -59,6 +63,7 @@ app.get('/config.js', (_, res) => {
     sparkToPostUrl: '/api/spark-to-post',
     personalPostUrl: '/api/personal-post',
     restartUrl: '/api/restart-journey',
+    postsTodayUrl: '/api/posts-today',
     devrantUrl: DEVRANT_URL,
     magicLinkUrl: '/api/auth/magic-link',
     signupUrl: '/api/auth/signup',
@@ -776,6 +781,65 @@ Hard rules:
 - Universal truths only. NEVER fabricate a personal claim the user hasn't established.
 - End with a question that invites a comment.
 - No emojis unless source text had them. No hashtags.`;
+
+// ============================================================
+// TEXT + IMAGE POSTS — every day from Day 1, through Get Transcript
+// ============================================================
+// Posts a day, by journey day: 1, 1, 2, 2, 3, 3, 5, 5, then 7 every day.
+const POSTS_RAMP = [1, 1, 2, 2, 3, 3, 5, 5];
+const POSTS_MAX = 7;
+const IMAGE_PROMPT = 'Create a high CTR YouTube thumbnail quality image, but the dimension is for Facebook page post. Make sure to use natural spoken language while writing any text. Avoid adding any CTA';
+
+function pocketCode(userId) {
+  return require('crypto').createHmac('sha256', POCKET_SECRET).update('pocket:' + userId).digest('hex').slice(0, 32);
+}
+
+// The signed-in member, checked with Supabase (not just decoded).
+async function memberFromToken(req) {
+  const auth = req.headers.authorization || '';
+  if (!auth.startsWith('Bearer ')) return null;
+  const r = await fetch(SUPABASE_URL + '/auth/v1/user', {
+    headers: { apikey: SUPABASE_ANON_KEY, Authorization: auth }
+  });
+  if (!r.ok) return null;
+  const u = await r.json();
+  return u && u.id ? u : null;
+}
+
+app.get('/api/posts-today', async (req, res) => {
+  try {
+    const user = await memberFromToken(req);
+    if (!user) return res.status(401).json({ error: 'Not signed in' });
+    if (!POCKET_SECRET) return res.status(500).json({ error: 'Not configured.' });
+
+    const pr = await fetch(SUPABASE_URL + '/rest/v1/uom_profiles?id=eq.' + encodeURIComponent(user.id) + '&select=current_tier,bronze_day', {
+      headers: { apikey: SUPABASE_SERVICE_ROLE_KEY, Authorization: 'Bearer ' + SUPABASE_SERVICE_ROLE_KEY }
+    });
+    const prof = ((await pr.json()) || [])[0] || {};
+    const day = (prof.current_tier || 'bronze') === 'bronze' ? Math.max(1, prof.bronze_day || 1) : 99;
+    const goal = POSTS_RAMP[day - 1] || POSTS_MAX;
+
+    const code = pocketCode(user.id);
+    const tz = Number(req.query.tz) || 0;
+    // Make sure Mosh's two post prompts are in their list (the pocket server
+    // only does this once per code, so a prompt they delete stays deleted).
+    fetch(POCKET_URL + '/api/prompts/pack?code=' + code + '&pack=uom', { method: 'POST' }).catch(() => {});
+    let made = 0, ever = 0;
+    try {
+      const u = await (await fetch(POCKET_URL + '/api/usage?code=' + code + '&tz=' + tz, { signal: AbortSignal.timeout(6000) })).json();
+      made = u.today || 0; ever = u.ever || 0;
+    } catch (_) {}
+
+    res.json({
+      day: day === 99 ? null : day, goal, made, ever,
+      tomorrow: POSTS_RAMP[day] || POSTS_MAX,
+      installUrl: POCKET_URL + '/share?code=' + code + '&pack=uom',
+      imagePrompt: IMAGE_PROMPT
+    });
+  } catch (e) {
+    res.status(500).json({ error: 'Server error: ' + e.message });
+  }
+});
 
 app.post('/api/polish', async (req, res) => {
   try {

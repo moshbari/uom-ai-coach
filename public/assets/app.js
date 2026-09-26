@@ -1060,7 +1060,72 @@ Here is the Facebook post:
     try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch(_) { window.scrollTo(0,0); }
   }
 
+  // ============================================================
+  // TEXT + IMAGE POSTS — every day from Day 1 (Get Transcript button)
+  // ============================================================
+  // The server works out today's number (1,1,2,2,3,3,5,5, then 7) and counts
+  // what the member's Get Transcript button made today.
+  async function renderPostsCard() {
+    const card = document.getElementById('postsCard');
+    if (!card) return;
+    let d;
+    try {
+      const sess = readLocalSession();
+      const r = await fetch((C.postsTodayUrl || '/api/posts-today') + '?tz=' + (-new Date().getTimezoneOffset()), {
+        headers: { 'Authorization': 'Bearer ' + (sess && sess.access_token) }
+      });
+      d = await r.json();
+      if (!r.ok) throw new Error(d.error || 'failed');
+    } catch (e) {
+      console.warn('[UOM] posts card:', e.message);
+      return;   // leave the rest of the screen alone
+    }
+    const made = Math.min(d.made, d.goal);
+    const done = d.made >= d.goal;
+    const pct = Math.round((made / d.goal) * 100);
+    const n = (k) => k === 1 ? '1 post' : k + ' posts';
+    card.innerHTML = `
+      <div class="posts-head">
+        <div class="posts-label">📝 Text + image posts${d.day ? ' · Day ' + d.day : ''}</div>
+        <div class="posts-count"><b>${d.made}</b> / ${d.goal}</div>
+      </div>
+      <div class="posts-bar"><span style="width:${pct}%"></span></div>
+      <div class="posts-msg">${done
+        ? '✓ Done for today! You posted ' + n(d.made) + '. Tomorrow: ' + n(d.tomorrow) + '.'
+        : 'Today: <b>' + n(d.goal) + '</b> on Facebook. About 3 minutes each.'}</div>
+      ${d.ever === 0 ? `
+        <div class="posts-first">
+          <div class="posts-first-t">First time? Add the button to your iPhone (1 minute)</div>
+          <a class="go posts-install" href="${d.installUrl}" target="_blank" rel="noopener">📲 Add Get Transcript to my iPhone</a>
+          <div class="hint">Open this on your iPhone. Your code is copied for you, and the 2 post prompts are already inside.</div>
+        </div>` : ''}
+      <ol class="posts-steps">
+        <li>On any video (Facebook, YouTube, Instagram, TikTok), tap <b>Share → Get Transcript</b>.</li>
+        <li>Tap <b>Ask ChatGPT</b>, then <b>🎯 FB post + audience check</b>.</li>
+        <li>Happy with it? In that <b>same ChatGPT chat</b>, paste the picture prompt:</li>
+      </ol>
+      <button type="button" class="big-copy" id="copyImagePrompt">Copy picture prompt</button>
+      <ol class="posts-steps" start="4">
+        <li>Post the words + the picture on Facebook. Done: that's 1.</li>
+      </ol>
+      <button type="button" class="posts-refresh" id="postsRefresh">↻ Update my count</button>
+      <div class="hint">Counted from your Get Transcript button.</div>`;
+    card.style.display = 'block';
+    document.getElementById('copyImagePrompt').onclick = async (ev) => {
+      try { await navigator.clipboard.writeText(d.imagePrompt); ev.target.textContent = '✓ Copied. Paste it in ChatGPT'; }
+      catch (_) { ev.target.textContent = 'Press and hold to copy'; }
+      setTimeout(() => { ev.target.textContent = 'Copy picture prompt'; }, 2500);
+    };
+    document.getElementById('postsRefresh').onclick = () => renderPostsCard();
+  }
+  // Coming back from the iPhone's Share button: refresh the count.
+  document.addEventListener('visibilitychange', () => {
+    const task = document.getElementById('s-task');
+    if (document.visibilityState === 'visible' && task && task.classList.contains('active')) renderPostsCard();
+  });
+
   window.showTask = function() {
+    renderPostsCard();
     const t = currentTask();
     const tier = currentTier();
     const pill = $('#dayPill');
