@@ -1084,6 +1084,9 @@ Here is the Facebook post:
     const done = d.made >= d.goal;
     const pct = Math.round((made / d.goal) * 100);
     const n = (k) => k === 1 ? '1 post' : k + ' posts';
+    // Same button on both phones: the link opens the Android version on Android.
+    const android = /Android/i.test(navigator.userAgent);
+    const phone = android ? 'phone' : 'iPhone';
     card.innerHTML = `
       <div class="posts-head">
         <div class="posts-label">📝 Text + image posts${d.day ? ' · Day ' + d.day : ''}</div>
@@ -1095,13 +1098,13 @@ Here is the Facebook post:
         : 'Today: <b>' + n(d.goal) + '</b> on Facebook. About 3 minutes each.'}</div>
       ${d.ever === 0 ? `
         <div class="posts-first">
-          <div class="posts-first-t">First time? Add the button to your iPhone (1 minute)</div>
-          <a class="go posts-install" href="${d.installUrl}" target="_blank" rel="noopener">📲 Add Get Transcript to my iPhone</a>
-          <div class="hint">Open this on your iPhone. Your code is copied for you, and the 2 post prompts are already inside.</div>
+          <div class="posts-first-t">First time? Add the button to your ${phone} (1 minute)</div>
+          <a class="go posts-install" href="${d.installUrl}" target="_blank" rel="noopener">📲 Add Get Transcript to my ${phone}</a>
+          <div class="hint">Open this on your phone (iPhone or Android). ${android ? 'In Chrome, add it to your Home screen.' : 'Your code is copied for you.'} The 2 post prompts are already inside.</div>
         </div>` : ''}
       <ol class="posts-steps">
         <li>On any video (Facebook, YouTube, Instagram, TikTok), tap <b>Share → Get Transcript</b>.</li>
-        <li>Tap <b>Ask ChatGPT</b>, then <b>🎯 FB post + audience check</b>.</li>
+        <li>${android ? 'Tap <b>🎯 FB post + audience check</b>, then pick <b>ChatGPT</b>.' : 'Tap <b>Ask ChatGPT</b>, then <b>🎯 FB post + audience check</b>.'}</li>
         <li>Happy with it? In that <b>same ChatGPT chat</b>, paste the picture prompt:</li>
       </ol>
       <button type="button" class="big-copy" id="copyImagePrompt">Copy picture prompt</button>
