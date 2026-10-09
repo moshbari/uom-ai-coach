@@ -658,10 +658,41 @@ Here is the Facebook post:
     }
   }
 
+  // Access tokens die after 1 hour. A long task (Clip Maker renders, 10 comments)
+  // easily runs past that, so renew the token ourselves before it runs out.
+  async function freshSession() {
+    const sess = readLocalSession();
+    if (!sess || !sess.refresh_token) return sess;
+    if ((sess.expires_at || 0) - Math.floor(Date.now() / 1000) > 120) return sess;
+    try {
+      const r = await withTimeout(
+        fetch(C.supabaseUrl + '/auth/v1/token?grant_type=refresh_token', {
+          method: 'POST',
+          headers: { 'apikey': C.supabaseAnonKey, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ refresh_token: sess.refresh_token })
+        }),
+        8000,
+        'token-refresh'
+      );
+      const d = await r.json();
+      if (!r.ok || !d.access_token) return sess;
+      const next = Object.assign({}, sess, {
+        access_token: d.access_token,
+        refresh_token: d.refresh_token || sess.refresh_token,
+        expires_at: Math.floor(Date.now() / 1000) + (d.expires_in || 3600),
+        expires_in: d.expires_in || 3600,
+        user: d.user || sess.user
+      });
+      const projectRefMatch = (C.supabaseUrl || '').match(/https?:\/\/([^.]+)\./);
+      try { localStorage.setItem('sb-' + (projectRefMatch ? projectRefMatch[1] : '') + '-auth-token', JSON.stringify(next)); } catch(_) {}
+      return next;
+    } catch (_) { return sess; }
+  }
+
   // ===== Direct REST fetch (no SDK) — used during load path to avoid SDK hangs
   async function restFetch(path, options) {
     options = options || {};
-    const sess = readLocalSession();
+    const sess = await freshSession();
     const accessToken = sess && sess.access_token;
     if (!accessToken) throw new Error('No access token in localStorage');
     const r = await withTimeout(
@@ -961,8 +992,13 @@ Here is the Facebook post:
   // ============================================================
   // SUBTASK CHECKLIST — per-task progress counter, localStorage persisted
   // ============================================================
+  // Ticks are kept per task (and per journey), NOT per calendar day. A long task
+  // like Day 6 spread over two sittings used to lose every tick at midnight UTC
+  // (6am in Bangladesh), so the member could never fill the list in one go.
   function subtaskStorageKey(taskDay) {
-    return 'uom_sub_' + ((state.user && state.user.id) || 'anon') + '_d' + (taskDay || 'x') + '_' + todayStr();
+    const tier = (state.profile && state.profile.current_tier) || 'bronze';
+    const cycle = (state.profile && state.profile.cycle_started_at) || '';
+    return 'uom_sub_' + ((state.user && state.user.id) || 'anon') + '_' + tier + '_d' + (taskDay || 'x') + '_' + cycle.slice(0, 19);
   }
   function loadSubtaskProgress(taskDay) {
     try { return JSON.parse(localStorage.getItem(subtaskStorageKey(taskDay)) || '{}'); }
@@ -1070,7 +1106,7 @@ Here is the Facebook post:
     if (!card) return;
     let d;
     try {
-      const sess = readLocalSession();
+      const sess = await freshSession();
       const r = await fetch((C.postsTodayUrl || '/api/posts-today') + '?tz=' + (-new Date().getTimezoneOffset()), {
         headers: { 'Authorization': 'Bearer ' + (sess && sess.access_token) }
       });
@@ -1463,8 +1499,12 @@ Here is the Facebook post:
     $('#winBtn').disabled = true;
     $('#winBtn').textContent = 'Saving...';
     try {
-      await sb.from('uom_completions').insert({
-        user_id: state.user.id, tier: tier.id, day: t.day || null
+      // Saved through restFetch (fresh token, real errors). The SDK calls used here
+      // before ignored failures, so a member saw confetti while nothing was saved.
+      const saveHeaders = { 'Prefer': 'return=representation' };
+      await restFetch('uom_completions', {
+        method: 'POST', headers: saveHeaders,
+        body: JSON.stringify({ user_id: state.user.id, tier: tier.id, day: t.day || null })
       });
       let newProfile = { ...state.profile };
       let leveledUp = false;
@@ -1489,15 +1529,24 @@ Here is the Facebook post:
         newProfile.streak = (newProfile.streak || 0) + 1;
       } else if (newProfile.last_win_date !== today) newProfile.streak = 1;
       newProfile.last_win_date = today;
-      await sb.from('uom_profiles').update({
-        current_tier: newProfile.current_tier, bronze_day: newProfile.bronze_day,
-        streak: newProfile.streak, last_win_date: newProfile.last_win_date
-      }).eq('id', state.user.id);
+      const saved = await restFetch('uom_profiles?id=eq.' + encodeURIComponent(state.user.id), {
+        method: 'PATCH', headers: saveHeaders,
+        body: JSON.stringify({
+          current_tier: newProfile.current_tier, bronze_day: newProfile.bronze_day,
+          streak: newProfile.streak, last_win_date: newProfile.last_win_date
+        })
+      });
+      if (!Array.isArray(saved) || !saved.length) throw new Error('your progress did not save. Please sign out, sign in again and tap the button once more.');
       if (t.badge && t.badge_key) {
-        await sb.from('uom_badges').upsert({
-          user_id: state.user.id, badge_key: t.badge_key, badge_label: t.badge
-        }, { onConflict: 'user_id,badge_key' });
+        try {
+          await restFetch('uom_badges?on_conflict=user_id,badge_key', {
+            method: 'POST', headers: { 'Prefer': 'return=representation,resolution=merge-duplicates' },
+            body: JSON.stringify({ user_id: state.user.id, badge_key: t.badge_key, badge_label: t.badge })
+          });
+        } catch (e) { console.warn('[UOM] badge save:', e.message); }
       }
+      // Ticks for this task are no longer needed.
+      try { localStorage.removeItem(subtaskStorageKey(t.day)); } catch(_) {}
       state.profile = newProfile;
       state.todayDone = true;
       refreshUI();
