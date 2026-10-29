@@ -287,7 +287,7 @@ app.post('/api/auth/signup', async (req, res) => {
     const msg = e.message || 'Signup failed';
     // Friendlier messages for common errors
     if (msg.toLowerCase().includes('already')) {
-      return res.status(409).json({ error: 'An account with this email already exists. Use the Magic link or Password tab to sign in.' });
+      return res.status(409).json({ error: 'An account with this email already exists. Tap Sign in. Forgot the password? Use "Forgot your password?" under the Sign in button.' });
     }
     res.status(500).json({ error: msg });
   }
@@ -319,7 +319,10 @@ app.post('/api/auth/reset', async (req, res) => {
     res.json({ ok: true });
   } catch (e) {
     console.error('reset error:', e.message);
-    // Still respond OK to avoid email-enumeration disclosure
+    // Members kept asking for resets on an email that had no account and were told
+    // "link sent" every time. Saying so plainly matters more here than hiding which
+    // emails have accounts.
+    if (/not found/i.test(e.message || '')) return res.json({ ok: true, noAccount: true });
     res.json({ ok: true });
   }
 });

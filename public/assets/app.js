@@ -488,7 +488,11 @@ Here is the Facebook post:
         }
         tokenData = await tokenResp.json();
         if (!tokenResp.ok) {
-          throw new Error(tokenData.error_description || tokenData.msg || 'Invalid email or password');
+          const why = tokenData.error_description || tokenData.msg || '';
+          if (/invalid login credentials/i.test(why)) {
+            throw new Error('Wrong password, or there is no account with this email yet. Tap "Forgot your password?" below, or "Create account" above if you are new.');
+          }
+          throw new Error(why || 'Invalid email or password');
         }
 
         // Write session directly to localStorage (no SDK)
@@ -528,8 +532,12 @@ Here is the Facebook post:
         body: JSON.stringify({ email })
       });
       const data = await r.json().catch(() => ({}));
+      if (data.noAccount) {
+        err.textContent = 'There is no account with ' + email + ' yet. Tap "Create account" above to make one (or check the email for a typo).';
+        return;
+      }
       err.style.color = 'var(--sage)';
-      err.textContent = 'Reset link sent (if that email has an account). Check your inbox.';
+      err.textContent = 'Reset link sent to ' + email + '. Check your inbox and your Junk folder.';
     } catch (e) {
       err.textContent = 'Could not send reset email. Try again.';
     }
