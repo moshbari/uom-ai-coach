@@ -672,7 +672,7 @@ textarea::placeholder { color: var(--muted-soft); }
   margin-top: 6px;
 }
 .subtask-dot {
-  width: 22px; height: 22px; border-radius: 50%;
+  width: 32px; height: 32px; border-radius: 50%;
   background: var(--bg-surface); border: 1.5px solid var(--border);
   cursor: pointer; display: flex; align-items: center; justify-content: center;
   transition: all 0.15s;
@@ -1843,3 +1843,7 @@ textarea::placeholder { color: var(--muted-soft); }
 .posts-steps { margin: 0 0 10px; padding-left: 20px; color: var(--ivory); font-size: 14px; line-height: 1.6; }
 .posts-steps li { margin-bottom: 4px; }
 .posts-refresh { background: none; border: none; color: var(--gold); font-size: 13px; font-weight: 600; cursor: pointer; padding: 4px 0; }
+
+/* Posts card: own-post button + "this doesn't lock your day" note */
+.posts-byhand { margin-top: 10px; }
+.posts-note { margin-top: 10px; padding: 10px 12px; border-radius: 10px; background: var(--bg-surface); border: 1px dashed var(--border); font-size: 13px; line-height: 1.45; color: var(--muted); }

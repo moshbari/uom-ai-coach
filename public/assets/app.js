@@ -1097,10 +1097,10 @@ Here is the Facebook post:
       const remaining = subs.filter(s => (progress[s.id] || 0) < s.goal).length;
       const total = subs.length;
       const done = total - remaining;
-      btn.textContent = 'Check the list above first (' + done + '/' + total + ' done)';
+      btn.textContent = 'Tap the circles in "Your progress today" first (' + done + '/' + total + ' done)';
       if (note) {
         note.style.display = 'block';
-        note.innerHTML = 'You still have <b>' + remaining + '</b> task' + (remaining===1?'':'s') + ' to mark off above before you can claim today as a win. No skipping.';
+        note.innerHTML = 'You still have <b>' + remaining + '</b> task' + (remaining===1?'':'s') + ' to mark off. Scroll up to <b>Your progress today</b> and tap one circle for each thing you did. Then this button opens.';
       }
     }
   }
@@ -1134,6 +1134,12 @@ Here is the Facebook post:
       console.warn('[UOM] posts card:', e.message);
       return;   // leave the rest of the screen alone
     }
+    // Posts made without the Get Transcript button can't be seen by the server, so the
+    // member adds them here. Before this, a member who posted by hand saw 0 / 1 forever.
+    const handKey = 'uom_handposts_' + ((state.user && state.user.id) || 'anon') + '_' + todayStr();
+    let byHand = 0;
+    try { byHand = parseInt(localStorage.getItem(handKey) || '0', 10) || 0; } catch(_) {}
+    d.made = (d.made || 0) + byHand;
     const made = Math.min(d.made, d.goal);
     const done = d.made >= d.goal;
     const pct = Math.round((made / d.goal) * 100);
@@ -1165,8 +1171,10 @@ Here is the Facebook post:
       <ol class="posts-steps" start="4">
         <li>Post the words + the picture on Facebook. Done: that's 1.</li>
       </ol>
+      ${done ? '' : '<button type="button" class="go posts-byhand" id="postsByHand">✓ I posted one on Facebook</button>'}
       <button type="button" class="posts-refresh" id="postsRefresh">↻ Update my count</button>
-      <div class="hint">Counted from your Get Transcript button.</div>`;
+      <div class="hint">Posts from the Get Transcript button count by themselves. Posted another way? Tap "I posted one".</div>
+      <div class="posts-note">This is an extra goal. It does not lock your day. Your Day ${d.day || ''} checklist and win button are further down ↓</div>`;
     card.style.display = 'block';
     document.getElementById('copyImagePrompt').onclick = async (ev) => {
       try { await navigator.clipboard.writeText(d.imagePrompt); ev.target.textContent = '✓ Copied. Paste it in ChatGPT'; }
@@ -1174,6 +1182,11 @@ Here is the Facebook post:
       setTimeout(() => { ev.target.textContent = 'Copy picture prompt'; }, 2500);
     };
     document.getElementById('postsRefresh').onclick = () => renderPostsCard();
+    const byHandBtn = document.getElementById('postsByHand');
+    if (byHandBtn) byHandBtn.onclick = () => {
+      try { localStorage.setItem(handKey, String(byHand + 1)); } catch(_) {}
+      renderPostsCard();
+    };
   }
   // Coming back from the iPhone's Share button: refresh the count.
   document.addEventListener('visibilitychange', () => {
