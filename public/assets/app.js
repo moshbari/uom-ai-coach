@@ -744,7 +744,9 @@ Here is the Facebook post:
       '&completed_at=gte.' + today + 'T00:00:00' +
       '&completed_at=gte.' + encodeURIComponent(cycleStart) +
       '&select=id,completed_at&limit=1');
-    state.todayDone = !!(completions && completions.length);
+    // A win only counts once the profile moved on too. If that save failed, the member
+    // must be able to claim the day again instead of seeing "come back tomorrow".
+    state.todayDone = !!(completions && completions.length) && state.profile.last_win_date === today;
     const checkins = await restFetch('uom_checkins?user_id=eq.' + encodeURIComponent(userId) +
       '&date=eq.' + today + '&select=time_avail,energy,mood&limit=1');
     if (Array.isArray(checkins) && checkins.length > 0) {
@@ -852,7 +854,8 @@ Here is the Facebook post:
   function currentTask() {
     const t = currentTier();
     const pool = TASKS[t.id] || [];
-    if (t.id === 'bronze') return pool[Math.max(0, Math.min(state.profile.bronze_day - 1, pool.length - 1))];
+    // Silver has days too. It used to always show Silver Day 1, so members repeated it forever.
+    if (t.id === 'bronze' || t.id === 'silver') return pool[Math.max(0, Math.min((state.profile.bronze_day || 1) - 1, pool.length - 1))];
     return pool[0];
   }
 
@@ -1175,6 +1178,12 @@ Here is the Facebook post:
       pill.classList.add('phase-' + phase.name);
       pill.textContent = `DAY ${t.day}/14 — ${phase.label}`;
       renderProgressTrail(t.day);
+      document.getElementById('progressTrail').style.display = 'flex';
+    } else if (tier.id === 'silver' && t.day) {
+      const total = (TASKS.silver || []).length;
+      pill.classList.add('phase-depth');
+      pill.textContent = `SILVER · DAY ${t.day}/${total}`;
+      renderProgressTrail(t.day, total, 'silver');
       document.getElementById('progressTrail').style.display = 'flex';
     } else {
       pill.classList.add('phase-create');
@@ -1520,9 +1529,9 @@ Here is the Facebook post:
       } else if (tier.id === 'silver') {
         const silverPool = TASKS.silver || [];
         if (newProfile.bronze_day >= silverPool.length) {
-          // Reached end of currently-built Silver content
-          // Don't tier up yet — Mosh still building Gold. Just hold at last Silver day.
-          newProfile.bronze_day = silverPool.length;
+          // End of the Silver days built so far. Gold is not built yet, so go round
+          // the Silver days again (holding on the last day left members stuck on it).
+          newProfile.bronze_day = 1;
         } else newProfile.bronze_day = (newProfile.bronze_day || 1) + 1;
       }
       if (newProfile.last_win_date === yesterdayStr() || !newProfile.last_win_date) {
@@ -1565,7 +1574,9 @@ Here is the Facebook post:
     $('#dTitle').textContent = 'Another win for a creator';
     $('#dMsg').textContent = currentTier().id === 'bronze'
       ? `You're on Day ${state.profile.bronze_day} of 14. Come back tomorrow.`
-      : 'Keep going. Tomorrow brings the next task.';
+      : currentTier().id === 'silver'
+        ? `Tomorrow: Silver Day ${state.profile.bronze_day} of ${(TASKS.silver || []).length}.`
+        : 'Keep going. Tomorrow brings the next task.';
   }
   function showTierUp() {
     _switchScreen('done');
