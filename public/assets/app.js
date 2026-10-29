@@ -714,6 +714,13 @@ Here is the Facebook post:
     return r.json();
   }
 
+  // AI routes on our server only answer signed-in members, so send the token along.
+  async function aiFetch(url, options) {
+    const sess = await freshSession();
+    const headers = Object.assign({}, options.headers || {}, { 'Authorization': 'Bearer ' + (sess && sess.access_token) });
+    return fetch(url, Object.assign({}, options, { headers }));
+  }
+
   async function loadProfile() {
     const userId = state.user.id;
     const rows = await restFetch('uom_profiles?id=eq.' + encodeURIComponent(userId) + '&select=*');
@@ -931,7 +938,7 @@ Here is the Facebook post:
     const recentSparks = (state.sparks || []).slice(0, 10).map(s => s.line);
 
     try {
-      const r = await fetch(C.personalPostUrl || '/api/personal-post', {
+      const r = await aiFetch(C.personalPostUrl || '/api/personal-post', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -1266,7 +1273,7 @@ Here is the Facebook post:
     $('#polishBtn').disabled = true;
     $('#polishBtn').textContent = 'Polishing...';
     try {
-      const r = await fetch(C.polishUrl || '/api/polish', {
+      const r = await aiFetch(C.polishUrl || '/api/polish', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text })
       });
@@ -1331,7 +1338,7 @@ Here is the Facebook post:
           line: s.line || '',
           day: s.day || null
         }));
-        const r = await fetch(C.sparkReflectUrl || '/api/spark-reflect', {
+        const r = await aiFetch(C.sparkReflectUrl || '/api/spark-reflect', {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ sparks: history, line, spark_id: data && data.id })
         });
@@ -1391,7 +1398,7 @@ Here is the Facebook post:
     _switchScreen('explorer');
 
     try {
-      const r = await fetch(C.sparkExploreUrl || '/api/spark-explore', {
+      const r = await aiFetch(C.sparkExploreUrl || '/api/spark-explore', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ spark: sparkLine })
@@ -1451,7 +1458,7 @@ Here is the Facebook post:
     const draft = document.getElementById('draft_' + id);
     btn.disabled = true; btn.textContent = '...';
     try {
-      const r = await fetch(C.sparkToPostUrl || '/api/spark-to-post', {
+      const r = await aiFetch(C.sparkToPostUrl || '/api/spark-to-post', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ idea })

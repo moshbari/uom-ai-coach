@@ -30,6 +30,51 @@ const POCKET_SECRET = process.env.POCKET_SECRET || SUPABASE_SERVICE_ROLE_KEY;
 
 app.use(express.json({ limit: '32kb' }));
 
+// ============================================================
+// AI GUARD — the OpenAI routes used to answer anyone on the internet
+// ============================================================
+// Signed-in members only, AI_DAILY_PER_MEMBER calls each a day, and a hard
+// AI_DAILY_TOTAL for the whole app so a flood of new accounts can't run up the bill.
+// Counts live in memory and start again at midnight UTC (or on a redeploy).
+const AI_ROUTES = ['/api/spark-reflect', '/api/spark-explore', '/api/spark-to-post', '/api/personal-post', '/api/polish'];
+const AI_DAILY_PER_MEMBER = parseInt(process.env.AI_DAILY_PER_MEMBER || '60', 10);
+const AI_DAILY_TOTAL = parseInt(process.env.AI_DAILY_TOTAL || '3000', 10);
+const aiCount = { day: '', total: 0, byMember: new Map() };
+const tokenCache = new Map();   // token → { user, until } so each AI call doesn't re-ask Supabase
+
+async function cachedMember(req) {
+  const auth = req.headers.authorization || '';
+  const hit = tokenCache.get(auth);
+  if (hit && hit.until > Date.now()) return hit.user;
+  const user = await memberFromToken(req);
+  if (user) {
+    if (tokenCache.size > 5000) tokenCache.clear();
+    tokenCache.set(auth, { user, until: Date.now() + 5 * 60 * 1000 });
+  }
+  return user;
+}
+
+app.use(AI_ROUTES, async (req, res, next) => {
+  try {
+    const user = await cachedMember(req);
+    if (!user) return res.status(401).json({ error: 'Please sign in again.' });
+    const today = new Date().toISOString().slice(0, 10);
+    if (aiCount.day !== today) { aiCount.day = today; aiCount.total = 0; aiCount.byMember.clear(); }
+    const mine = aiCount.byMember.get(user.id) || 0;
+    if (mine >= AI_DAILY_PER_MEMBER) return res.status(429).json({ error: 'You have used today\'s AI help. It comes back tomorrow.' });
+    if (aiCount.total >= AI_DAILY_TOTAL) {
+      console.warn('[AI guard] app-wide daily limit hit:', aiCount.total);
+      return res.status(429).json({ error: 'AI help is resting for today. Try again tomorrow.' });
+    }
+    aiCount.byMember.set(user.id, mine + 1);
+    aiCount.total++;
+    next();
+  } catch (e) {
+    console.error('[AI guard]', e.message);
+    res.status(503).json({ error: 'Could not check your sign-in. Try again.' });
+  }
+});
+
 // Admin Supabase client (service role bypasses RLS — used only on server)
 let sbAdmin = null;
 if (SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY) {
