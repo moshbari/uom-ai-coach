@@ -907,10 +907,11 @@ Here is the Facebook post:
         alert('RANT Squad URL not configured. Ask your admin to set DEVRANT_URL in Railway env vars.');
       });
     }
-    // Insert at top of card, right after the badge banner
-    const card = document.querySelector('#s-task .card');
+    // Insert right after the badge banner, inside the badge's own card. This used to take
+    // the first '#s-task .card', which became the posts card on 26Sep26, and the crash
+    // left every member on Day 2+ stuck on the check-in screen.
     const badge = document.getElementById('badgeBanner');
-    if (card && badge) card.insertBefore(btn, badge.nextSibling);
+    if (badge && badge.parentNode) badge.parentNode.insertBefore(btn, badge.nextSibling);
   }
 
   // ============================================================
