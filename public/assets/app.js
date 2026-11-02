@@ -82,103 +82,111 @@
       subtasks: [ { id:"thread", label:"Viral thread shipped", goal:1 }, { id:"post", label:"Viral post shipped", goal:1 }, { id:"comments", label:"Comment Squad comments", goal:8 }, { id:"thinking", label:"Thinking task: study top 10 viral posts", goal:1 } ],
       devrantTool:{ route:"/laboratory", label:"Open RANT Squad" }
     },
-    { day:6, title:"Clip Maker — 3 clips + 10 Comment Squad comments", time:"⏱ 45 min",
-      why:"You still do not need your face. Clip Maker agents find the viral moments inside long videos for you.",
-      source:"<b>SOURCE:</b> Clip Maker (4 agents: The Scanner, The Viral Hunter, The Editor, The Scorer).",
+    { day:6, title:"Thread + profile refresh + 10 Comment Squad comments", time:"⏱ 35 min",
+      why:"Words still win. On Facebook a text + image post gets 5.20% engagement against 4.84% for video (Buffer, 2026). Today your profile starts selling you.",
+      source:"<b>SOURCE:</b> Buffer State of Social Media Engagement 2026 + Justin Welsh — profile as a sales page.",
       steps:[
-        "Pick a 10+ min YouTube video from a creator in your niche",
-        "Open Clip Maker → paste URL → activate 4 agents → 3 viral clips. Post the best",
-        "10 Comment Squad comments + update profile photo + 1-line bio"
+        "RANT Squad → rant script → Viral Thread Publisher → post the thread",
+        "Update your profile photo + write a 1-line bio",
+        "10 Comment Squad comments on big posts",
+        "VIDEO BONUS (optional — skip if you are not ready): Clip Maker on a 10+ min niche video → post the best clip"
       ],
-      type:"video", badge:null,
-      subtasks: [ { id:"clip", label:"Clip Maker session", goal:1 }, { id:"profile", label:"Profile photo + 1-line bio", goal:1 }, { id:"comments", label:"Comment Squad comments", goal:10 } ],
-      devrantTool:{ route:"/clip-maker", label:"Open Clip Maker" }
+      type:"action", badge:null,
+      subtasks: [ { id:"thread", label:"Viral thread shipped", goal:1 }, { id:"profile", label:"Profile photo + 1-line bio", goal:1 }, { id:"comments", label:"Comment Squad comments", goal:10 }, { id:"clip", label:"🎬 Video bonus (optional): Clip Maker session", goal:1, optional:true } ],
+      devrantTool:{ route:"/laboratory", label:"Open RANT Squad" }
     },
-    { day:7, title:"Pinned welcome + Clip Maker #2 + 14 comments (50 total — 🎉 Week 1 Done)", time:"⏱ 55 min",
-      why:"End of Week 1. You just crossed 50 Comment Squad comments. Your profile sells you. Your daily content + comments habit is alive.",
+    { day:7, title:"Pinned welcome + thread + 14 comments (50 total — 🎉 Week 1 Done)", time:"⏱ 45 min",
+      why:"End of Week 1. You just crossed 50 Comment Squad comments. Your profile sells you. Your daily posting + comments habit is alive.",
       source:"<b>SOURCE:</b> Phillippa Lally, UCL European Journal of Social Psychology (2009).",
       steps:[
         "Copy the welcome post below → post → pin to top of your profile",
-        "Clip Maker run #2 on a different long video → post the best clip",
-        "14 Comment Squad comments on big posts (this push puts you at 50 cumulative)"
+        "RANT Squad → Viral Thread Publisher → post a thread",
+        "14 Comment Squad comments on big posts (this push puts you at 50 cumulative)",
+        "VIDEO BONUS (optional): Clip Maker run #2 → post the best clip"
       ],
       type:"posting", badge:"🎉 Week 1 Done — Day 7", badge_key:"week_1_done",
-      subtasks: [ { id:"welcome", label:"Pin the welcome post", goal:1 }, { id:"clip", label:"Clip Maker session #2", goal:1 }, { id:"comments", label:"Comment Squad comments", goal:14 } ],
+      subtasks: [ { id:"welcome", label:"Pin the welcome post", goal:1 }, { id:"thread", label:"Viral thread shipped", goal:1 }, { id:"comments", label:"Comment Squad comments", goal:14 }, { id:"clip", label:"🎬 Video bonus (optional): Clip Maker session #2", goal:1, optional:true } ],
       frameworkHint:"An HONEST WELCOME pinned post. Style: Dan Koe contrarian opener ('Most people scroll all day and remember nothing — I am trying something different'). Mention the member has been shipping content with AI agents for a week. End with an inviting question.",
       safetyNote:"✓ Honest — every Day 7 member has actually shipped 15+ pieces. Safe.",
-      devrantTool:{ route:"/clip-maker", label:"Open Clip Maker" }
+      devrantTool:{ route:"/laboratory", label:"Open RANT Squad" }
     },
-    { day:8, title:"Two Clip Maker sessions + 10 comments + thinking (60 cumulative)", time:"⏱ 60 min",
-      why:"You have a rhythm now. Volume + reflection beats either alone. Comments stay constant.",
+    { day:8, title:"Morning thread + evening viral post + 10 comments + thinking (60 cumulative)", time:"⏱ 45 min",
+      why:"You have a rhythm now. Two pieces a day plus comments, and one minute of thinking about what works.",
       source:"<b>SOURCE:</b> Teresa Amabile, The Progress Principle (HBR Press, 2011).",
       steps:[
-        "Morning Clip Maker (3 clips) — post one, schedule the others",
-        "Evening Clip Maker on a different video (3 clips) + 10 Comment Squad comments",
-        "THINKING TASK: write 1 line in Daily Spark — which hook style worked best for YOUR clips this week?"
+        "Morning: RANT Squad → Viral Thread Publisher → post",
+        "Evening: Viral Post Creator → post + 10 Comment Squad comments",
+        "THINKING TASK: write 1 line in Daily Spark — which hook got the most replies this week?",
+        "VIDEO BONUS (optional): two Clip Maker sessions on two long videos"
       ],
-      type:"video", badge:null,
-      subtasks: [ { id:"clip1", label:"Morning Clip Maker session", goal:1 }, { id:"clip2", label:"Evening Clip Maker session", goal:1 }, { id:"comments", label:"Comment Squad comments", goal:10 }, { id:"thinking", label:"Thinking task: best hook style", goal:1 } ],
-      devrantTool:{ route:"/clip-maker", label:"Open Clip Maker" }
+      type:"action", badge:null,
+      subtasks: [ { id:"thread", label:"Morning thread", goal:1 }, { id:"post", label:"Evening viral post", goal:1 }, { id:"comments", label:"Comment Squad comments", goal:10 }, { id:"thinking", label:"Thinking task: best hook", goal:1 }, { id:"clip", label:"🎬 Video bonus (optional): Clip Maker sessions", goal:2, optional:true } ],
+      devrantTool:{ route:"/laboratory", label:"Open RANT Squad" }
     },
-    { day:9, title:"FIRST Audio Rant + 8 Comment Squad comments", time:"⏱ 65 min",
-      why:"Audio Rant needs no face, no avatar, no editing skill. Just your voice + a viral video.",
-      source:"<b>SOURCE:</b> Mel Robbins early Instagram audio method + Audio Rant agents.",
+    { day:9, title:"Reply Day — answer every comment + thread + 8 comments", time:"⏱ 40 min",
+      why:"Meta ranks posts by how many comments they get, how long they are and who talks to whom. Every reply you write makes Meta more likely to show that person your next post.",
+      source:"<b>SOURCE:</b> Meta Transparency Center — how Facebook Feed ranking works (comment signals).",
       steps:[
-        "Pick a viral video in your niche",
-        "Open Audio Rant → paste URL → record your 60-sec audio reaction → download → post to Reels",
-        "8 Comment Squad comments on big posts"
+        "Open your last 8 days of posts → reply to EVERY comment with a real answer or a question",
+        "RANT Squad → Viral Thread Publisher → post a thread",
+        "8 Comment Squad comments on big posts",
+        "VIDEO BONUS (optional): your first Audio Rant — voice only, no face"
       ],
-      type:"video", badge:null,
-      subtasks: [ { id:"audio", label:"Audio Rant recorded + posted", goal:1 }, { id:"comments", label:"Comment Squad comments", goal:8 } ],
-      devrantTool:{ route:"/audio-rant", label:"Open Audio Rant" }
+      type:"action", badge:null,
+      subtasks: [ { id:"replies", label:"Replied to every comment on my posts", goal:1 }, { id:"thread", label:"Viral thread shipped", goal:1 }, { id:"comments", label:"Comment Squad comments", goal:8 }, { id:"audio", label:"🎬 Video bonus (optional): Audio Rant", goal:1, optional:true } ],
+      devrantTool:{ route:"/laboratory", label:"Open RANT Squad" }
     },
-    { day:10, title:"Batch 2 Audio Rants + 8 comments + thinking", time:"⏱ 70 min",
-      why:"One sitting = 2 days of audio content scheduled. This is how solo creators sustain volume.",
+    { day:10, title:"Batch 2 threads + 8 comments + thinking", time:"⏱ 40 min",
+      why:"One sitting = 2 days of content scheduled. This is how solo creators keep going.",
       source:"<b>SOURCE:</b> Dan Koe — batch creation principle (2-Hour Writer).",
       steps:[
-        "Pick 2 viral videos → 2 Audio Rants in one sitting → schedule for tomorrow + day after",
+        "Write 2 threads in one sitting with RANT Squad → schedule them for tomorrow + the day after",
         "8 Comment Squad comments on big posts",
-        "THINKING TASK: what ONE niche pattern have you spotted this week? Write in Daily Spark."
+        "THINKING TASK: what ONE niche pattern have you spotted this week? Write in Daily Spark.",
+        "VIDEO BONUS (optional): 2 Audio Rants in one sitting"
       ],
-      type:"video", badge:null,
-      subtasks: [ { id:"audio1", label:"Audio Rant #1", goal:1 }, { id:"audio2", label:"Audio Rant #2", goal:1 }, { id:"comments", label:"Comment Squad comments", goal:8 }, { id:"thinking", label:"Thinking task: niche pattern this week", goal:1 } ],
-      devrantTool:{ route:"/audio-rant", label:"Open Audio Rant" }
+      type:"action", badge:null,
+      subtasks: [ { id:"thread1", label:"Thread #1 scheduled", goal:1 }, { id:"thread2", label:"Thread #2 scheduled", goal:1 }, { id:"comments", label:"Comment Squad comments", goal:8 }, { id:"thinking", label:"Thinking task: niche pattern this week", goal:1 }, { id:"audio", label:"🎬 Video bonus (optional): Audio Rants", goal:2, optional:true } ],
+      devrantTool:{ route:"/laboratory", label:"Open RANT Squad" }
     },
-    { day:11, title:"Editor → Single Reaction + 8 comments", time:"⏱ 80 min",
-      why:"First reaction video with your face (or your HeyGen avatar). One source, one continuous reaction.",
-      source:"<b>SOURCE:</b> Editor → Single Reaction tab.",
+    { day:11, title:"Story post — your first 10 days (text + image) + 8 comments", time:"⏱ 35 min",
+      why:"People follow people. A short, honest story of what you did in 10 days is the most human post you can make, and you need no camera for it.",
+      source:"<b>SOURCE:</b> Buffer 2026 — text + image is the top Facebook format (5.20% median engagement).",
       steps:[
-        "Open Editor → click SINGLE REACTION tab (2nd tab from left)",
-        "Paste source video URL → record (face or HeyGen avatar) → export → post to Reels",
-        "8 Comment Squad comments on big posts"
+        "Write 5-8 lines: where you started, what you did for 10 days, one thing you learned. Ask a question at the end.",
+        "Add a picture (screenshot of your posts, or an AI image) → post",
+        "8 Comment Squad comments on big posts",
+        "VIDEO BONUS (optional): Editor → Single Reaction video"
       ],
-      type:"video", badge:null,
-      subtasks: [ { id:"video", label:"Single Reaction video", goal:1 }, { id:"comments", label:"Comment Squad comments", goal:8 } ],
-      devrantTool:{ route:"/video-editor", label:"Open Editor (Single Reaction)" }
+      type:"action", badge:null,
+      subtasks: [ { id:"story", label:"Story post (text + image)", goal:1 }, { id:"comments", label:"Comment Squad comments", goal:8 }, { id:"video", label:"🎬 Video bonus (optional): Single Reaction video", goal:1, optional:true } ],
+      devrantTool:{ route:"/laboratory", label:"Open RANT Squad" }
     },
-    { day:12, title:"Editor → Split React + 8 comments", time:"⏱ 80 min",
-      why:"Split-screen format is polished and easy to follow. People stay longer.",
-      source:"<b>SOURCE:</b> Editor → Split React tab.",
+    { day:12, title:"Thread + viral post + 8 comments", time:"⏱ 35 min",
+      why:"Two pieces of your own every day is the habit. Today is a normal day — and normal days build the business.",
+      source:"<b>SOURCE:</b> James Clear, Atomic Habits (2018) — show up, even on plain days.",
       steps:[
-        "Open Editor → click SPLIT REACT tab (3rd tab from left)",
-        "Pick layout (face big OR video big) → paste source video → record yourself watching → export → post",
-        "8 Comment Squad comments on big posts"
+        "RANT Squad → Viral Thread Publisher → post",
+        "Viral Post Creator → post",
+        "8 Comment Squad comments on big posts",
+        "VIDEO BONUS (optional): Editor → Split React video"
       ],
-      type:"video", badge:null,
-      subtasks: [ { id:"video", label:"Split React video", goal:1 }, { id:"comments", label:"Comment Squad comments", goal:8 } ],
-      devrantTool:{ route:"/video-editor", label:"Open Editor (Split React)" }
+      type:"action", badge:null,
+      subtasks: [ { id:"thread", label:"Viral thread shipped", goal:1 }, { id:"post", label:"Viral post shipped", goal:1 }, { id:"comments", label:"Comment Squad comments", goal:8 }, { id:"video", label:"🎬 Video bonus (optional): Split React video", goal:1, optional:true } ],
+      devrantTool:{ route:"/laboratory", label:"Open RANT Squad" }
     },
-    { day:13, title:"Editor → Multi-clip + 10 comments (🎉 100 crossed!) + thinking", time:"⏱ 85 min",
-      why:"Stitch your best Clip Maker outputs with short reactions between. HeyGen-cost-saving move: 1 avatar video → many reaction videos via clipping. Today you also cross 100 Comment Squad comments shipped.",
-      source:"<b>SOURCE:</b> Editor → Multi-clip tab.",
+    { day:13, title:"Remake your best post + 10 comments (🎉 100 crossed!) + thinking", time:"⏱ 40 min",
+      why:"Your best post already proved the idea works. Say it again in a new way — new hook, new picture. Today you also cross 100 Comment Squad comments.",
+      source:"<b>SOURCE:</b> Alex Hormozi — Content Review Loop (repeat what wins).",
       steps:[
-        "Open Editor → click MULTI-CLIP tab (1st tab from left)",
-        "Import 3 of your best Clip Maker outputs → record short reactions between them → export → post",
-        "10 Comment Squad comments (🎉 you crossed 100 total!) + THINKING TASK in Daily Spark: of everything you posted this week, what got the best response? Why?"
+        "Find your post with the most comments → write a new version with a new first line → post with a new picture",
+        "10 Comment Squad comments (🎉 you crossed 100 total!)",
+        "THINKING TASK in Daily Spark: of everything you posted, what got the best response? Why?",
+        "VIDEO BONUS (optional): Editor → Multi-clip video"
       ],
-      type:"video", badge:null,
-      subtasks: [ { id:"video", label:"Multi-clip reaction video", goal:1 }, { id:"comments", label:"Comment Squad comments", goal:10 }, { id:"thinking", label:"Thinking task: best response this week", goal:1 } ],
-      devrantTool:{ route:"/video-editor", label:"Open Editor (Multi-clip)" }
+      type:"action", badge:null,
+      subtasks: [ { id:"remake", label:"Best post remade + posted", goal:1 }, { id:"comments", label:"Comment Squad comments", goal:10 }, { id:"thinking", label:"Thinking task: best response", goal:1 }, { id:"video", label:"🎬 Video bonus (optional): Multi-clip video", goal:1, optional:true } ],
+      devrantTool:{ route:"/laboratory", label:"Open RANT Squad" }
     },
     { day:14, title:"⚡ Identity Shift — graduation post + 10 comments + Week 2 plan", time:"⏱ 80 min",
       why:"Day 14 is the quitter cliff. You crossed it with 50+ pieces of content shipped, 110+ strategic Comment Squad comments, and a working creator pipeline.",
@@ -301,37 +309,41 @@
         ],
         devrantTool:{ route:"/laboratory", label:"Open RANT Squad" }
       },
-      { day:2, title:"Your voice enters your niche", time:"⏱ 50 min",
-        why:"Comments warmed them. Posts informed them. Today your VOICE reaches them — but only inside your locked niche.",
-        source:"<b>SOURCE:</b> Mel Robbins early audio method + Justin Welsh consistency principle.",
+      { day:2, title:"Your words go deeper into your niche", time:"⏱ 40 min",
+        why:"Comments warmed them. Posts informed them. Today you go deeper — two pieces inside your locked niche, plus replies to everyone who talked to you.",
+        source:"<b>SOURCE:</b> Justin Welsh consistency principle + Meta Feed ranking (comment signals).",
         steps:[
-          "Pick a viral video FROM YOUR NICHE → Audio Rant → record 60-sec reaction → post to Reels",
-          "1 RANT Squad text post (in niche) → post to Facebook",
-          "Activate Comment Squad on 10 big posts in your niche"
+          "Niche viral video → RANT Squad → Viral Thread Publisher → post",
+          "Reply to every comment on your last 3 posts",
+          "Activate Comment Squad on 10 big posts in your niche",
+          "VIDEO BONUS (optional): Audio Rant on a niche video → post to Reels"
         ],
-        type:"video", badge:null,
+        type:"action", badge:null,
         subtasks: [
-          { id:"audio", label:"Audio Rant in niche", goal:1 },
-          { id:"post", label:"RANT Squad post (in niche)", goal:1 },
-          { id:"comments", label:"Comment Squad comments", goal:10 }
+          { id:"thread", label:"Niche thread shipped", goal:1 },
+          { id:"replies", label:"Replied to comments on my posts", goal:1 },
+          { id:"comments", label:"Comment Squad comments", goal:10 },
+          { id:"audio", label:"🎬 Video bonus (optional): Audio Rant in niche", goal:1, optional:true }
         ],
-        devrantTool:{ route:"/audio-rant", label:"Open Audio Rant" }
+        devrantTool:{ route:"/laboratory", label:"Open RANT Squad" }
       },
-      { day:3, title:"Visual proof + first depth thinking", time:"⏱ 60 min",
+      { day:3, title:"Text + image proof + first depth thinking", time:"⏱ 40 min",
         why:"Three days deep in one lane. Time to think like an analyst: what is working in YOUR niche, what is not?",
         source:"<b>SOURCE:</b> Teresa Amabile, The Progress Principle (HBR Press).",
         steps:[
-          "Clip Maker on a long niche video → 3 viral clips → post the best one, schedule the others",
+          "Viral Post Creator → niche post → add a picture → post",
           "Activate Comment Squad on 10 big posts in your niche",
-          "THINKING TASK: look at your top 3 posts from the past 17 days. What did they have in common? Write 1 line in Daily Spark."
+          "THINKING TASK: look at your top 3 posts so far. What did they have in common? Write 1 line in Daily Spark.",
+          "VIDEO BONUS (optional): Clip Maker on a long niche video → post the best clip"
         ],
-        type:"video", badge:null,
+        type:"action", badge:null,
         subtasks: [
-          { id:"clips", label:"Clip Maker session (3 clips)", goal:1 },
+          { id:"post", label:"Niche text + image post", goal:1 },
           { id:"comments", label:"Comment Squad comments", goal:10 },
-          { id:"thinking", label:"Thinking task in Daily Spark", goal:1 }
+          { id:"thinking", label:"Thinking task in Daily Spark", goal:1 },
+          { id:"clips", label:"🎬 Video bonus (optional): Clip Maker session", goal:1, optional:true }
         ],
-        devrantTool:{ route:"/clip-maker", label:"Open Clip Maker" }
+        devrantTool:{ route:"/laboratory", label:"Open RANT Squad" }
       }
     ],
     gold: [{ title:"Post a 5-line thread", time:"⏱ 45 min", why:"Threads keep people in your post longer.", source:"<b>SOURCE:</b> Format from Naval Ravikant on Twitter.", steps:["Write 1 hook + 4 lessons + 1 question","Post as one Facebook post","Pin to top of profile"], type:"posting", ready:"Hook: Most beginners quit at Day 14.\n\n1. They wait to feel ready.\n2. They compare to creators 5 years ahead.\n3. They post once, hear nothing, quit.\n4. They forget — early posts are reps, not rockets.\n\nWhat would YOU do differently?", safetyNote:"✓ Universal observations." }],
@@ -1081,7 +1093,7 @@ Here is the Facebook post:
   function allSubtasksComplete(task) {
     if (!task || !Array.isArray(task.subtasks) || task.subtasks.length === 0) return true;
     const progress = loadSubtaskProgress(task.day);
-    return task.subtasks.every(s => (progress[s.id] || 0) >= s.goal);
+    return task.subtasks.every(s => s.optional || (progress[s.id] || 0) >= s.goal);
   }
   function updateWinButtonState(task) {
     const btn = document.getElementById('winBtn');
@@ -1093,7 +1105,7 @@ Here is the Facebook post:
       if (note) { note.textContent = ''; note.style.display = 'none'; }
     } else {
       btn.disabled = true;
-      const subs = task.subtasks || [];
+      const subs = (task.subtasks || []).filter(s => !s.optional);
       const progress = loadSubtaskProgress(task.day);
       const remaining = subs.filter(s => (progress[s.id] || 0) < s.goal).length;
       const total = subs.length;
