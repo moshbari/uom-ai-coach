@@ -36,7 +36,7 @@ app.use(express.json({ limit: '32kb' }));
 // Signed-in members only, AI_DAILY_PER_MEMBER calls each a day, and a hard
 // AI_DAILY_TOTAL for the whole app so a flood of new accounts can't run up the bill.
 // Counts live in memory and start again at midnight UTC (or on a redeploy).
-const AI_ROUTES = ['/api/spark-reflect', '/api/spark-explore', '/api/spark-to-post', '/api/personal-post', '/api/polish'];
+const AI_ROUTES = ['/api/spark-reflect', '/api/spark-explore', '/api/spark-to-post', '/api/personal-post', '/api/intro-post', '/api/polish'];
 const AI_DAILY_PER_MEMBER = parseInt(process.env.AI_DAILY_PER_MEMBER || '60', 10);
 const AI_DAILY_TOTAL = parseInt(process.env.AI_DAILY_TOTAL || '3000', 10);
 const aiCount = { day: '', total: 0, byMember: new Map() };
@@ -107,6 +107,7 @@ app.get('/config.js', (_, res) => {
     sparkExploreUrl: '/api/spark-explore',
     sparkToPostUrl: '/api/spark-to-post',
     personalPostUrl: '/api/personal-post',
+    introPostUrl: '/api/intro-post',
     restartUrl: '/api/restart-journey',
     postsTodayUrl: '/api/posts-today',
     devrantUrl: DEVRANT_URL,
@@ -761,6 +762,58 @@ Write the post now. Make it unique to this member based on their learnings above
   }
 });
 
+
+// ============================================================
+// INTRO POST — the pinned "who I am" post, written from the member's own answers
+// ============================================================
+const INTRO_POST_PROMPT = `You write the pinned INTRO post for a beginner's Facebook profile. Strangers who see their comments click their name and land here, so this post must tell them in 20 seconds who this person is and why to follow.
+
+You get the member's own answers to a few questions. Rules:
+- Use ONLY facts in the answers, and use EVERY answer that was given (including where they live). Never invent a job, a city, money, results, family details or a story. If an answer is empty, leave that part out.
+- "What people will see on this page" = only the thing they said they want to help with, plus their own honest journey as they learn (written in their language, never as English words inside a Bangla post). Never add other topics (no recipes, tips or resources they did not mention).
+- No income claims, no "I made $X", no promises of results to the reader.
+- Write in the SAME language the member used in their answers (Bangla answers → Bangla post, English → English, mixed → the same mix).
+- Shape: a warm opening line with their name → where they are in life now (honest, beginner is fine) → why they started → who they want to help and with what → what people will see on this page → one friendly question that is easy to answer.
+- 7 to 10 short lines, one blank line between lines. 5th-grade reading level. It must sound like a real person talking, not an ad.
+- At most 2 emojis. No hashtags. No links.
+
+Output ONLY the finished post. No preamble, no quotation marks, no labels.`;
+
+app.post('/api/intro-post', async (req, res) => {
+  try {
+    if (!OPENAI_API_KEY) return res.status(500).json({ error: 'AI not configured.' });
+    const b = req.body || {};
+    const a = b.answers || {};
+    const clip = v => String(v || '').trim().slice(0, 600);
+    const lines = [
+      ['Name', clip(a.name) || clip(b.displayName)],
+      ['Where they live', clip(a.place)],
+      ['What they do now / did before', clip(a.now)],
+      ['Why they started online', clip(a.why)],
+      ['Who they want to help, and with what', clip(a.help)],
+      ['A true fact about them', clip(a.fact)]
+    ];
+    if (!lines.slice(1).some(([, v]) => v)) return res.status(400).json({ error: 'Answer at least one question so the post is really about you.' });
+    const userMessage = lines.map(([k, v]) => `${k}: ${v || '(no answer — leave out)'}`).join('\n')
+      + `\nVariation seed: ${b.seed || Math.floor(Math.random() * 100000)}\n\nWrite the intro post now.`;
+    const r = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${OPENAI_API_KEY}` },
+      body: JSON.stringify({
+        model: 'gpt-4o-mini',
+        messages: [ { role: 'system', content: INTRO_POST_PROMPT }, { role: 'user', content: userMessage } ],
+        max_tokens: 600, temperature: 0.85
+      })
+    });
+    const data = await r.json();
+    if (!r.ok) return res.status(502).json({ error: (data.error && data.error.message) || 'AI busy. Try again.' });
+    const post = ((data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) || '').trim();
+    res.json({ post });
+  } catch (e) {
+    console.error('intro-post error:', e.message);
+    res.status(500).json({ error: e.message });
+  }
+});
 
 // ============================================================
 // RESTART JOURNEY — visible reset, data preserved for admin

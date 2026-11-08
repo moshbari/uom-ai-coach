@@ -1847,3 +1847,19 @@ textarea::placeholder { color: var(--muted-soft); }
 /* Posts card: own-post button + "this doesn't lock your day" note */
 .posts-byhand { margin-top: 10px; }
 .posts-note { margin-top: 10px; padding: 10px 12px; border-radius: 10px; background: var(--bg-surface); border: 1px dashed var(--border); font-size: 13px; line-height: 1.45; color: var(--muted); }
+
+/* ===== Day 7 intro post questions ===== */
+.intro-qs { background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 14px; padding: 16px; margin-bottom: 14px; }
+.intro-qs .iq-h { font-size: 15px; font-weight: 700; color: var(--gold); margin-bottom: 6px; }
+.intro-qs .iq-sub { font-size: 13px; color: var(--muted); line-height: 1.5; margin-bottom: 10px; }
+.intro-qs label { display: block; font-size: 13px; font-weight: 600; color: var(--ivory-soft); margin: 12px 0 5px; }
+.intro-qs label .iq-opt { font-weight: 400; color: var(--muted); }
+.intro-qs input, .intro-qs textarea { width: 100%; box-sizing: border-box; padding: 10px 12px; border: 1px solid var(--border); border-radius: 10px; background: var(--bg-surface); color: var(--ivory); font: inherit; font-size: 15px; resize: vertical; min-height: 0; height: auto; margin: 0; }
+.intro-qs textarea { min-height: 64px; }
+.intro-qs input:focus, .intro-qs textarea:focus { outline: none; border-color: var(--gold-light); }
+.intro-qs .big-copy { margin-top: 16px; }
+.intro-qs .iq-gpt { margin-top: 12px; }
+.intro-qs .iq-gpt summary { font-size: 13px; color: var(--gold); cursor: pointer; padding: 6px 0; }
+.intro-qs .iq-gpt-btn { width: 100%; padding: 11px; background: transparent; color: var(--gold); border: 1px solid var(--gold-deep); border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; }
+.intro-qs .iq-copied { display: none; font-size: 12px; color: var(--sage); margin-top: 6px; text-align: center; }
+.intro-qs .iq-copied.show { display: block; }

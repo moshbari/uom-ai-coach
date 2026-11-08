@@ -517,6 +517,29 @@
       </div>
 
       <div id="path-a" class="path on">
+        <div class="intro-qs" id="introQs" style="display:none;">
+          <div class="iq-h">&#x270D;&#xFE0F; Your intro post &mdash; tell us about you</div>
+          <div class="iq-sub">This is the post people see first when they tap your name. Short answers are fine, in any language. Skip anything you don't want to share. The AI only uses what you write, it never makes things up.</div>
+          <label for="iq-name">What name should people call you?</label>
+          <input id="iq-name" type="text" placeholder="e.g. Rahim">
+          <label for="iq-place">Where do you live?</label>
+          <input id="iq-place" type="text" placeholder="e.g. Sylhet, or London">
+          <label for="iq-now">What do you do now, or what did you do before?</label>
+          <textarea id="iq-now" rows="2" placeholder="e.g. I work in a shop. Or: student. Or: mum of two."></textarea>
+          <label for="iq-why">Why did you start learning to earn online?</label>
+          <textarea id="iq-why" rows="2" placeholder="e.g. I want more time with my family"></textarea>
+          <label for="iq-help">Who do you want to help, and with what?</label>
+          <textarea id="iq-help" rows="2" placeholder="e.g. people who want to start online with no money"></textarea>
+          <label for="iq-fact">One true thing about you people would like to know <span class="iq-opt">(optional)</span></label>
+          <textarea id="iq-fact" rows="2" placeholder="e.g. I learned English from YouTube"></textarea>
+          <button type="button" class="big-copy" id="introWriteBtn" onclick="writeIntroPost()">&#x270D;&#xFE0F; Write my intro post</button>
+          <details class="iq-gpt">
+            <summary>Prefer ChatGPT? Copy a prompt that asks you these questions</summary>
+            <div class="iq-sub">Paste it into ChatGPT (or any AI). It asks you one question at a time, then writes your intro post in 3 versions.</div>
+            <button type="button" class="iq-gpt-btn" onclick="copyIntroPrompt()">Copy the intro post prompt</button>
+            <div class="iq-copied" id="introPromptCopied">Copied. Open ChatGPT and paste.</div>
+          </details>
+        </div>
         <div class="safe-badge" id="safeBadge">Safe to post &mdash; no personal claim made.</div>
         <div class="ready-label">Copy this post and paste on Facebook</div>
         <div class="ready-box" id="readyPost"></div>

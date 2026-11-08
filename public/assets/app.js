@@ -95,19 +95,20 @@
       subtasks: [ { id:"thread", label:"Viral thread shipped", goal:1 }, { id:"profile", label:"Profile photo + 1-line bio", goal:1 }, { id:"comments", label:"Comment Squad comments", goal:10 }, { id:"clip", label:"🎬 Video bonus (optional): Clip Maker session", goal:1, optional:true } ],
       devrantTool:{ route:"/laboratory", label:"Open RANT Squad" }
     },
-    { day:7, title:"Pinned welcome + thread + 14 comments (50 total — 🎉 Week 1 Done)", time:"⏱ 45 min",
+    { day:7, title:"Pinned intro post + thread + 14 comments (50 total — 🎉 Week 1 Done)", time:"⏱ 45 min",
       why:"End of Week 1. You just crossed 50 Comment Squad comments. Your profile sells you. Your daily posting + comments habit is alive.",
       source:"<b>SOURCE:</b> Phillippa Lally, UCL European Journal of Social Psychology (2009).",
       steps:[
-        "Copy the welcome post below → post → pin to top of your profile",
+        "Answer the short questions below → the AI writes your intro post → post it → pin it to the top of your profile",
         "RANT Squad → Viral Thread Publisher → post a thread",
         "14 Comment Squad comments on big posts (this push puts you at 50 cumulative)",
         "VIDEO BONUS (optional): Clip Maker run #2 → post the best clip"
       ],
       type:"posting", badge:"🎉 Week 1 Done — Day 7", badge_key:"week_1_done",
-      subtasks: [ { id:"welcome", label:"Pin the welcome post", goal:1 }, { id:"thread", label:"Viral thread shipped", goal:1 }, { id:"comments", label:"Comment Squad comments", goal:14 }, { id:"clip", label:"🎬 Video bonus (optional): Clip Maker session #2", goal:1, optional:true } ],
+      subtasks: [ { id:"welcome", label:"Intro post posted + pinned", goal:1 }, { id:"thread", label:"Viral thread shipped", goal:1 }, { id:"comments", label:"Comment Squad comments", goal:14 }, { id:"clip", label:"🎬 Video bonus (optional): Clip Maker session #2", goal:1, optional:true } ],
       frameworkHint:"An HONEST WELCOME pinned post. Style: Dan Koe contrarian opener ('Most people scroll all day and remember nothing — I am trying something different'). Mention the member has been shipping content with AI agents for a week. End with an inviting question.",
-      safetyNote:"✓ Honest — every Day 7 member has actually shipped 15+ pieces. Safe.",
+      intro:true,
+      safetyNote:"✓ Honest — written only from your own answers. Nothing made up.",
       devrantTool:{ route:"/laboratory", label:"Open RANT Squad" }
     },
     { day:8, title:"Morning thread + evening viral post + 10 comments + thinking (60 cumulative)", time:"⏱ 45 min",
@@ -1008,17 +1009,109 @@ Here is the Facebook post:
       const copyBtn = document.querySelector('#path-a .big-copy');
       if (copyBtn && copyBtn.parentNode) copyBtn.parentNode.insertBefore(btn, copyBtn.nextSibling);
     }
+    btn.style.display = '';
     btn.onclick = async () => {
       btn.disabled = true; btn.textContent = '...';
       // Clear cache so we get a fresh generation
       const today = todayStr();
       const cacheKey = 'uom_post_' + (state.user && state.user.id) + '_d' + (task.day || 'x') + '_' + today;
       try { localStorage.removeItem(cacheKey); } catch(_) {}
-      await generatePersonalPost(task, { force: true });
+      if (task.intro) await writeIntroPost(); else await generatePersonalPost(task, { force: true });
       btn.disabled = false; btn.textContent = '↻ Try another angle';
     };
   }
 
+
+  // ============================================================
+  // INTRO POST (Day 7) — a few questions → the member's own pinned intro post
+  // ============================================================
+  const INTRO_FIELDS = ['name', 'place', 'now', 'why', 'help', 'fact'];
+  const INTRO_PROMPT = `You are helping me write my pinned INTRO post for my Facebook profile. People who see my comments will tap my name and read this post first.
+
+Ask me these questions ONE AT A TIME. Wait for my answer before you ask the next one. Keep each question short and friendly. If I answer in Bangla (or any other language), switch to that language.
+1. What name should people call you?
+2. Where do you live?
+3. What do you do now, or what did you do before?
+4. Why did you start learning to earn online?
+5. Who do you want to help, and with what?
+6. One true thing about you people would like to know (I can skip this one).
+
+When I have answered, write my intro post:
+- Use ONLY what I told you, and use every answer I gave. Never invent a job, a place, money, results or a story.
+- For "what people will see on my page", only use what I said I want to help with, plus my honest journey as I learn. Do not add other topics.
+- No income claims and no promises to the reader.
+- Write it in the same language I answered in.
+- Shape: a warm opening with my name → where I am in life now (being a beginner is fine) → why I started → who I want to help and with what → what people will see on my page → one easy, friendly question at the end.
+- 7 to 10 short lines with a blank line between them. Simple words. It must sound like a real person talking, not an ad.
+- At most 2 emojis. No hashtags. No links.
+
+Then give me 2 more versions with different opening lines so I can pick the one I like.
+
+Start now with question 1.`;
+
+  function introKey(suffix) { return 'uom_intro_' + ((state.user && state.user.id) || 'anon') + '_' + suffix; }
+  function readIntroAnswers() {
+    const a = {};
+    INTRO_FIELDS.forEach(f => { const el = document.getElementById('iq-' + f); a[f] = el ? el.value.trim() : ''; });
+    return a;
+  }
+  function showIntroQuestions(task) {
+    let saved = {};
+    try { saved = JSON.parse(localStorage.getItem(introKey('answers')) || '{}'); } catch(_) {}
+    if (!saved.name && state.profile && state.profile.display_name) saved.name = state.profile.display_name;
+    INTRO_FIELDS.forEach(f => {
+      const el = document.getElementById('iq-' + f);
+      if (!el) return;
+      el.value = saved[f] || '';
+      el.oninput = () => { try { localStorage.setItem(introKey('answers'), JSON.stringify(readIntroAnswers())); } catch(_) {} };
+    });
+    const c = $('#introPromptCopied'); if (c) c.classList.remove('show');
+    let post = '';
+    try { post = localStorage.getItem(introKey('post')) || ''; } catch(_) {}
+    if (post) { renderGeneratedPost(post, task); $('#introWriteBtn').textContent = '✍️ Write it again with my answers'; return; }
+    const readyEl = $('#readyPost');
+    readyEl.innerHTML = '<div style="text-align:center;color:var(--muted);padding:18px 12px;font-size:13px;">Your intro post appears here after you tap <b>Write my intro post</b>.</div>';
+    const copyBtn = readyEl.parentElement && readyEl.parentElement.querySelector('.big-copy');
+    if (copyBtn) copyBtn.style.display = 'none';
+    const regen = document.getElementById('regenBtn'); if (regen) regen.style.display = 'none';
+    $('#introWriteBtn').textContent = '✍️ Write my intro post';
+  }
+  window.writeIntroPost = async function() {
+    if (_genInFlight) return;
+    const answers = readIntroAnswers();
+    if (!['place','now','why','help','fact'].some(f => answers[f])) {
+      alert('Answer at least one question so the post is really about you.');
+      return;
+    }
+    try { localStorage.setItem(introKey('answers'), JSON.stringify(answers)); } catch(_) {}
+    const task = currentTask();
+    const readyEl = $('#readyPost');
+    const btn = $('#introWriteBtn');
+    _genInFlight = true; btn.disabled = true;
+    readyEl.innerHTML = '<div style="text-align:center;color:var(--muted);padding:24px 12px;"><div class="spinner" style="margin-bottom:12px;"></div><div style="font-size:13px;">Writing your intro post from your answers...</div></div>';
+    readyEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    try {
+      const r = await aiFetch(C.introPostUrl || '/api/intro-post', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ answers, displayName: state.profile && state.profile.display_name, seed: Math.floor(Math.random() * 1000000) })
+      });
+      const data = await r.json();
+      if (!r.ok || !data.post) { readyEl.textContent = 'Could not write your post. ' + (data.error || '') + ' Tap the button to try again.'; return; }
+      try { localStorage.setItem(introKey('post'), data.post); } catch(_) {}
+      renderGeneratedPost(data.post, task || { intro: true });
+      const regen = document.getElementById('regenBtn'); if (regen) regen.style.display = '';
+      btn.textContent = '✍️ Write it again with my answers';
+    } catch (e) {
+      readyEl.textContent = 'Network error. Tap the button to try again.';
+    } finally {
+      _genInFlight = false; btn.disabled = false;
+    }
+  };
+  window.copyIntroPrompt = function() {
+    copyString(INTRO_PROMPT);
+    const c = $('#introPromptCopied'); if (c) { c.classList.add('show'); setTimeout(() => c.classList.remove('show'), 3000); }
+  };
 
   // ============================================================
   // SUBTASK CHECKLIST — per-task progress counter, localStorage persisted
@@ -1250,7 +1343,9 @@ Here is the Facebook post:
       $('#path-a').style.display = 'block'; $('#path-b').style.display = 'none';
       $('#safeBadge').textContent = t.safetyNote || 'Safe to post — written for you, no fake claim.';
       switchPath('a');
-      generatePersonalPost(t);
+      const iq = $('#introQs');
+      if (iq) iq.style.display = t.intro ? 'block' : 'none';
+      if (t.intro) showIntroQuestions(t); else generatePersonalPost(t);
     } else {
       pathTabs.classList.remove('show');
       $('#path-a').style.display = 'none'; $('#path-b').style.display = 'none';
@@ -1292,7 +1387,9 @@ Here is the Facebook post:
   window.copyReady = function() {
     const text = $('#readyPost').textContent;
     copyString(text);
-    alert('Copied. Now open Facebook → "What\'s on your mind?" → paste → Post.');
+    const t = currentTask();
+    if (t && t.intro) alert('Copied. Open Facebook → "What\'s on your mind?" → paste → Post. Then tap the 3 dots (…) on your new post → "Pin post" so it stays at the top of your profile.');
+    else alert('Copied. Now open Facebook → "What\'s on your mind?" → paste → Post.');
   };
 
   window.pasteFromClipboard = async function() {
