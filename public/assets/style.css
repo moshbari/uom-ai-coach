@@ -1849,6 +1849,16 @@ textarea::placeholder { color: var(--muted-soft); }
 .posts-note { margin-top: 10px; padding: 10px 12px; border-radius: 10px; background: var(--bg-surface); border: 1px dashed var(--border); font-size: 13px; line-height: 1.45; color: var(--muted); }
 
 /* ===== Day 7 intro post questions ===== */
+.intro-qs .iq-rule { font-size: 13px; line-height: 1.5; color: var(--ivory-soft); background: var(--bg-surface); border-left: 3px solid var(--terracotta); border-radius: 8px; padding: 9px 11px; margin: 4px 0 6px; }
+.intro-qs .iq-kicker { font-size: 10px; letter-spacing: 2.5px; font-weight: 700; color: var(--gold-deep); margin-bottom: 4px; }
+.intro-qs .iq-hook { display: block; width: 100%; max-width: 340px; margin: 4px auto 6px; color: var(--gold); }
+.intro-qs .iq-hook .iq-pain { fill: var(--terracotta); }
+.intro-qs .iq-step { display: flex; gap: 10px; align-items: flex-start; margin-top: 14px; }
+.intro-qs .iq-num { flex: 0 0 26px; height: 26px; border-radius: 50%; background: var(--gold); color: #fff; font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center; margin-top: 1px; }
+.intro-qs .iq-body { flex: 1; min-width: 0; }
+.intro-qs .iq-step label { margin-top: 0; line-height: 1.4; }
+.intro-qs .iq-tag { display: inline-block; font-size: 10px; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; color: var(--gold-deep); background: var(--bg-surface); border: 1px solid var(--border); border-radius: 6px; padding: 1px 6px; margin-right: 6px; vertical-align: 1px; }
+
 .intro-qs { background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 14px; padding: 16px; margin-bottom: 14px; }
 .intro-qs .iq-h { font-size: 15px; font-weight: 700; color: var(--gold); margin-bottom: 6px; }
 .intro-qs .iq-sub { font-size: 13px; color: var(--muted); line-height: 1.5; margin-bottom: 10px; }

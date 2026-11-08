@@ -518,25 +518,68 @@
 
       <div id="path-a" class="path on">
         <div class="intro-qs" id="introQs" style="display:none;">
-          <div class="iq-h">&#x270D;&#xFE0F; Your intro post &mdash; tell us about you</div>
-          <div class="iq-sub">This is the post people see first when they tap your name. Short answers are fine, in any language. Skip anything you don't want to share. The AI only uses what you write, it never makes things up.</div>
-          <label for="iq-name">What name should people call you?</label>
-          <input id="iq-name" type="text" placeholder="e.g. Rahim">
-          <label for="iq-place">Where do you live?</label>
-          <input id="iq-place" type="text" placeholder="e.g. Sylhet, or London">
-          <label for="iq-now">What do you do now, or what did you do before?</label>
-          <textarea id="iq-now" rows="2" placeholder="e.g. I work in a shop. Or: student. Or: mum of two."></textarea>
-          <label for="iq-why">Why did you start learning to earn online?</label>
-          <textarea id="iq-why" rows="2" placeholder="e.g. I want more time with my family"></textarea>
-          <label for="iq-help">Who do you want to help, and with what?</label>
-          <textarea id="iq-help" rows="2" placeholder="e.g. people who want to start online with no money"></textarea>
-          <label for="iq-fact">One true thing about you people would like to know <span class="iq-opt">(optional)</span></label>
-          <textarea id="iq-fact" rows="2" placeholder="e.g. I learned English from YouTube"></textarea>
-          <button type="button" class="iq-write" id="introWriteBtn" onclick="writeIntroPost()">&#x270D;&#xFE0F; Write my intro post</button>
+          <div class="iq-kicker">THE HOOK PITCH &middot; DANIEL PRIESTLEY</div>
+          <div class="iq-h">Your pinned post, built like a pitch</div>
+          <div class="iq-sub">When people tap your name, this is the first thing they read. Daniel Priestley's Hook Pitch tells them who you are and why to follow you in 30 seconds. Answer 6 short questions, in any language. Only write what is true.</div>
+          <div class="iq-rule"><b>The golden rule:</b> all 6 answers talk to the <b>same people</b> about the <b>same problem</b>. Your trust point, what your page gives them, and the change you want for them all point at their pain. That is what makes them follow you.</div>
+          <svg class="iq-hook" viewBox="0 -4 320 124" role="img" aria-label="Hook shape: Name, Same and Fame start high, the story dips to Pain, then rises through Aim to Game">
+            <path d="M18 26 C 70 26, 95 98, 160 98 C 225 98, 250 60, 300 18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" opacity="0.55"/>
+            <g font-size="11" font-weight="700" text-anchor="middle" fill="currentColor">
+              <circle cx="18" cy="26" r="5"/><text x="18" y="14">Name</text>
+              <circle cx="72" cy="40" r="5"/><text x="72" y="28" dx="6">Same</text>
+              <circle cx="113" cy="78" r="5"/><text x="96" y="94">Fame</text>
+              <circle cx="160" cy="98" r="6" class="iq-pain"/><text x="160" y="116" class="iq-pain">Pain</text>
+              <circle cx="232" cy="84" r="5"/><text x="250" y="102">Aim</text>
+              <circle cx="300" cy="18" r="5"/><text x="300" y="9">Game</text>
+            </g>
+          </svg>
+          <div class="iq-step">
+            <div class="iq-num">1</div>
+            <div class="iq-body">
+              <label for="iq-name"><span class="iq-tag">Name</span>Your name, who you help, and with what</label>
+              <input id="iq-name" type="text" placeholder="e.g. I'm Rahim. I help small shop owners get buyers from Facebook.">
+            </div>
+          </div>
+          <div class="iq-step">
+            <div class="iq-num">2</div>
+            <div class="iq-body">
+              <label for="iq-same"><span class="iq-tag">Same</span>What is it like that people already know?</label>
+              <textarea id="iq-same" rows="3" placeholder="e.g. Like a free sales assistant for your shop, right inside Facebook."></textarea>
+            </div>
+          </div>
+          <div class="iq-step">
+            <div class="iq-num">3</div>
+            <div class="iq-body">
+              <label for="iq-fame"><span class="iq-tag">Fame</span>Why should THESE people trust you on THIS problem? One true thing <span class="iq-opt">(skip if nothing yet)</span></label>
+              <textarea id="iq-fame" rows="3" placeholder="e.g. I've run my own shop in Sylhet for 8 years. I know how slow days feel."></textarea>
+            </div>
+          </div>
+          <div class="iq-step">
+            <div class="iq-num">4</div>
+            <div class="iq-body">
+              <label for="iq-pain"><span class="iq-tag">Pain</span>What hurts your audience? Say it the way they would say it</label>
+              <textarea id="iq-pain" rows="3" placeholder="e.g. We post every day, even pay for ads… and still no buyers."></textarea>
+            </div>
+          </div>
+          <div class="iq-step">
+            <div class="iq-num">5</div>
+            <div class="iq-body">
+              <label for="iq-aim"><span class="iq-tag">Aim</span>What will they get from your page? What you post, and how it helps them</label>
+              <textarea id="iq-aim" rows="3" placeholder="e.g. Every day, one simple post idea that brings buyers without paying for ads."></textarea>
+            </div>
+          </div>
+          <div class="iq-step">
+            <div class="iq-num">6</div>
+            <div class="iq-body">
+              <label for="iq-game"><span class="iq-tag">Game</span>What change do you want to help them make?</label>
+              <textarea id="iq-game" rows="3" placeholder="e.g. Help every small shop get messages from real buyers, without ads."></textarea>
+            </div>
+          </div>
+          <button type="button" class="iq-write" id="introWriteBtn" onclick="writeIntroPost()">&#x270D;&#xFE0F; Write my pinned post</button>
           <details class="iq-gpt">
             <summary>Prefer ChatGPT? Copy a prompt that asks you these questions</summary>
-            <div class="iq-sub">Paste it into ChatGPT (or any AI). It asks you one question at a time, then writes your intro post in 3 versions.</div>
-            <button type="button" class="iq-gpt-btn" onclick="copyIntroPrompt()">Copy the intro post prompt</button>
+            <div class="iq-sub">Paste it into ChatGPT (or any AI). It asks the 6 Hook Pitch questions one at a time, then writes your pinned post in 3 versions.</div>
+            <button type="button" class="iq-gpt-btn" onclick="copyIntroPrompt()">Copy the Hook Pitch prompt</button>
             <div class="iq-copied" id="introPromptCopied">Copied. Open ChatGPT and paste.</div>
           </details>
         </div>

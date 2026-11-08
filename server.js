@@ -766,15 +766,34 @@ Write the post now. Make it unique to this member based on their learnings above
 // ============================================================
 // INTRO POST — the pinned "who I am" post, written from the member's own answers
 // ============================================================
-const INTRO_POST_PROMPT = `You write the pinned INTRO post for a beginner's Facebook profile. Strangers who see their comments click their name and land here, so this post must tell them in 20 seconds who this person is and why to follow.
+const INTRO_POST_PROMPT = `You write the pinned Facebook post for a beginner, using Daniel Priestley's HOOK PITCH (Key Person of Influence): Name, Same, Fame, Pain, Aim, Game. Strangers who see their comments tap their name and land here. In 30 seconds this post must make the RIGHT people think "this page is for me" and follow.
 
-You get the member's own answers to a few questions. Rules:
-- Use ONLY facts in the answers, and use EVERY answer that was given (including where they live). Never invent a job, a city, money, results, family details or a story. If an answer is empty, leave that part out.
-- "What people will see on this page" = only the thing they said they want to help with, plus their own honest journey as they learn (written in their language, never as English words inside a Bangla post). Never add other topics (no recipes, tips or resources they did not mention).
-- No income claims, no "I made $X", no promises of results to the reader.
+THE GOLDEN RULE: the whole pitch is about the AUDIENCE. Every part points at the same people and the same pain:
+- Fame proves the member understands THIS audience's problem.
+- Aim tells the reader exactly what they will GET from this page (what is posted, how often, how it helps them).
+- Game is the change the member wants to help THEM make.
+So the reader feels: you know my pain → you can be trusted on it → here is how your page relieves it → here is where it can lead me.
+
+Write it in the hook shape: start high, dip into the pain, rise to the benefit.
+1. Name: their name + who they help + with what. First line, so it must stop a stranger scrolling.
+2. Same: what it is like, so people get it in one second.
+3. Fame: the one true reason this audience can trust them on this problem. If it is empty, leave it out completely.
+4. Pain: the audience's pain in the audience's own words, the most vivid part ("You post every day… and nothing.").
+5. Aim: what the reader gets from following this page and how it helps them. Make the benefit clear and concrete, using only what the member said.
+6. Game: the change the member wants to help the reader make (a mission, never a guarantee).
+7. Last line: ONE thing only. Either invite the right people to follow for that benefit, or ask one question they can answer in one word. Not both. No hype words (transform, boost, skyrocket, explode).
+
+Make it FLOW like a pitch someone says out loud, not a form read back:
+- Do NOT copy each answer as its own line. Polish the member's words and join the parts with natural links ("That's why…", "So here's what you'll get…", "My dream?").
+- If an answer drifts away from the audience's pain, tie it back to the audience using only the member's facts.
+- Keep it tight. Every line earns its place.
+
+Rules:
+- Use ONLY facts in the answers. Never invent a job, a place, numbers, money, results, family details or a story. If an answer is empty, leave that part out.
+- No income claims, no "I made $X", no promises or guarantees of results to the reader.
 - Write in the SAME language the member used in their answers (Bangla answers → Bangla post, English → English, mixed → the same mix).
-- Shape: a warm opening line with their name → where they are in life now (honest, beginner is fine) → why they started → who they want to help and with what → what people will see on this page → one friendly question that is easy to answer.
-- 7 to 10 short lines, one blank line between lines. 5th-grade reading level. It must sound like a real person talking, not an ad.
+- 8 to 12 short lines, one blank line between lines. 5th-grade reading level. A real person talking, not an ad.
+- Never print the labels (Name, Same, Fame, Pain, Aim, Game) in the post.
 - At most 2 emojis. No hashtags. No links.
 
 Output ONLY the finished post. No preamble, no quotation marks, no labels.`;
@@ -786,23 +805,23 @@ app.post('/api/intro-post', async (req, res) => {
     const a = b.answers || {};
     const clip = v => String(v || '').trim().slice(0, 600);
     const lines = [
-      ['Name', clip(a.name) || clip(b.displayName)],
-      ['Where they live', clip(a.place)],
-      ['What they do now / did before', clip(a.now)],
-      ['Why they started online', clip(a.why)],
-      ['Who they want to help, and with what', clip(a.help)],
-      ['A true fact about them', clip(a.fact)]
+      ['NAME (name + who they help + with what)', clip(a.name) || clip(b.displayName)],
+      ['SAME (what it is like)', clip(a.same)],
+      ['FAME (why this audience can trust them on this problem)', clip(a.fame)],
+      ['PAIN (the audience\'s pain, in their words)', clip(a.pain)],
+      ['AIM (what the reader gets from this page)', clip(a.aim)],
+      ['GAME (the change they want to help the reader make)', clip(a.game)]
     ];
-    if (!lines.slice(1).some(([, v]) => v)) return res.status(400).json({ error: 'Answer at least one question so the post is really about you.' });
+    if (!clip(a.pain) && !clip(a.aim)) return res.status(400).json({ error: 'Answer at least Pain or Aim. That is the heart of your pitch.' });
     const userMessage = lines.map(([k, v]) => `${k}: ${v || '(no answer — leave out)'}`).join('\n')
-      + `\nVariation seed: ${b.seed || Math.floor(Math.random() * 100000)}\n\nWrite the intro post now.`;
+      + `\nVariation seed: ${b.seed || Math.floor(Math.random() * 100000)}\n\nWrite the Hook Pitch post now.`;
     const r = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${OPENAI_API_KEY}` },
       body: JSON.stringify({
         model: 'gpt-4o-mini',
         messages: [ { role: 'system', content: INTRO_POST_PROMPT }, { role: 'user', content: userMessage } ],
-        max_tokens: 600, temperature: 0.85
+        max_tokens: 700, temperature: 0.85
       })
     });
     const data = await r.json();

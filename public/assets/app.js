@@ -95,17 +95,17 @@
       subtasks: [ { id:"thread", label:"Viral thread shipped", goal:1 }, { id:"profile", label:"Profile photo + 1-line bio", goal:1 }, { id:"comments", label:"Comment Squad comments", goal:10 }, { id:"clip", label:"🎬 Video bonus (optional): Clip Maker session", goal:1, optional:true } ],
       devrantTool:{ route:"/laboratory", label:"Open RANT Squad" }
     },
-    { day:7, title:"Pinned intro post + thread + 14 comments (50 total — 🎉 Week 1 Done)", time:"⏱ 45 min",
+    { day:7, title:"Pinned Hook Pitch post + thread + 14 comments (50 total — 🎉 Week 1 Done)", time:"⏱ 45 min",
       why:"End of Week 1. You just crossed 50 Comment Squad comments. Your profile sells you. Your daily posting + comments habit is alive.",
-      source:"<b>SOURCE:</b> Phillippa Lally, UCL European Journal of Social Psychology (2009).",
+      source:"<b>SOURCE:</b> Daniel Priestley, Key Person of Influence — the Hook Pitch (Name, Same, Fame, Pain, Aim, Game). Phillippa Lally, UCL European Journal of Social Psychology (2009) — habits.",
       steps:[
-        "Answer the short questions below → the AI writes your intro post → post it → pin it to the top of your profile",
+        "Answer the 6 Hook Pitch questions below (Daniel Priestley) → the AI writes your pinned post → post it → pin it to the top of your profile",
         "RANT Squad → Viral Thread Publisher → post a thread",
         "14 Comment Squad comments on big posts (this push puts you at 50 cumulative)",
         "VIDEO BONUS (optional): Clip Maker run #2 → post the best clip"
       ],
       type:"posting", badge:"🎉 Week 1 Done — Day 7", badge_key:"week_1_done",
-      subtasks: [ { id:"welcome", label:"Intro post posted + pinned", goal:1 }, { id:"thread", label:"Viral thread shipped", goal:1 }, { id:"comments", label:"Comment Squad comments", goal:14 }, { id:"clip", label:"🎬 Video bonus (optional): Clip Maker session #2", goal:1, optional:true } ],
+      subtasks: [ { id:"welcome", label:"Hook Pitch post posted + pinned", goal:1 }, { id:"thread", label:"Viral thread shipped", goal:1 }, { id:"comments", label:"Comment Squad comments", goal:14 }, { id:"clip", label:"🎬 Video bonus (optional): Clip Maker session #2", goal:1, optional:true } ],
       frameworkHint:"An HONEST WELCOME pinned post. Style: Dan Koe contrarian opener ('Most people scroll all day and remember nothing — I am trying something different'). Mention the member has been shipping content with AI agents for a week. End with an inviting question.",
       intro:true,
       safetyNote:"✓ Honest — written only from your own answers. Nothing made up.",
@@ -1030,27 +1030,40 @@ Here is the Facebook post:
   // ============================================================
   // INTRO POST (Day 7) — a few questions → the member's own pinned intro post
   // ============================================================
-  const INTRO_FIELDS = ['name', 'place', 'now', 'why', 'help', 'fact'];
-  const INTRO_PROMPT = `You are helping me write my pinned INTRO post for my Facebook profile. People who see my comments will tap my name and read this post first.
+  const INTRO_FIELDS = ['name', 'same', 'fame', 'pain', 'aim', 'game'];
+  const INTRO_PROMPT = `You are helping me write my pinned post for my Facebook profile, using Daniel Priestley's Hook Pitch (from his book Key Person of Influence): Name, Same, Fame, Pain, Aim, Game. People who see my comments will tap my name and read this post first. It must make the RIGHT people think "this page is for me" and follow.
 
-Ask me these questions ONE AT A TIME. Wait for my answer before you ask the next one. Keep each question short and friendly. If I answer in Bangla (or any other language), switch to that language.
-1. What name should people call you?
-2. Where do you live?
-3. What do you do now, or what did you do before?
-4. Why did you start learning to earn online?
-5. Who do you want to help, and with what?
-6. One true thing about you people would like to know (I can skip this one).
+Ask me these 6 questions ONE AT A TIME. Wait for my answer before you ask the next one. Give one short example with each question. If I answer in Bangla (or any other language), switch to that language.
+1. NAME: Your name, who you help, and with what.
+2. SAME: What is it like that people already know? (e.g. "like a free sales assistant, right inside Facebook")
+3. FAME: Why should these people trust you on this problem? One TRUE thing. (I can skip this if I have nothing yet.)
+4. PAIN: What hurts your audience? Say it the way they would say it.
+5. AIM: What will they get from your page? What you post, and how it helps them.
+6. GAME: What change do you want to help them make?
 
-When I have answered, write my intro post:
-- Use ONLY what I told you, and use every answer I gave. Never invent a job, a place, money, results or a story.
-- For "what people will see on my page", only use what I said I want to help with, plus my honest journey as I learn. Do not add other topics.
-- No income claims and no promises to the reader.
-- Write it in the same language I answered in.
-- Shape: a warm opening with my name → where I am in life now (being a beginner is fine) → why I started → who I want to help and with what → what people will see on my page → one easy, friendly question at the end.
-- 7 to 10 short lines with a blank line between them. Simple words. It must sound like a real person talking, not an ad.
+If one of my answers drifts away from my audience and their pain, ask me one short follow-up question to bring it back.
+
+THE GOLDEN RULE: the whole post is about my audience. Fame proves I understand their problem, Aim says exactly what they get from my page, Game is the change I want to help them make. All of it points at their pain.
+
+Write my pinned post in the hook shape (start high, dip into the pain, rise to the benefit):
+- Name: my name + who I help + with what. The first line must stop a stranger scrolling.
+- Same: what it is like, so people get it in one second.
+- Fame: one true reason they can trust me. If I skipped it, leave it out. Never invent one.
+- Pain: their pain in their own words, the most vivid part.
+- Aim: what they get from following my page and how it helps them.
+- Game: the change I want to help them make (a mission, never a guarantee).
+- Last line: ONE thing only. Either invite the right people to follow for that benefit, or ask one question they can answer in one word. Not both. No hype words (transform, boost, skyrocket).
+
+Make it FLOW like a pitch I would say out loud, not a form read back: polish my words and join the parts with natural links ("That's why…", "So here's what you'll get…", "My dream?").
+
+Rules:
+- Use ONLY what I told you. Never invent a job, a place, numbers, money, results or a story.
+- No income claims and no promises or guarantees to the reader.
+- Write in the same language I answered in.
+- 8 to 12 short lines with a blank line between them. Simple words. A real person talking, not an ad. Do not print the labels (Name, Same, Fame...) in the post.
 - At most 2 emojis. No hashtags. No links.
 
-Then give me 2 more versions with different opening lines so I can pick the one I like.
+Then give me 2 more versions with different first lines so I can pick the one I like.
 
 Start now with question 1.`;
 
@@ -1073,19 +1086,19 @@ Start now with question 1.`;
     const c = $('#introPromptCopied'); if (c) c.classList.remove('show');
     let post = '';
     try { post = localStorage.getItem(introKey('post')) || ''; } catch(_) {}
-    if (post) { renderGeneratedPost(post, task); $('#introWriteBtn').textContent = '✍️ Write it again with my answers'; return; }
+    if (post) { renderGeneratedPost(post, task); $('#introWriteBtn').textContent = '✍️ Write it again'; return; }
     const readyEl = $('#readyPost');
-    readyEl.innerHTML = '<div style="text-align:center;color:var(--muted);padding:18px 12px;font-size:13px;">Your intro post appears here after you tap <b>Write my intro post</b>.</div>';
+    readyEl.innerHTML = '<div style="text-align:center;color:var(--muted);padding:18px 12px;font-size:13px;">Your pinned post appears here after you tap <b>Write my pinned post</b>.</div>';
     const copyBtn = document.getElementById('copyReadyBtn');
     if (copyBtn) copyBtn.style.display = 'none';
     const regen = document.getElementById('regenBtn'); if (regen) regen.style.display = 'none';
-    $('#introWriteBtn').textContent = '✍️ Write my intro post';
+    $('#introWriteBtn').textContent = '✍️ Write my pinned post';
   }
   window.writeIntroPost = async function() {
     if (_genInFlight) return;
     const answers = readIntroAnswers();
-    if (!['place','now','why','help','fact'].some(f => answers[f])) {
-      alert('Answer at least one question so the post is really about you.');
+    if (!answers.pain && !answers.aim) {
+      alert('Answer at least Pain (question 4) or Aim (question 5). That is the heart of your pitch.');
       return;
     }
     try { localStorage.setItem(introKey('answers'), JSON.stringify(answers)); } catch(_) {}
@@ -1093,7 +1106,7 @@ Start now with question 1.`;
     const readyEl = $('#readyPost');
     const btn = $('#introWriteBtn');
     _genInFlight = true; btn.disabled = true;
-    readyEl.innerHTML = '<div style="text-align:center;color:var(--muted);padding:24px 12px;"><div class="spinner" style="margin-bottom:12px;"></div><div style="font-size:13px;">Writing your intro post from your answers...</div></div>';
+    readyEl.innerHTML = '<div style="text-align:center;color:var(--muted);padding:24px 12px;"><div class="spinner" style="margin-bottom:12px;"></div><div style="font-size:13px;">Writing your pinned post from your Hook Pitch...</div></div>';
     readyEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
     try {
       const r = await aiFetch(C.introPostUrl || '/api/intro-post', {
@@ -1106,7 +1119,7 @@ Start now with question 1.`;
       try { localStorage.setItem(introKey('post'), data.post); } catch(_) {}
       renderGeneratedPost(data.post, task || { intro: true });
       const regen = document.getElementById('regenBtn'); if (regen) regen.style.display = '';
-      btn.textContent = '✍️ Write it again with my answers';
+      btn.textContent = '✍️ Write it again';
     } catch (e) {
       readyEl.textContent = 'Network error. Tap the button to try again.';
     } finally {
