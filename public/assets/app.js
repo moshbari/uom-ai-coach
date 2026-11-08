@@ -821,6 +821,7 @@ Here is the Facebook post:
     $('#greetName').textContent = state.profile.display_name || 'friend';
     refreshUI();
     renderSparks();
+    renderAdminPreview();
     if (state.todayDone) showDone();
     else nav('checkin');
     if (state.checkin.time) preselectCheckin();
@@ -878,9 +879,13 @@ Here is the Facebook post:
   // ============================================================
   // TASK RENDER
   // ============================================================
-  function currentTier() { return TIERS.find(t => t.id === state.profile.current_tier) || TIERS[0]; }
+  function currentTier() {
+    if (state.preview) return TIERS.find(t => t.id === state.preview.tier) || TIERS[0];
+    return TIERS.find(t => t.id === state.profile.current_tier) || TIERS[0];
+  }
   function currentTask() {
     const t = currentTier();
+    if (state.preview) { const pool = TASKS[t.id] || []; return pool[Math.max(0, Math.min(state.preview.day - 1, pool.length - 1))]; }
     const pool = TASKS[t.id] || [];
     // Silver has days too. It used to always show Silver Day 1, so members repeated it forever.
     if (t.id === 'bronze' || t.id === 'silver') return pool[Math.max(0, Math.min((state.profile.bronze_day || 1) - 1, pool.length - 1))];
@@ -1122,6 +1127,7 @@ Start now with question 1.`;
   function subtaskStorageKey(taskDay) {
     const tier = (state.profile && state.profile.current_tier) || 'bronze';
     const cycle = (state.profile && state.profile.cycle_started_at) || '';
+    if (state.preview) return 'uom_prev_sub_' + state.preview.tier + '_d' + (taskDay || 'x');
     return 'uom_sub_' + ((state.user && state.user.id) || 'anon') + '_' + tier + '_d' + (taskDay || 'x') + '_' + cycle.slice(0, 19);
   }
   function loadSubtaskProgress(taskDay) {
@@ -1302,6 +1308,7 @@ Start now with question 1.`;
 
   window.showTask = function() {
     renderPostsCard();
+    renderPreviewBanner();
     const t = currentTask();
     const tier = currentTier();
     const pill = $('#dayPill');
@@ -1643,6 +1650,15 @@ Start now with question 1.`;
       updateWinButtonState(t);
       return;
     }
+    if (state.preview) {
+      fireConfetti();
+      _switchScreen('done');
+      $('#dEmoji').textContent = '🛠';
+      $('#dTitle').textContent = 'Preview: this is the win screen';
+      $('#dMsg').textContent = 'A member would see this after ' + currentTier().name + ' Day ' + (t.day || 1) + '. Nothing was saved. Use the 🛠 button to open another day.';
+      try { localStorage.removeItem(subtaskStorageKey(t.day)); } catch(_) {}
+      return;
+    }
     $('#winBtn').disabled = true;
     $('#winBtn').textContent = 'Saving...';
     try {
@@ -1722,6 +1738,77 @@ Start now with question 1.`;
     $('#dEmoji').textContent = t.icon;
     $('#dTitle').textContent = 'You unlocked ' + t.name + '!';
     $('#dMsg').textContent = 'New tier. New challenges. Keep going.';
+  }
+
+  // ============================================================
+  // ADMIN PREVIEW — the admin can open ANY level + day to see what members see.
+  // Display only: nothing is saved, the admin's own progress is untouched.
+  // ============================================================
+  function isAdmin() {
+    if (state.profile && state.profile.is_admin) return true;
+    const e = (state.user && state.user.email || '').toLowerCase();
+    return !!e && e === String(C.adminEmail || '').toLowerCase();
+  }
+  function previewTiers() { return TIERS.filter(t => (TASKS[t.id] || []).length); }
+  function renderPreviewBanner() {
+    let b = document.getElementById('previewBanner');
+    if (!state.preview) { if (b) b.remove(); return; }
+    if (!b) {
+      b = document.createElement('div');
+      b.id = 'previewBanner';
+      b.className = 'preview-banner';
+      const scr = document.getElementById('s-task');
+      if (scr) scr.insertBefore(b, scr.firstChild);
+    }
+    const t = currentTier();
+    b.innerHTML = '🛠 <b>Admin preview</b> · ' + escapeHtml(t.name) + ' Day ' + state.preview.day + ' · nothing is saved';
+  }
+  function renderAdminPreview() {
+    if (!isAdmin() || document.getElementById('adminFab')) return;
+    const fab = document.createElement('button');
+    fab.id = 'adminFab'; fab.type = 'button'; fab.className = 'admin-fab';
+    fab.textContent = '🛠'; fab.title = 'Admin: preview any day';
+    const panel = document.createElement('div');
+    panel.id = 'adminPanel'; panel.className = 'admin-panel';
+    panel.innerHTML =
+      '<div class="ap-h">🛠 Admin preview</div>' +
+      '<div class="ap-sub">See any day exactly as members see it. Nothing is saved and your own progress does not change.</div>' +
+      '<label>Level</label><select id="apTier"></select>' +
+      '<label>Day</label><select id="apDay"></select>' +
+      '<div class="ap-row"><button type="button" id="apPrev">← Day before</button><button type="button" id="apNext">Next day →</button></div>' +
+      '<button type="button" class="ap-go" id="apGo">Open this day</button>' +
+      '<div class="ap-row"><button type="button" id="apCheckin">Check-in screen</button><button type="button" id="apWin">Win screen</button></div>' +
+      '<button type="button" class="ap-exit" id="apExit">Back to my real day</button>';
+    document.body.appendChild(fab); document.body.appendChild(panel);
+    const tierSel = panel.querySelector('#apTier'), daySel = panel.querySelector('#apDay');
+    previewTiers().forEach(t => { const o = document.createElement('option'); o.value = t.id; o.textContent = t.icon + ' ' + t.name + ' (' + TASKS[t.id].length + (TASKS[t.id].length === 1 ? ' day)' : ' days)'); tierSel.appendChild(o); });
+    function fillDays(keep) {
+      const pool = TASKS[tierSel.value] || [];
+      daySel.innerHTML = '';
+      pool.forEach((task, i) => { const o = document.createElement('option'); o.value = i + 1; o.textContent = 'Day ' + (i + 1) + ' — ' + (task.title || '').slice(0, 48); daySel.appendChild(o); });
+      if (keep) daySel.value = String(Math.min(keep, pool.length));
+    }
+    function open(tier, day) {
+      state.preview = { tier, day: parseInt(day, 10) || 1 };
+      tierSel.value = tier; fillDays(state.preview.day);
+      panel.classList.remove('open');
+      showTask();
+    }
+    tierSel.onchange = () => fillDays(1);
+    panel.querySelector('#apGo').onclick = () => open(tierSel.value, daySel.value);
+    panel.querySelector('#apPrev').onclick = () => { const d = parseInt(daySel.value, 10); if (d > 1) open(tierSel.value, d - 1); };
+    panel.querySelector('#apNext').onclick = () => { const d = parseInt(daySel.value, 10); if (d < (TASKS[tierSel.value] || []).length) open(tierSel.value, d + 1); };
+    panel.querySelector('#apCheckin').onclick = () => { panel.classList.remove('open'); _switchScreen('checkin'); };
+    panel.querySelector('#apWin').onclick = () => { panel.classList.remove('open'); showDone(); };
+    panel.querySelector('#apExit').onclick = () => { state.preview = null; renderPreviewBanner(); panel.classList.remove('open'); refreshUI(); if (state.todayDone) showDone(); else nav('checkin'); };
+    fab.onclick = () => {
+      if (!panel.classList.contains('open')) {
+        const tier = state.preview ? state.preview.tier : (state.profile.current_tier || 'bronze');
+        tierSel.value = previewTiers().some(t => t.id === tier) ? tier : 'bronze';
+        fillDays(state.preview ? state.preview.day : (state.profile.bronze_day || 1));
+      }
+      panel.classList.toggle('open');
+    };
   }
 
   window.goCheckin = function() { _switchScreen('checkin'); };
