@@ -1857,7 +1857,9 @@ textarea::placeholder { color: var(--muted-soft); }
 .intro-qs input, .intro-qs textarea { width: 100%; box-sizing: border-box; padding: 10px 12px; border: 1px solid var(--border); border-radius: 10px; background: var(--bg-surface); color: var(--ivory); font: inherit; font-size: 15px; resize: vertical; min-height: 0; height: auto; margin: 0; }
 .intro-qs textarea { min-height: 64px; }
 .intro-qs input:focus, .intro-qs textarea:focus { outline: none; border-color: var(--gold-light); }
-.intro-qs .big-copy { margin-top: 16px; }
+.intro-qs .iq-write { display: block; width: 100%; margin-top: 16px; padding: 15px; background: var(--gold); color: #FFFFFF; border: none; border-radius: 12px; font-size: 15px; font-weight: 700; cursor: pointer; box-shadow: var(--shadow-soft); }
+.intro-qs .iq-write:disabled { opacity: 0.6; }
+[data-theme="dark"] .intro-qs .iq-write { color: var(--bg-base); }
 .intro-qs .iq-gpt { margin-top: 12px; }
 .intro-qs .iq-gpt summary { font-size: 13px; color: var(--gold); cursor: pointer; padding: 6px 0; }
 .intro-qs .iq-gpt-btn { width: 100%; padding: 11px; background: transparent; color: var(--gold); border: 1px solid var(--gold-deep); border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; }

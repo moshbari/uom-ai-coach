@@ -960,7 +960,7 @@ Here is the Facebook post:
     readyEl.innerHTML = '<div style="text-align:center;color:var(--muted);padding:24px 12px;"><div class="spinner" style="margin-bottom:12px;"></div><div style="font-size:13px;letter-spacing:0.3px;">Writing your unique post from your sparks...</div></div>';
     const wrap = readyEl.parentElement;
     // Hide the copy button while generating
-    const copyBtn = wrap && wrap.querySelector('.big-copy'); if (copyBtn) copyBtn.style.display = 'none';
+    const copyBtn = document.getElementById('copyReadyBtn'); if (copyBtn) copyBtn.style.display = 'none';
 
     const recentSparks = (state.sparks || []).slice(0, 10).map(s => s.line);
 
@@ -998,7 +998,7 @@ Here is the Facebook post:
     const readyEl = $('#readyPost');
     readyEl.textContent = text;
     const wrap = readyEl.parentElement;
-    const copyBtn = wrap && wrap.querySelector('.big-copy');
+    const copyBtn = document.getElementById('copyReadyBtn');
     if (copyBtn) copyBtn.style.display = '';
     _ensureRegenBtn(task);
   }
@@ -1011,7 +1011,7 @@ Here is the Facebook post:
       btn.type = 'button';
       btn.textContent = '↻ Try another angle';
       btn.style.cssText = 'width:100%;padding:11px;background:transparent;color:var(--gold);border:1px solid var(--gold-deep);border-radius:10px;font-size:12px;font-weight:600;cursor:pointer;letter-spacing:0.3px;margin-bottom:12px;';
-      const copyBtn = document.querySelector('#path-a .big-copy');
+      const copyBtn = document.getElementById('copyReadyBtn');
       if (copyBtn && copyBtn.parentNode) copyBtn.parentNode.insertBefore(btn, copyBtn.nextSibling);
     }
     btn.style.display = '';
@@ -1076,7 +1076,7 @@ Start now with question 1.`;
     if (post) { renderGeneratedPost(post, task); $('#introWriteBtn').textContent = '✍️ Write it again with my answers'; return; }
     const readyEl = $('#readyPost');
     readyEl.innerHTML = '<div style="text-align:center;color:var(--muted);padding:18px 12px;font-size:13px;">Your intro post appears here after you tap <b>Write my intro post</b>.</div>';
-    const copyBtn = readyEl.parentElement && readyEl.parentElement.querySelector('.big-copy');
+    const copyBtn = document.getElementById('copyReadyBtn');
     if (copyBtn) copyBtn.style.display = 'none';
     const regen = document.getElementById('regenBtn'); if (regen) regen.style.display = 'none';
     $('#introWriteBtn').textContent = '✍️ Write my intro post';

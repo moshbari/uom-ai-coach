@@ -532,7 +532,7 @@
           <textarea id="iq-help" rows="2" placeholder="e.g. people who want to start online with no money"></textarea>
           <label for="iq-fact">One true thing about you people would like to know <span class="iq-opt">(optional)</span></label>
           <textarea id="iq-fact" rows="2" placeholder="e.g. I learned English from YouTube"></textarea>
-          <button type="button" class="big-copy" id="introWriteBtn" onclick="writeIntroPost()">&#x270D;&#xFE0F; Write my intro post</button>
+          <button type="button" class="iq-write" id="introWriteBtn" onclick="writeIntroPost()">&#x270D;&#xFE0F; Write my intro post</button>
           <details class="iq-gpt">
             <summary>Prefer ChatGPT? Copy a prompt that asks you these questions</summary>
             <div class="iq-sub">Paste it into ChatGPT (or any AI). It asks you one question at a time, then writes your intro post in 3 versions.</div>
@@ -543,7 +543,7 @@
         <div class="safe-badge" id="safeBadge">Safe to post &mdash; no personal claim made.</div>
         <div class="ready-label">Copy this post and paste on Facebook</div>
         <div class="ready-box" id="readyPost"></div>
-        <button type="button" class="big-copy" onclick="copyReady()">Copy this post</button>
+        <button type="button" class="big-copy" id="copyReadyBtn" onclick="copyReady()">Copy this post</button>
       </div>
 
       <div id="path-b" class="path">
